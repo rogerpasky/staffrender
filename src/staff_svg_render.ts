@@ -119,6 +119,12 @@ export interface MusicBlock {
 }
 
 /**
+ * Note resolution in fractions of quarter. No note shorter than 1/16 of a 
+ * quarter will be rendered. This limit equals to sixty-fourth notes. 
+ */
+export const MAX_QUARTER_DIVISION = 16; 
+
+/**
  * Enumeration of different ways of horizontal score scrolling, like paginaged
  * (PAGE is default value), note by note (NOTE) or in packed chunks by doing 
  * scroll just on bar starting (BAR).
