@@ -406,19 +406,22 @@ export class StaffSVGRender {
           // First padding if compacted. Following are placed after drawings
           width += this.config.noteSpacing;
         }
+        width += this.drawRests(this.initialRest, x + width);
       }
       else {
         x = this.width;
       }
-      width += this.drawRests(this.initialRest, x + width);
-      this.musicBlockMap.forEach ( // Music Blocks
+      this.musicBlockMap.forEach( // Music Blocks
         (musicBlock, quarters) => {
+          if (!isCompact) {
+            x = this.quartersToTime(quarters) * this.hStepSize;
+          }
           if (quarters > this.lastQ) {
-            if (!isCompact) {
-              x = this.quartersToTime(quarters) * this.hStepSize;
-            } 
             width += this.drawMusicBlock(musicBlock, x + width);
             this.lastQ = quarters;
+          }
+          else if (quarters === this.lastQ) { // Undrawn ending rests
+            width += this.drawRests(musicBlock, x + width);
           }
         }
       );
