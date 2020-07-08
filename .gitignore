@@ -1,8 +1,14 @@
-node_modules/
 # builds
 es5/
 es6/
 node/
 dist/
+
+# Project-specific files
+**/*.d.ts
+**/*.js
+
+# Yarn / npm package handling
+node_modules/
 yarn-error.log
 yarn.lock

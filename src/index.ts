@@ -16,3 +16,4 @@
  */
 
 export * from './staff_svg_render';
+export * from './staff_model';

@@ -30,7 +30,7 @@ import  {
 } from './svg_paths';
 
 import {
-  NoteInfo, StaffInfo, StaffBlock, setDetails, getNoteDetails, getBarLength, Details, StaffBlockMap,
+  NoteInfo, StaffInfo, StaffBlock, setDetails, getNoteDetails, getBarLength, Details, 
   guessClef, keySignatureAtQ, timeSignatureAtQ, KEY_ACCIDENTALS, TimeSignatureInfo, StaffNote
 } from './staff_model';
 
@@ -148,7 +148,6 @@ export class StaffSVGRender {
   private signatureCurrent: number; // Current signature beginning x position
   private signatureNext: number; // Current signature end x position
   private initialRest: StaffBlock; // initial block to hold starting rest
-  private musicBlockMap: Map<number, MusicBlock>; // Music sorted blocks
   private playingNotes: NoteInfo[]; // Highlited ones
   private scrollType: ScrollType; // Kind of scrolling if any
   private ticking: boolean; // Mutex to reduce scroll handling everhead
@@ -263,7 +262,6 @@ export class StaffSVGRender {
     this.height = 0;    
     this.width = 0;    
     // Processed notes storage and reference
-    this.musicBlockMap = new Map<number, MusicBlock>();
     this.playingNotes = [];
     this.lastBar = 0;
     this.lastQ = -1;
@@ -325,6 +323,7 @@ export class StaffSVGRender {
       this.playingNotes = keepOnPlayingNotes;
       const g = this.getGroup(activeNote);
       if (g) {
+        console.log(activeNote);
         this.playingNotes.push(activeNote); // Store to revert highlight later
         this.highlightElement(g, true);
         activeNotePosition = g.getBoundingClientRect().left - 
@@ -369,13 +368,14 @@ export class StaffSVGRender {
       else {
         x = this.width;
       }
+      const linkedNoteMap: LinkedNoteMap = new Map();
       staffBlockMap.forEach( // Music Blocks
         (staffBlock, quarters) => {
           if (!isCompact) {
             x = this.quartersToTime(quarters) * this.hStepSize;
           }
           if (quarters > this.lastQ) {
-            width += this.drawMusicBlock(staffBlock, x + width);
+            width += this.drawMusicBlock(staffBlock, x + width, linkedNoteMap);
             this.lastQ = quarters;
           }
           else if (quarters === this.lastQ) { // Undrawn ending rests
@@ -392,7 +392,7 @@ export class StaffSVGRender {
         this.width += width;
       }
       else { // Proportional staff horizontal resizing
-        const lastBlock = this.musicBlockMap.get(this.lastQ);
+        const lastBlock = staffBlockMap.get(this.lastQ);
         const endTime = 
         this.quartersToTime(this.lastQ + lastBlock.notes[0].length);
         this.width = endTime * this.config.pixelsPerTimeStep;
@@ -403,7 +403,7 @@ export class StaffSVGRender {
     return activeNotePosition;
   }
 
-  private drawMusicBlock(staffBlock: StaffBlock, x: number): number {
+  private drawMusicBlock(staffBlock: StaffBlock, x: number, linkedNoteMap: LinkedNoteMap): number {
     const quarter = staffBlock.notes[0].start;
     // Preceding bar
     let width = this.drawBarIfNeeded(quarter, x);
@@ -436,7 +436,6 @@ export class StaffSVGRender {
       stemG = createSVGGroupChild(this.musicG, 'stem');
     }
 
-    const linkedNoteMap: LinkedNoteMap = new Map();
     // Polyphonic block notes pitch part (everything but shared stem and flags)
     staffBlock.notes.forEach(
       note => {
