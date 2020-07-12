@@ -79,3 +79,25 @@ export function setFade(
   e.appendChild(animation);
   return e;
 }
+
+export function setFill(e: SVGElement, color: string) {
+  e.setAttributeNS(null, 'fill', color);
+}
+
+export function setStroke(e: SVGElement, strokeWidth: number, color: string) {
+  e.setAttributeNS(null, 'stroke-width', `${strokeWidth}`);
+  e.setAttributeNS(null, 'stroke', color);
+}
+
+export function highlightElement(e: SVGElement, color: string) {
+  e.setAttribute('fill', color);
+  e.setAttribute('stroke', color);
+}
+
+/*
+  private highlightElement(e: SVGElement, isActive: boolean) {
+    e.setAttribute('fill', this.getColor(isActive));
+    e.setAttribute('stroke', this.getColor(isActive));
+  }
+
+*/

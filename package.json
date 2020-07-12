@@ -9,12 +9,14 @@
   "unpkg": "dist/staffrender.js",
   "dependencies": {},
   "devDependencies": {
+    "http-server": "^0.11.1",
     "in-publish": "^2.0.0",
     "terser-webpack-plugin": "^1.4.1",
     "ts-loader": "^5.3.0",
     "ts-node": "^5.0.1",
     "tsify": "^3.0.4",
     "tslint": "^5.9.1",
+    "typedoc": "^0.16.10",
     "typescript": "^3.3.3333",
     "webpack": "^4.24.0",
     "webpack-cli": "^3.1.2",
@@ -28,7 +30,10 @@
     "build:node": "webpack --config webpack/node.config.ts",
     "build:clean": "rm -rf ./es5 && rm -rf ./es6 && rm -rf ./node && rm -rf ./dist",
     "build": "npm run build:clean && npm run build:es5 && npm run build:node && npm run build:es6",
-    "lint": "tslint -c ./tslint.json -p ./tsconfig.es5.json -t verbose"
+    "lint": "tslint -c ./tslint.json -p ./tsconfig.es5.json -t verbose",
+    "docs:build": "typedoc --options typedoc.json src --out docs",
+    "docs:serve": "http-server docs/",
+    "docs": "npm run docs:build && npm run docs:serve"
   },
   "author": "Pascual de Juan <pascual.dejuan@gmail.com>",
   "license": "Apache-2.0",

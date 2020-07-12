@@ -20,7 +20,8 @@ import {
 } from "./constants";
 
 import {
-  SVGNS, drawSVGPath, drawSVGText, createSVGGroupChild, setFade
+  SVGNS, drawSVGPath, drawSVGText, createSVGGroupChild, setFade, setFill,
+  setStroke, highlightElement
 } from './svg_tools';
 
 import  {
@@ -30,38 +31,10 @@ import  {
 } from './svg_paths';
 
 import {
-  NoteInfo, StaffInfo, StaffBlock, setDetails, getNoteDetails, getBarLength, Details, 
-  guessClef, keySignatureAtQ, timeSignatureAtQ, KEY_ACCIDENTALS, TimeSignatureInfo, StaffNote
+  NoteInfo, StaffInfo, StaffBlock, setDetails, getNoteDetails, getBarLength, 
+  Details, guessClef, keySignatureAtQ, timeSignatureAtQ, KEY_ACCIDENTALS, 
+  TimeSignatureInfo, StaffNote
 } from './staff_model';
-
-export interface LinkedSVGDetails {
-  xHeadRight: number; // x position at the right of the note head to draw ties
-  g?: SVGElement; // SVG Group to hold tied notes into
-}
-
-type LinkedNoteMap = Map<StaffNote, LinkedSVGDetails>;
-
-export interface QNote {
-  start: number; // In quarter note quantities (float)
-  length: number; // In quarter note quantities (float)
-  pitch: number; // MIDI/Protobuf pitch needed to name SVG Group
-  vSteps: number; // In score steps (int, 2 per staff line), vertically invert.
-  accidental: number; // Kind: -1 = natural, 0 = none, 1 = accidental
-
-  tiedFrom?: QNote; // Reference to previous tied note
-
-  opacity: number; // from 0.0 (fully transparent) to 1.0 (fully opaque)
-  xHeadRight: number; // x position at the right of the note head to draw ties
-  g?: SVGElement; // SVG Group to hold tied notes into
-}
-  
-export interface MusicBlock {
-  maxVStep: number;
-  minVStep: number;
-  restToNextLength: number;
-  isBarBeginning: boolean;
-  notes: QNote[];
-}
 
 /**
  * Note resolution in fractions of quarter. No note shorter than 1/16 of a 
@@ -75,46 +48,83 @@ export const MAX_QUARTER_DIVISION = 16;
  * scroll just on bar starting (BAR).
  */
 export enum ScrollType {
+  /** 
+   * Paginated horizontal scrolling, advancing the scroll to next page once a
+   * out of screen note is highlited, considering each page what horizontally 
+   * fits on one screen. This is the default value.
+   */
   PAGE = 0,
+  /**
+   * Note by note horizontal scrolling, advancing the scroll to center on 
+   * screen every new highlighted note.
+   */
   NOTE = 1,
+  /**
+   * Per bar horizontal scrolling, advancing the scroll to center the beginning
+   * of a new starting bar once its first note is highlighted.
+   */
   BAR = 2
 }
 
 /**
  * An interface for providing configurable properties to a StaffRender.
- * @param noteHeight The vertical height in pixels of a note.
- * @param noteSpacing Number of horizontal pixels between each note.
- * @param pixelsPerTimeStep The horizontal scale at which notes are drawn. The
- * bigger this value, the "wider" a note looks.
- * @param noteRGB The color (as an RGB comma separated string) of a note.
- * @param activeNoteRGB The color (as an RGB comma separated string) of an
- * active note being played.
- * @param defaultKey The musical key the score must use to adapt the score to 
- * the right accidentals. It can be overwritten with 
- * `StaffInfo.keySignatures` value at time or step 0. If not assigned it 
- * will be asumed C key.
- * @param scrollType Sets scrolling to follow scoreplaying in different ways 
- * according to `ScrollType` enum values.
  */
 export interface StaffRenderConfig {
+  /** The vertical height in pixels of a note */
   noteHeight?: number;
+  /** Number of horizontal pixels between each note */
   noteSpacing?: number;
+  /** 
+   * The horizontal scale at which notes are drawn (the bigger this value, 
+   * the "wider" a note looks)
+   */
   pixelsPerTimeStep?: number;
+  /** The color (as an RGB comma separated string) of a non played note */
   noteRGB?: string;
+  /** 
+   * The color (as an RGB comma separated string) of an active note being 
+   * played
+   */
   activeNoteRGB?: string;
+  /**
+   * The musical key the score must use to adapt the score to the right 
+   * accidentals. It can be overwritten with `StaffInfo.keySignatures` 
+   * value at time or step 0. If not assigned it will be asumed C key.
+   */
   defaultKey?: number;
+  /**
+   * Sets scrolling to follow scoreplaying in different ways according to 
+   * `ScrollType` enum values.
+   */
   scrollType?: ScrollType;
 }
 
 /**
- * Displays a `StaffInfo` as a staff on a given DIV. Staff is scaled to fit 
- * vertically `config.noteHeight` and note horizontal position can behave in 
- * two different ways: If `config.pixelsPerTimeStep` is greater than zero, 
- * horizontal position will be proportional to its starting time, allowing to 
- * pile several instances for different voices (parts). Otherwise, resulting 
- * staff will display notes in a compact form, using minimum horizontal space 
- * between musical symbols as regular paper staff does. 
+ * An interface to hold temporary information for visual rendering
+ */
+interface LinkedSVGDetails {
+  /** x position at the right of the note head to draw ties */
+  xHeadRight: number;
+  /** SVG Group to hold tied notes into */
+  g?: SVGElement;
+}
+
+/**
+ * The temporary map to locate linked visual resources on bindings
+ */
+type LinkedNoteMap = Map<StaffNote, LinkedSVGDetails>;
+
+/**
+ * Displays a `StaffInfo` as a staff on a given `DIV`. 
  * 
+ * Staff is scaled to fit vertically `config.noteHeight` and note horizontal 
+ * position can behave in two different ways: If `config.pixelsPerTimeStep` 
+ * is greater than zero, horizontal position will be proportional to its 
+ * starting time, allowing to pile several instances for different voices 
+ * (parts). Otherwise, resulting staff will display notes in a compact form, 
+ * using minimum horizontal space between musical symbols as regular paper 
+ * staff does.
+ *
  * Clef, key and time signature will be displayed at the leftmost side and the 
  * rest of the staff will scroll under this initial signature area accordingly.
  * In case of proportional note positioning, given it starts at pixel zero, the
@@ -122,45 +132,77 @@ export interface StaffRenderConfig {
  * Key and time signature changes will be shown accordingly through score.
  */
 export class StaffSVGRender {
-  public staffInfo: StaffInfo; // The actual music score data to be rendered
-  private config: StaffRenderConfig; // How it has to be rendered
-  private height: number; // Full score height (pixels)
-  private width: number; // Full score width (pixels)
-  private parentElement: HTMLElement; // Upper container
-  private div: HTMLDivElement; // Overall staff container
-  private staffSVG: SVGSVGElement; // Main staff drawing area 
-  private staffG: SVGElement; // Staff container for vertical repositioning
-  private linesG: SVGElement; // Acting as background layer 
-  private musicG: SVGElement; // Acting as middle plane layer
-  private signaturesG: SVGElement; // Acting as foreground layer
-  private overlaySVG: SVGSVGElement; // Overlay signature drawing area
-  private overlayG: SVGElement; // Overlay container for vertical repositioning
-  private signaturesQuarters: number; // When to stop blinking (in quarters)
-  private signaturesBlinking: boolean; // Signatures displaying mode switch 
-  private scale: number; // General scale appliable to all SVG elements
-  private vStepSize: number; // Vertical factor in pixels (2 vStep/staff line)
-  private hStepSize: number; // Horizontal factor in pixels (1 hStep/time unit)
-  private staffOffset: number; // Vertical SVG distance to middle staff line
-  private clef: number; // MIDI pitch note at the 3rd line (G clef -> B = 71)
-  private currentKey: number; // Coded in semitones (0 = C, 1 = C#, ... 11 = B)
-  private currentTimeSignature: TimeSignatureInfo; // Like 3/4
-  private signaturesList: Array<{x: number; q: number}>; // x positions
-  private signatureCurrent: number; // Current signature beginning x position
-  private signatureNext: number; // Current signature end x position
-  private initialRest: StaffBlock; // initial block to hold starting rest
-  private playingNotes: NoteInfo[]; // Highlited ones
-  private scrollType: ScrollType; // Kind of scrolling if any
-  private ticking: boolean; // Mutex to reduce scroll handling everhead
-  private lastKnownScrollLeft: number; // Optimized scroll value
-  private lastQ: number; // Last drawn block start time in quarters
-  private lastBar: number; // Time when last bar started in quarters
+  /** The actual music score data to be rendered */
+  public staffInfo: StaffInfo;
+  /** How it has to be rendered */
+  private config: StaffRenderConfig;
+  /** Full score height (pixels) */
+  private height: number;
+  /** Full score width (pixels) */
+  private width: number;
+  /** Upper container */
+  private parentElement: HTMLElement;
+  /** Overall staff container */
+  private div: HTMLDivElement;
+  /** Main staff drawing area */
+  private staffSVG: SVGSVGElement;
+  /** Staff container for vertical repositioning */
+  private staffG: SVGElement;
+  /** Acting as background layer */
+  private linesG: SVGElement;
+  /** Acting as middle plane layer */
+  private musicG: SVGElement;
+  /** Acting as foreground layer */
+  private signaturesG: SVGElement;
+  /** Overlay signature drawing area */
+  private overlaySVG: SVGSVGElement;
+  /** Overlay container for vertical repositioning */
+  private overlayG: SVGElement;
+  /** When to stop blinking (in quarters) */
+  private signaturesQuarters: number;
+  /** Signatures displaying mode switch */
+  private signaturesBlinking: boolean;
+  /** General scale appliable to all SVG elements */
+  private scale: number;
+  /** Vertical factor in pixels (2 vStep/staff line) */
+  private vStepSize: number;
+  /** Horizontal factor in pixels (1 hStep/time unit) */
+  private hStepSize: number;
+  /** Vertical SVG distance to middle staff line */
+  private staffOffset: number;
+  /** MIDI pitch note at the 3rd line (G clef -> B = 71) */
+  private clef: number;
+  /** Coded in semitones (0 = C, 1 = C#, ... 11 = B) */
+  private currentKey: number;
+  /** Like 3/4 */
+  private currentTimeSignature: TimeSignatureInfo;
+  /** x positions */
+  private signaturesList: Array<{x: number; q: number}>;
+  /** Current signature beginning x position */
+  private signatureCurrent: number;
+  /** Current signature end x position */
+  private signatureNext: number;
+  /** initial block to hold starting rest */
+  private initialRest: StaffBlock;
+  /** Highlited ones */
+  private playingNotes: NoteInfo[];
+  /** Kind of scrolling if any */
+  private scrollType: ScrollType;
+  /** Mutex to reduce scroll handling everhead */
+  private ticking: boolean;
+  /** Optimized scroll value */
+  private lastKnownScrollLeft: number;
+  /** Last drawn block start time in quarters */
+  private lastQ: number;
+  /** Time when last bar started in quarters */
+  private lastBar: number;
 
   /**
    * `StaffSVGRender` constructor.
-   *
+   * @constructor
    * @param score The `StaffInfo` to be visualized.
-   * @param div The element where the visualization should be displayed.
    * @param config Visualization configuration options.
+   * @param div The element where the visualization should be displayed.
    */
   constructor(
     score: StaffInfo, 
@@ -239,12 +281,12 @@ export class StaffSVGRender {
     this.staffG = createSVGGroupChild(this.staffSVG, 'staff');
     // Background lines
     this.linesG = createSVGGroupChild(this.staffSVG, 'lines');
-    this.setStroke(this.linesG);
+    setStroke(this.linesG, LINE_STROKE, this.getColor());
     this.staffG.appendChild(this.linesG);
     // Middle plane symbols
     this.musicG = createSVGGroupChild(this.staffSVG, 'music');
-    this.setFill(this.musicG);
-    this.setStroke(this.musicG, 0);
+    setFill(this.musicG, this.getColor());
+    setStroke(this.musicG, 0, this.getColor());
     this.staffG.appendChild(this.musicG);
     // Foreground signatures
     this.signaturesG = createSVGGroupChild(this.staffSVG, 'signatures');
@@ -267,15 +309,23 @@ export class StaffSVGRender {
     this.lastQ = -1;
   }
 
+  /**
+   * Verifies if a given highlighted `note` should stay that way
+   * 
+   * A note is active if it's literally the same as the note we are
+   * playing (aka activeNote), or if it overlaps because it's a held note.
+   * @param note One of the highlighted notes which are currently been played
+   * @param activeNote A new active note pending to be highlighted
+   * @returns If it should stay highlighted or not
+   */
   private isPaintingActiveNote(
-      note: NoteInfo, playedNote: NoteInfo): boolean {
-    // A note is active if it's literally the same as the note we are
-    // playing (aka activeNote), or if it overlaps because it's a held note.
+      note: NoteInfo, activeNote: NoteInfo
+  ): boolean {
     const isPlayedNote =
-        note.start === playedNote.start;
+        note.start === activeNote.start;
     const heldDownDuringPlayedNote =
-        note.start <= playedNote.start &&
-        note.start + note.length >= playedNote.start + playedNote.length;
+        note.start <= activeNote.start &&
+        note.start + note.length >= activeNote.start + activeNote.length;
     return isPlayedNote || heldDownDuringPlayedNote;
   }
 
@@ -285,16 +335,17 @@ export class StaffSVGRender {
    * `staffInfo` had changed adding more notes at the end, calling this
    * method again would complete the redrawing from the very last note it was
    * drawn, maintaining the active note and the scroll position as they were. 
-   * This is handy for incremental compositions. Given the complexity of 
-   * adaption to a modified score, modifyied notes previously drawn will be
-   * ignored (you can always `clear()` and `redraw()` for a full redraw). 
+   * This is handy for incremental compositions. 
    * 
-   * @param activeNote (Optional) If specified, this `Note` will be painted
+   * Given the complexity of adaptation to a modified score, modifyied notes 
+   * previously drawn will be ignored, however, you can always `clear()` and 
+   * `redraw()` for a full redraw.
+   * @param activeNote If specified, this `Note` will be painted
    * in the active color and there won't be an actual redrawing, but a 
    * re-colouring of the involved note heads, accidentals, dots and ties 
    * (activated and de-activated ones). Otherwise, all musical symbols which 
    * were not processed yet will be drawn to complete the score.
-   * @param scrollIntoView (Optional) If specified and the active note to be 
+   * @param scrollIntoView If specified and the active note to be 
    * highlited is not visualized in the container DIV, the later will be 
    * scrolled so that the note is viewed in the right place. This can be 
    * altered by `StaffRenderConfig.scrollType`.
@@ -316,7 +367,7 @@ export class StaffSVGRender {
             keepOnPlayingNotes.push(note);
           }
           else {
-            this.highlightElement(this.getGroup(note), false);
+            highlightElement(this.getGroup(note), this.getColor(false));
           }
         }
       );
@@ -325,7 +376,7 @@ export class StaffSVGRender {
       if (g) {
         console.log(activeNote);
         this.playingNotes.push(activeNote); // Store to revert highlight later
-        this.highlightElement(g, true);
+        highlightElement(g, this.getColor(true));
         activeNotePosition = g.getBoundingClientRect().left - 
           this.staffSVG.getBoundingClientRect().left;
         const quarters = activeNote.start;
@@ -350,8 +401,6 @@ export class StaffSVGRender {
         initialRest: this.initialRest
       }
       const staffBlockMap = setDetails(this.staffInfo, details);
-      //******** Here *********/
-
       const isFirstRedraw = (this.lastQ === -1);
       let x = 0;
       let width = 0;
@@ -375,7 +424,7 @@ export class StaffSVGRender {
             x = this.quartersToTime(quarters) * this.hStepSize;
           }
           if (quarters > this.lastQ) {
-            width += this.drawMusicBlock(staffBlock, x + width, linkedNoteMap);
+            width += this.drawStaffBlock(staffBlock, x + width, linkedNoteMap);
             this.lastQ = quarters;
           }
           else if (quarters === this.lastQ) { // Undrawn ending rests
@@ -394,16 +443,23 @@ export class StaffSVGRender {
       else { // Proportional staff horizontal resizing
         const lastBlock = staffBlockMap.get(this.lastQ);
         const endTime = 
-        this.quartersToTime(this.lastQ + lastBlock.notes[0].length);
+          this.quartersToTime(this.lastQ + lastBlock.notes[0].length);
         this.width = endTime * this.config.pixelsPerTimeStep;
       }
       this.staffSVG.setAttributeNS(null, 'width', `${this.width}`);
-      this.redrawStaff(this.linesG, 0, this.width);
+      this.redrawStaffLines(this.linesG, 0, this.width);
     }
     return activeNotePosition;
   }
 
-  private drawMusicBlock(staffBlock: StaffBlock, x: number, linkedNoteMap: LinkedNoteMap): number {
+  /**
+   * Draws a set of musical notes grouped in a block into a staff
+   * @param staffBlock The block to be drawn
+   * @param x Horizontal position to draw the block
+   * @param linkedNoteMap Temporary storage of visual data aids
+   * @returns The width of the drawn block
+   */
+  private drawStaffBlock(staffBlock: StaffBlock, x: number, linkedNoteMap: LinkedNoteMap): number {
     const quarter = staffBlock.notes[0].start;
     // Preceding bar
     let width = this.drawBarIfNeeded(quarter, x);
@@ -536,31 +592,22 @@ export class StaffSVGRender {
     return width;
   }
 
-  private drawBarIfNeeded(quarters: number, x: number): number {
+  /**
+   * Draws the rests which follows a musical block in a staff
+   * @param staffBlock The block which indicates how much rest should be 
+   * displayed till the next block
+   * @param x Horizontal position to draw the rests
+   * @returns The width of the drawn rests
+   */
+  private drawRests(staffBlock: StaffBlock, x: number): number {
     let width = 0;
-    const nextBar = this.lastBar + getBarLength(this.currentTimeSignature);
-    if (quarters !== 0 && quarters >= nextBar) { // 1st bar skipped
-      if (this.config.pixelsPerTimeStep > 0) { // Proportional visualization
-        x -= this.config.noteSpacing; // Negative to avoid touching note head
-      }
-      else { // Compact visualization
-        width = this.config.noteSpacing;
-      }
-      drawSVGPath(this.linesG, barPath, x, 0, 1, this.scale);
-      this.lastBar = nextBar;
-    }
-    return width;
-  }
-
-  private drawRests(musicBlock: StaffBlock, x: number): number {
-    let width = 0;
-    let remainingLength = musicBlock.restToNextLength;
+    let remainingLength = staffBlock.restToNextLength;
     if (remainingLength) {
       if (this.config.pixelsPerTimeStep > 0) {
-        x += this.quartersToTime(musicBlock.notes[0].length) * this.hStepSize;
+        x += this.quartersToTime(staffBlock.notes[0].length) * this.hStepSize;
       }
       // Find a possible rest bar split
-      let quarters = musicBlock.notes[0].start + musicBlock.notes[0].length;
+      let quarters = staffBlock.notes[0].start + staffBlock.notes[0].length;
       let lengthAfterNextBar = 0;
       const quartersToNextBar = this.lastBar + getBarLength(this.currentTimeSignature) - quarters;
       if (remainingLength > quartersToNextBar) {
@@ -618,7 +665,15 @@ export class StaffSVGRender {
     return width;
   }
 
-  private redrawStaff(e: SVGElement, x: number, width: number) {
+  /**
+   * Draws the five horizontal lines of a staff (pentagram) or scales them to 
+   * the current width of the score if already drawn
+   * @param e The SVG container of the lines
+   * @param x Horizontal starting point of the drawing
+   * @param width Width of the pentagram
+   * @returns The SVG which represents the pentagram
+   */
+  private redrawStaffLines(e: SVGElement, x: number, width: number) {
     let staff = e.querySelector('g[data-id="staff-five-lines"]') as SVGElement;
     if (staff) { // Already drawn
       staff.setAttributeNS(
@@ -637,24 +692,55 @@ export class StaffSVGRender {
     return staff;
   }
 
+  /**
+   * Draws a bar line if this quarter fits on the beginning of a new bar
+   * @param quarters Quarters from beginning where bar could start
+   * @param x Horizontal position in staff to draw the bar line, if any.
+   * @returns The with of the drawn bar line
+   */
+  private drawBarIfNeeded(quarters: number, x: number): number {
+    let width = 0;
+    const nextBar = this.lastBar + getBarLength(this.currentTimeSignature);
+    if (quarters !== 0 && quarters >= nextBar) { // 1st bar skipped
+      if (this.config.pixelsPerTimeStep > 0) { // Proportional visualization
+        x -= this.config.noteSpacing; // Negative to avoid touching note head
+      }
+      else { // Compact visualization
+        width = this.config.noteSpacing;
+      }
+      drawSVGPath(this.linesG, barPath, x, 0, 1, this.scale);
+      this.lastBar = nextBar;
+    }
+    return width;
+  }
+
+  /**
+   * Erases all graphical elements on the signature overlay
+   */
   private clearSignatureOverlay() {
     while (this.overlayG.lastChild) {
       this.overlayG.removeChild(this.overlayG.lastChild);
     }
   }
 
-  private drawSignaturesIfNeeded(quarter: number, x: number) {
+  /**
+   * Draws signatures if there's a signature change on specified quarter
+   * @param quarters Quarters from beginning where signatiures could start
+   * @param x Horizontal position where it should be drawn
+   * @returns Width of the drawn signatures or 0 if proportional visualization
+   */
+  private drawSignaturesIfNeeded(quarters: number, x: number): number {
     let width = 0;
-    const keyChanged = this.changeKeySignatureIfNeeded(quarter);
-    const timeChanged = this.changeTimeSignatureIfNeeded(quarter);
+    const keyChanged = this.changeKeySignatureIfNeeded(quarters);
+    const timeChanged = this.changeTimeSignatureIfNeeded(quarters);
     if (keyChanged || timeChanged) {
       const clefSpacing = COMPACT_SPACING * this.scale * 
         (this.config.pixelsPerTimeStep > 0 ? 3 : 2);
-      this.signaturesList.push({x: x - clefSpacing , q: quarter});
+      this.signaturesList.push({x: x - clefSpacing , q: quarters});
       if (this.signatureNext === null) {
         this.signatureNext = x;
       }
-      const signatures = quarter > 0 ?
+      const signatures = quarters > 0 ?
         createSVGGroupChild(this.signaturesG, 'signatures') : this.overlayG;
       width += this.drawSignatures(
         signatures, x + width, false, keyChanged, timeChanged
@@ -663,6 +749,15 @@ export class StaffSVGRender {
     return this.config.pixelsPerTimeStep === 0 ? width : 0;
   }
 
+  /**
+   * Draws the signatires in the given container
+   * @param e Container of the signatures to be drawn
+   * @param x Horizontal position to start drawing it
+   * @param drawClef Wether to draw the clef or not
+   * @param drawKey Wether to draw the key or not
+   * @param drawTime Wether to draw the time signature or not
+   * @returns The width of the whole signature set drawn
+   */
   private drawSignatures(
     e: SVGElement, x: number, 
     drawClef: boolean, drawKey: boolean, drawTime: boolean
@@ -691,7 +786,7 @@ export class StaffSVGRender {
       const clef = drawSVGPath(
         e, CLEF_PATHS[this.clef].path, x + width, 0, this.scale, this.scale
       );
-      this.setFill(clef);
+      setFill(clef, this.getColor());
       width += 3 * spacing;
     }
     if (drawKey) {
@@ -703,7 +798,7 @@ export class StaffSVGRender {
           const p = drawSVGPath(e, ACCIDENTAL_PATHS[accidental], 
             x + width, (offset + steps) * this.vStepSize, 
             this.scale, this.scale);
-          this.setFill(p);
+          setFill(p, this.getColor());
           width += p.getBoundingClientRect().width;
         }
       );
@@ -719,11 +814,11 @@ export class StaffSVGRender {
         timeKey, `${this.currentTimeSignature.denominator}`, 
         x + width, 4 * this.vStepSize - 0.5, fontSize, true
       );
-      this.setFill(timeKey);
+      setFill(timeKey, this.getColor());
       width += timeKey.getBoundingClientRect().width + spacing;
     }    
-    const staff = this.redrawStaff(e, x, width);
-    this.setStroke(staff);
+    const staff = this.redrawStaffLines(e, x, width);
+    setStroke(staff, LINE_STROKE, this.getColor());
     // Vertical and horizontal resizing
     const divRect = this.div.getBoundingClientRect();
     const eRect = e.getBoundingClientRect();
@@ -744,7 +839,7 @@ export class StaffSVGRender {
           (this.height - 2 * i * i) / PATH_SCALE, 
           (i - 5) * (i - 5) * 2 / PATH_SCALE
         );
-        this.setFill(grad);
+        setFill(grad, this.getColor());
       }
     }
     // Blinking set up and return
@@ -764,8 +859,13 @@ export class StaffSVGRender {
     }
   }
 
-  private changeKeySignatureIfNeeded(quarter: number): boolean {
-    const candidateKey = keySignatureAtQ(quarter, this.currentKey, this.staffInfo);
+  /**
+   * Changes the current key according to the quarter position
+   * @param quarters Quarters from beginning where change could happen
+   * @returns Wether it changed or not
+   */
+  private changeKeySignatureIfNeeded(quarters: number): boolean {
+    const candidateKey = keySignatureAtQ(quarters, this.currentKey, this.staffInfo);
     if (candidateKey !== this.currentKey) {
       this.currentKey = candidateKey;
       return true;
@@ -775,6 +875,11 @@ export class StaffSVGRender {
     }
   } 
 
+  /**
+   * Changes the current time signature according to the quarter position
+   * @param quarters Quarters from beginning where change could happen
+   * @returns Wether it changed or not
+   */
   private changeTimeSignatureIfNeeded(quarter: number): boolean {
     const candidateTimeSign = timeSignatureAtQ(
       quarter, this.currentTimeSignature, this.staffInfo
@@ -791,9 +896,16 @@ export class StaffSVGRender {
     }
   }
 
-//    current  x     next   <= current & next include the starting point
-//          |  |     |
-// [0      )[1      )[2     )null
+  /**
+   * Combines signatures change and drawing according to x position. It's used
+   * to replace overlays on horizontal scrolling according to next diagram:
+   *```
+   *   current  x     next   <= current & next include the starting point
+   *         |  |     |
+   *[0      )[1      )[2     )null
+   *```
+   * @param x Horizontal position to draw signatures
+   */
   private changeAndDrawSignaturesIfNeeded(x: number) {
     let quarter: number;
     if (
@@ -832,6 +944,10 @@ export class StaffSVGRender {
     }
   }
 
+  /**
+   * Callback handler for horizonatal scroll events
+   * @param _event Ignored
+   */
   private handleScrollEvent = (_event: UIEvent) => {
     this.lastKnownScrollLeft = this.parentElement.scrollLeft;
     if (!this.ticking) {
@@ -845,8 +961,14 @@ export class StaffSVGRender {
     this.ticking = true;
   };
 
+  /**
+   * Actuator on the horizontal scroll to show highlited note
+   * @param scrollIntoView Wether the scroll must follow active note or not
+   * @param activeNotePosition Horizontal position of the current active note
+   */
   private scrollIntoViewIfNeeded(
-    scrollIntoView: boolean, activeNotePosition: number) {
+    scrollIntoView: boolean, activeNotePosition: number
+  ) {
     if (scrollIntoView) {
       if (this.scrollType === ScrollType.PAGE) {
         // See if we need to scroll the container.
@@ -864,6 +986,11 @@ export class StaffSVGRender {
     }
   }
 
+  /**
+   * Resizes containers to fully hold staff on possible resizes
+   * @param top Vertical top position on highest staff component
+   * @param bottom Vertical bottom position on lowest staff component
+   */
   private updateVerticalBoundaries(top: number, bottom: number) {
     let newHeight = 0;
     if (top < 0) {
@@ -887,36 +1014,43 @@ export class StaffSVGRender {
     }
   }
 
-  private setFill(e: SVGElement, isActive = false) {
-    e.setAttributeNS(null, 'fill', this.getColor(isActive));
-  }
-
-  private setStroke(e: SVGElement, strokeWidth=LINE_STROKE, isActive=false) {
-    e.setAttributeNS(null, 'stroke', this.getColor(isActive));
-    e.setAttributeNS(null, 'stroke-width', `${strokeWidth}`);
-  }
-
-  private getColor(isActive: boolean): string {
+  /**
+   * Generates a http string with the default color (default) or the active one
+   * @param isActive Wether the color is active (highlight) or not
+   * @returns The color string
+   */
+  private getColor(isActive: boolean=false): string {
     return `rgb(${isActive ? this.config.activeNoteRGB : this.config.noteRGB})`;
   }
 
+  /**
+   * Generates an alpha transparency value with a slight bump to avoid 
+   * quiet notes to be invisible
+   * @param noteVelocity The MIDI velocity of the note (from 0 to 127)
+   * @returns A numerical value for opacity (from 0.0 = full transparent to 
+   * 1.0 = full opacity) 
+   */
   private getOpacity(noteVelocity?: number): number {
     const opacityBaseline = 0.2;  // Shift all the opacities up a little.
     return noteVelocity ? 
       (noteVelocity / 127) * (1 - opacityBaseline) + opacityBaseline : 1;
   }
 
+  /**
+   * Locates a SVG group to highlight the symbols it contains
+   * @param note The note to locate the SVG group it belongs to
+   * @returns The SVG Group
+   */
   private getGroup(note: NoteInfo): SVGElement {
     const quarters = note.start;
     const pitch = note.pitch;
     return this.staffSVG.querySelector(`g[data-id="${quarters}-${pitch}"]`);
   }
 
-  private highlightElement(e: SVGElement, isActive: boolean) {
-    e.setAttribute('fill', this.getColor(isActive));
-    e.setAttribute('stroke', this.getColor(isActive));
-  }
-
+  /**
+   * 
+   * @param quarters 
+   */
   private quartersToTime(quarters: number): number {
     return quarters / this.staffInfo.tempos[0].qpm * 60;
   }

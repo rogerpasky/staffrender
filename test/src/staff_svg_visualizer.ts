@@ -185,7 +185,7 @@ export class StaffSVGVisualizer extends BaseVisualizer {
       activeNote?: NoteSequence.INote,
       scrollIntoView?: boolean): number {
     if (this.drawnNotes !== this.noteSequence.notes.length) {
-      this.render.staffInfo = this.getStaffInfo(this.noteSequence); // TODO: Update
+      this.render.staffInfo = this.getStaffInfo(this.noteSequence);
     }
     const activeNoteInfo = activeNote ?
         this.getNoteInfo(activeNote) : undefined;
@@ -211,11 +211,11 @@ export class StaffSVGVisualizer extends BaseVisualizer {
     return Math.round(q * sr.MAX_QUARTER_DIVISION) / sr.MAX_QUARTER_DIVISION;
   }
 
-  private getNoteInfo(note: NoteSequence.INote): sr.NoteInfo { // TODO: REVIEW
-    const startQ = note.quantizedStartStep ?
+  private getNoteInfo(note: NoteSequence.INote): sr.NoteInfo {
+    const startQ = note.quantizedStartStep ? // TODO: different to base class
         this.quantizedStepsToQuarters(note.quantizedStartStep) :
         this.timeToQuarters(note.startTime);
-    const endQ = note.quantizedEndStep ?
+    const endQ = note.quantizedEndStep ? // TODO: different to base class
         this.quantizedStepsToQuarters(note.quantizedEndStep) :
         this.timeToQuarters(note.endTime);
     return {
@@ -226,7 +226,7 @@ export class StaffSVGVisualizer extends BaseVisualizer {
     };
   }
 
-  private getStaffInfo(sequence: INoteSequence): sr.StaffInfo { // TODO: Update
+  private getStaffInfo(sequence: INoteSequence): sr.StaffInfo {
     const notesInfo: sr.NoteInfo[] = [];
     sequence.notes.forEach((note: NoteSequence.INote) => {
       if (this.isNoteInInstruments(note)) {
