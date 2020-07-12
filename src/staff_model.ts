@@ -25,7 +25,6 @@ export interface StaffInfo {
   timeSignatures?: TimeSignatureInfo[];
 }
 
-
 export interface StaffNote {
   start: number; // In quarter note quantities (float)
   length: number; // In quarter note quantities (float)
@@ -45,6 +44,7 @@ export interface StaffBlock {
   notes: StaffNote[];
 }
 
+export type StaffBlockMap = Map<number, StaffBlock>;
 
 const SCALES = [ // Accidentals: 0=none, 1=sharp, 2=flat, 3=normal
   { // Chromatic  C C#/Db D D#/Eb E   F F#/Gb G G#/Ab A A#/Bb B   / KEY
@@ -90,61 +90,68 @@ export const KEY_ACCIDENTALS = [
 ];
 
 type BarAccidentals = {[pitch: number]: number};
-export type Details = {
+
+export type StaffDefaults = {
   clef: number; // As MIDI pitch note at the staff 3rd line (G clef -> B = 71)
   key: number; // As semitones (0 = C, 1 = C#, ... 11 = B)
   timeSignature: TimeSignatureInfo; // Like 3/4 at some precise bar
   initialRest: StaffBlock;
 };
-export type StaffBlockMap = Map<number, StaffBlock>;
 
 /**
- * Sets Staff Details
- * @param staffInfo 
- * @param details Encoding clef, key and timeSignature at q = 0
+ * Models a staff info into a musical structure of staff blocks indexed by the
+ * quarter they start from
  */
-export function setDetails(staffInfo: StaffInfo, details: Details)
-: StaffBlockMap {
-  let staffBlockMap: StaffBlockMap = new Map(); // Music sorted blocks
+export class StaffModel {
+  /** The input staff info, stored for further outer modifications */
+  public staffInfo: StaffInfo;
+  /** The input staff defaults, stored for further outer modifications */
+  public staffDefaults: StaffDefaults;
+  /** The resut of staff analysis on staff blocks indexed by starting quarter */
+  public staffBlockMap: StaffBlockMap;
 
-  let barAccidentals: BarAccidentals = {}; // Temporal accidentals
-  let blocks = new Map<number, StaffNote[]>();
-  const barBeginnings = getBarBeginnings(staffInfo);
-  const splites = new Set<number>(barBeginnings); // Bars = split points
-  // First pass to translate all notes to quarters
-  const sortedNotes = staffInfo.notes.slice().sort(
-    (x, y) => x.start - y.start
-  );
-  sortedNotes.forEach( 
-    note => {
-      const staffNote = getStaffNote(note);
-      splites.add(staffNote.start);
-      splites.add(staffNote.start + staffNote.length);
-      if (blocks.has(staffNote.start)) {
-        blocks.get(staffNote.start).push(staffNote);
-      }
-      else {
-        blocks.set(staffNote.start, [staffNote]);
-      }
-    }
-  );
-  // Second pass to apply all splites to the right blocks
-  const sortedSplites = Array.from(splites).sort((x, y) => x - y);
-  sortedSplites.forEach(
-    split => {
-      const remains: StaffNote[] = [];
-      blocks.forEach(
-        block => {
-          block.forEach(
-            staffNote => {
-              const remainStaffNote = splitStaffNote(staffNote, split);
-              if (remainStaffNote) { remains.push(remainStaffNote); }
-            }
-          );
-        }
+  /**
+   * Creates a `StaffModel` storing input data and result
+   * @param staffInfo Generic information about a score to crate a staff with
+   * @param staffDefaults Default values to fill the gaps if needed
+   */
+  constructor(staffInfo: StaffInfo, staffDefaults: StaffDefaults) {
+    this.staffInfo = staffInfo;
+    this.staffDefaults = staffDefaults;
+    this.staffBlockMap = null;
+    this.analyzeStaffInfo(this.staffInfo);
+  }
+
+  /**
+   * Analyzes stored info and defaults to update `staffBlockMap`, unless the
+   * staff info received has not changed (in length of its members).
+   * @param staffInfo New staff information to replace previous one.
+   * @returns Analyzed staff as an indexed per quarter `StaffBlockMap`
+   */
+  public analyzeStaffInfo(staffInfo: StaffInfo): StaffBlockMap {
+    if (
+      this.staffBlockMap === null || // Constructor use case
+      staffInfo.notes.length !== this.staffInfo.notes.length ||
+      staffInfo.tempos.length !== this.staffInfo.tempos.length ||
+      staffInfo.keySignatures.length !== this.staffInfo.keySignatures.length ||
+      staffInfo.timeSignatures.length !== this.staffInfo.timeSignatures.length
+    ) {
+      this.staffInfo = staffInfo;
+      this.staffBlockMap = new Map(); // Future usage for incremental blocks
+
+      let barAccidentals: BarAccidentals = {}; // Temporal accidentals
+      let blocks = new Map<number, StaffNote[]>();
+      const barBeginnings = getBarBeginnings(this.staffInfo);
+      const splites = new Set<number>(barBeginnings); // Bars = split points
+      // First pass to translate all notes to quarters
+      const sortedNotes = this.staffInfo.notes.slice().sort(
+        (x, y) => x.start - y.start
       );
-      remains.forEach(
-        staffNote => {
+      sortedNotes.forEach( 
+        note => {
+          const staffNote = getStaffNote(note);
+          splites.add(staffNote.start);
+          splites.add(staffNote.start + staffNote.length);
           if (blocks.has(staffNote.start)) {
             blocks.get(staffNote.start).push(staffNote);
           }
@@ -153,55 +160,83 @@ export function setDetails(staffInfo: StaffInfo, details: Details)
           }
         }
       );
-    }
-  );
-  blocks = new Map(Array.from(blocks).sort((x, y) => x[0] - y[0]));
-  // Third pass to fill vertical step, accidentals, min/max values and rests.
-  const initialKey = details.key;
-  let lastStaffBlock: StaffBlock = null;
-  let lastBlockEnd = 0;
-  const it = barBeginnings[Symbol.iterator]();
-  let currentBar = it.next();
-  blocks.forEach(
-    (block: StaffNote[], quarters: number) => {
-      const staffBlock: StaffBlock = {
-        maxVStep: Number.MAX_SAFE_INTEGER,
-        minVStep: Number.MIN_SAFE_INTEGER, 
-        restToNextLength: 0,
-        isBarBeginning: false,
-        notes: []
-      };
-      details.key = keySignatureAtQ(quarters, details.key, staffInfo);
-      details.timeSignature = timeSignatureAtQ(quarters, details.timeSignature, staffInfo); // TODO: Review adding here ???
-      const value: number = currentBar.value;
-      const currentBarEnd = value + getBarLength(details.timeSignature);
-      if (!currentBar.done && quarters >= currentBarEnd) {
-        currentBar = it.next();
-        barAccidentals = {}; // Reset bar accidentals
-        staffBlock.isBarBeginning = true;
-      }
-      block.forEach(
-        staffNote => {
-          analyzeNote(details.clef, details.key, staffNote, quarters, barAccidentals);
-          staffBlock.minVStep = 
-            Math.max(staffNote.vSteps, staffBlock.minVStep);
-          staffBlock.maxVStep = 
-            Math.min(staffNote.vSteps, staffBlock.maxVStep);
-          staffBlock.notes.push(staffNote);  
+      // Second pass to apply all splites to the right blocks
+      const sortedSplites = Array.from(splites).sort((x, y) => x - y);
+      sortedSplites.forEach(
+        split => {
+          const remains: StaffNote[] = [];
+          blocks.forEach(
+            block => {
+              block.forEach(
+                staffNote => {
+                  const remainStaffNote = splitStaffNote(staffNote, split);
+                  if (remainStaffNote) { remains.push(remainStaffNote); }
+                }
+              );
+            }
+          );
+          remains.forEach(
+            staffNote => {
+              if (blocks.has(staffNote.start)) {
+                blocks.get(staffNote.start).push(staffNote);
+              }
+              else {
+                blocks.set(staffNote.start, [staffNote]);
+              }
+            }
+          );
         }
       );
-      if (lastStaffBlock) { // Rest length from last block to this one
-        lastStaffBlock.restToNextLength = quarters - lastBlockEnd;
-      }
-      staffBlockMap.set(quarters, staffBlock);
-      lastStaffBlock = staffBlock;
-      lastBlockEnd = quarters + staffBlock.notes[0].length;
+      blocks = new Map(Array.from(blocks).sort((x, y) => x[0] - y[0]));
+      // Third pass to fill vertical step, accidentals, min/max values and rests.
+      const initialKey = this.staffDefaults.key;
+      let lastStaffBlock: StaffBlock = null;
+      let lastBlockEnd = 0;
+      const it = barBeginnings[Symbol.iterator]();
+      let currentBar = it.next();
+      blocks.forEach(
+        (block: StaffNote[], quarters: number) => {
+          const staffBlock: StaffBlock = {
+            maxVStep: Number.MAX_SAFE_INTEGER,
+            minVStep: Number.MIN_SAFE_INTEGER, 
+            restToNextLength: 0,
+            isBarBeginning: false,
+            notes: []
+          };
+          this.staffDefaults.key = keySignatureAtQ(quarters, this.staffDefaults.key, this.staffInfo);
+          this.staffDefaults.timeSignature = timeSignatureAtQ(quarters, this.staffDefaults.timeSignature, this.staffInfo); // TODO: Review adding here ???
+          const value: number = currentBar.value;
+          const currentBarEnd = value + getBarLength(this.staffDefaults.timeSignature);
+          if (!currentBar.done && quarters >= currentBarEnd) {
+            currentBar = it.next();
+            barAccidentals = {}; // Reset bar accidentals
+            staffBlock.isBarBeginning = true;
+          }
+          block.forEach(
+            staffNote => {
+              analyzeNote(this.staffDefaults.clef, this.staffDefaults.key, staffNote, quarters, barAccidentals);
+              staffBlock.minVStep = 
+                Math.max(staffNote.vSteps, staffBlock.minVStep);
+              staffBlock.maxVStep = 
+                Math.min(staffNote.vSteps, staffBlock.maxVStep);
+              staffBlock.notes.push(staffNote);  
+            }
+          );
+          if (lastStaffBlock) { // Rest length from last block to this one
+            lastStaffBlock.restToNextLength = quarters - lastBlockEnd;
+          }
+          this.staffBlockMap.set(quarters, staffBlock);
+          lastStaffBlock = staffBlock;
+          lastBlockEnd = quarters + staffBlock.notes[0].length;
+        }
+      );
+      this.staffDefaults.initialRest.restToNextLength = this.staffBlockMap.values().next().value.notes[0].start;
+      this.staffDefaults.key = initialKey;
     }
-  );
-  details.initialRest.restToNextLength = staffBlockMap.values().next().value.notes[0].start;
-  details.key = initialKey;
-  return staffBlockMap
+    return this.staffBlockMap
+  }
 }
+
 
 function getBarBeginnings(staffInfo: StaffInfo): Set<number> {
   const barBeginnings = new Set<number>();

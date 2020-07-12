@@ -31,9 +31,9 @@ import  {
 } from './svg_paths';
 
 import {
-  NoteInfo, StaffInfo, StaffBlock, setDetails, getNoteDetails, getBarLength, 
-  Details, guessClef, keySignatureAtQ, timeSignatureAtQ, KEY_ACCIDENTALS, 
-  TimeSignatureInfo, StaffNote
+  NoteInfo, StaffInfo, StaffBlock, getNoteDetails, getBarLength, 
+  guessClef, keySignatureAtQ, timeSignatureAtQ, KEY_ACCIDENTALS, 
+  TimeSignatureInfo, StaffNote, StaffDefaults, StaffModel
 } from './staff_model';
 
 /**
@@ -134,6 +134,8 @@ type LinkedNoteMap = Map<StaffNote, LinkedSVGDetails>;
 export class StaffSVGRender {
   /** The actual music score data to be rendered */
   public staffInfo: StaffInfo;
+  /** Intermediate staff model arranged in non-overlapped blocks */
+  public staffModel: StaffModel;
   /** How it has to be rendered */
   private config: StaffRenderConfig;
   /** Full score height (pixels) */
@@ -249,6 +251,14 @@ export class StaffSVGRender {
       this.config.pixelsPerTimeStep = 0;
       this.config.noteSpacing = COMPACT_SPACING * this.scale;
     }
+
+    const defaults: StaffDefaults = { // TODO: Optimize
+      clef: this.clef, 
+      key: this.currentKey, 
+      timeSignature: this.currentTimeSignature,
+      initialRest: this.initialRest
+    }
+    this.staffModel = new StaffModel(this.staffInfo, defaults);
     this.clear(); // This will complete rest of member values initialization.
     this.redraw();
   }
@@ -394,17 +404,11 @@ export class StaffSVGRender {
       }
     }
     else { // No activeNote given means redrawing it all from scratch
-      const details: Details = { // TODO: Optimize
-        clef: this.clef, 
-        key: this.currentKey, 
-        timeSignature: this.currentTimeSignature,
-        initialRest: this.initialRest
-      }
-      const staffBlockMap = setDetails(this.staffInfo, details);
-      const isFirstRedraw = (this.lastQ === -1);
+     const staffBlockMap = this.staffModel.analyzeStaffInfo(this.staffInfo);
+     const isFirstRedraw = (this.lastQ === -1);
       let x = 0;
       let width = 0;
-      if (isFirstRedraw) { // TODO: move setDetails to constructor
+      if (isFirstRedraw) {
         // Clef+Key+Time signatures
         width = this.drawSignatures(this.overlayG, x, true, true, true);
         if (isCompact) {
