@@ -118,6 +118,7 @@ export class StaffModel {
   constructor(staffInfo: StaffInfo, staffDefaults: StaffDefaults) {
     this.staffInfo = staffInfo;
     this.staffDefaults = staffDefaults;
+    this.staffDefaults.clef = this.guessClef(); // TODO: Review
     this.staffBlockMap = null;
     this.analyzeStaffInfo(this.staffInfo);
   }
@@ -141,7 +142,7 @@ export class StaffModel {
 
       let barAccidentals: BarAccidentals = {}; // Temporal accidentals
       let blocks = new Map<number, StaffNote[]>();
-      const barBeginnings = getBarBeginnings(this.staffInfo);
+      const barBeginnings = this.getBarBeginnings();
       const splites = new Set<number>(barBeginnings); // Bars = split points
       // First pass to translate all notes to quarters
       const sortedNotes = this.staffInfo.notes.slice().sort(
@@ -203,8 +204,8 @@ export class StaffModel {
             isBarBeginning: false,
             notes: []
           };
-          this.staffDefaults.key = keySignatureAtQ(quarters, this.staffDefaults.key, this.staffInfo);
-          this.staffDefaults.timeSignature = timeSignatureAtQ(quarters, this.staffDefaults.timeSignature, this.staffInfo); // TODO: Review adding here ???
+          this.staffDefaults.key = this.keySignatureAtQ(quarters);
+          this.staffDefaults.timeSignature = this.timeSignatureAtQ(quarters); // TODO: Review adding here ???
           const value: number = currentBar.value;
           const currentBarEnd = value + getBarLength(this.staffDefaults.timeSignature);
           if (!currentBar.done && quarters >= currentBarEnd) {
@@ -214,7 +215,7 @@ export class StaffModel {
           }
           block.forEach(
             staffNote => {
-              analyzeNote(this.staffDefaults.clef, this.staffDefaults.key, staffNote, quarters, barAccidentals);
+              analyzeNote(staffNote, this.staffDefaults.clef, this.staffDefaults.key, barAccidentals);
               staffBlock.minVStep = 
                 Math.max(staffNote.vSteps, staffBlock.minVStep);
               staffBlock.maxVStep = 
@@ -235,37 +236,123 @@ export class StaffModel {
     }
     return this.staffBlockMap
   }
-}
 
-
-function getBarBeginnings(staffInfo: StaffInfo): Set<number> {
-  const barBeginnings = new Set<number>();
-  let lastQ = 0;
-  staffInfo.notes.forEach(
-    n => {
-      if (n.start + n.length > lastQ) {
-        lastQ = n.start + n.length;
+  /**
+   * Gets the set of bar begginings in quarters considering time signatures.
+   * @returns The set of bar beginnings
+   */
+  private getBarBeginnings(): Set<number> {
+    const barBeginnings = new Set<number>();
+    let lastQ = 0;
+    this.staffInfo.notes.forEach(
+      n => {
+        if (n.start + n.length > lastQ) {
+          lastQ = n.start + n.length;
+        }
+      }
+    );
+    const timeSignatures = (this.staffInfo.timeSignatures) ?
+    this.staffInfo.timeSignatures.slice(0) : 
+      [{start: 0, numerator: 4, denominator: 4}];
+    timeSignatures.sort((x, y) => x.start - y.start);
+    let q = 0;
+    for (let i = 0; i < timeSignatures.length; ++i) {
+      const signatureEnd = (i === timeSignatures.length - 1) ?
+        lastQ : timeSignatures[i].start;
+      const qPerBar = 
+        timeSignatures[i].numerator * 4 / timeSignatures[i].denominator;
+      for (; q < signatureEnd; q += qPerBar) {
+        barBeginnings.add(q);
       }
     }
-  );
-  const timeSignatures = (staffInfo.timeSignatures) ?
-    staffInfo.timeSignatures.slice(0) : 
-    [{start: 0, numerator: 4, denominator: 4}];
-  timeSignatures.sort((x, y) => x.start - y.start);
-  let q = 0;
-  for (let i = 0; i < timeSignatures.length; ++i) {
-    const signatureEnd = (i === timeSignatures.length - 1) ?
-      lastQ : timeSignatures[i].start;
-    const qPerBar = 
-      timeSignatures[i].numerator * 4 / timeSignatures[i].denominator;
-    for (; q < signatureEnd; q += qPerBar) {
-      barBeginnings.add(q);
-    }
+    return barBeginnings;
   }
-  return barBeginnings;
+
+  /**
+   * Gets the key signature at a quarter on the staff
+   * @param quarter Quarter to look key signature at
+   * @returns The key which is operative at given quarter 
+   */
+  public keySignatureAtQ(quarter: number): number {
+    let key = this.staffDefaults.key;
+    if (this.staffInfo.keySignatures) {
+      for (let i = 0; i < this.staffInfo.keySignatures.length; ++i) {
+        if (this.staffInfo.keySignatures[i].start <= quarter) {
+          key = this.staffInfo.keySignatures[i].key;
+        }
+        else {
+          break;
+        }
+      }
+    }
+    return key;
+  } 
+  
+  /**
+   * Gets the time signature at a quarter on the staff
+   * @param quarter Quarter to look time signature at
+   * @returns The time signature which is operative at given quarter 
+   */
+  public timeSignatureAtQ(quarter: number): TimeSignatureInfo {
+    let timeSignature = this.staffDefaults.timeSignature;
+    if (this.staffInfo.timeSignatures) {
+      for (let i = 0; i < this.staffInfo.timeSignatures.length; ++i) {
+        if (this.staffInfo.timeSignatures[i].start <= quarter) {
+          timeSignature = this.staffInfo.timeSignatures[i];
+        }
+        else {
+          break;
+        }
+      }
+    }
+    return timeSignature;
+  }
+  
+  /**
+   * Clef deduction: Average pitch under C4 -> F clef, otherwise G clef
+   * @returns The deducted clef as Midi pitch values
+   */
+  public guessClef(): number {
+    let pitchSum = 0;
+    let countSum = 0;
+    this.staffInfo.notes.forEach(
+      note => {
+        pitchSum += note.pitch;
+        ++countSum;
+      }
+    );
+    const averagePitch = pitchSum / countSum;
+    return averagePitch < 60 ? 50 : 71; // Numbers are MIDI pitch values  
+  }
+
+  /**
+   * Convert a given amount of quarters to seconds. **NOTE**: it doesn't 
+   * covers tempo changes yet, and assumes score keeps it stable till the end.
+   * @param quarters The given amount of quarters
+   * @returns The equivalent amount of seconds
+   */
+  public quartersToTime(quarters: number): number {
+    return quarters / this.staffInfo.tempos[0].qpm * 60;
+  }
+  
+  /**
+   * Convert a given amount of seconds to quarters. **NOTE**: it doesn't 
+   * covers tempo changes yrt, and assumes score keeps it stable till the end.
+   * @param quarters The given amount of seconds
+   * @returns The equivalent amount of quarters
+   */
+  public timeToQuarters(time: number): number {
+    return time * this.staffInfo.tempos[0].qpm / 60;
+  }
+  
 }
 
-export function getStaffNote(note: NoteInfo): StaffNote {
+/**
+ * Converts a note from `NoteInfo` interface to `StaffNote` interface
+ * @param note The note to be converted
+ * @returns The converted note
+ */
+function getStaffNote(note: NoteInfo): StaffNote {
   return {
     start: note.start,
     length: note.length,
@@ -280,6 +367,8 @@ export function getStaffNote(note: NoteInfo): StaffNote {
  * Splits a note in two by a time point measured in note quarters
  * @param staffNote note to be splitted
  * @param quarters split point
+ * @returns The second half of spritted note. First one is the received one,
+ * which gets modified.
  */
 function splitStaffNote(staffNote: StaffNote, quarters: number): StaffNote {
   const remainLength = (staffNote.start + staffNote.length) - quarters;
@@ -293,7 +382,7 @@ function splitStaffNote(staffNote: StaffNote, quarters: number): StaffNote {
       intensity: staffNote.intensity,
       vSteps: staffNote.vSteps,
       accidental: staffNote.accidental,
-      tiedFrom: staffNote // TODO: Remove
+      tiedFrom: staffNote
     };
     staffNote.tiedTo = splitted;
   }
@@ -302,12 +391,13 @@ function splitStaffNote(staffNote: StaffNote, quarters: number): StaffNote {
 
 /**
  * Analyzes a note based on full context
- * @param staffNote note to be analyzed 
- * @param quarters // TODO: Remove?
- * @param barAccidentals active accidentals in current bar
+ * @param staffNote Note to be analyzed 
+ * @param clef Contextual applicable clef
+ * @param key Contextual applicable key
+ * @param barAccidentals Active accidentals in current bar
  */
-function analyzeNote( // TODO: review if quarters parameter is really needed
-  clef:number, key:number, staffNote: StaffNote, quarters: number, barAccidentals: BarAccidentals
+function analyzeNote(
+  staffNote: StaffNote, clef:number, key:number, barAccidentals: BarAccidentals
 ) {
   const pitchDetails = getNoteDetails(staffNote.pitch, clef, key);
   if (pitchDetails.vSteps in barAccidentals) { // Previous occurrence
@@ -343,6 +433,7 @@ function analyzeNote( // TODO: review if quarters parameter is really needed
  * @param notePitch pitch of the note to get the details from
  * @param clef Encoded as MIDI pitch note at the 3rd line (G clef -> B = 71)
  * @param key Encoded as semitones (0 = C, 1 = C#, ... 11 = B)
+ * @returns 
  */
 export function getNoteDetails(notePitch: number, clef: number, key: number)
 : {vSteps: number, accidental: number, keyAccidental: number} {
@@ -362,55 +453,12 @@ export function getNoteDetails(notePitch: number, clef: number, key: number)
   };
 }
 
-export function keySignatureAtQ(
-  quarter: number, currentKey: number, staffInfo: StaffInfo
-): number {
-  if (staffInfo.keySignatures) {
-    for (let i = 0; i < staffInfo.keySignatures.length; ++i) {
-      if (staffInfo.keySignatures[i].start <= quarter) {
-        currentKey = staffInfo.keySignatures[i].key;
-      }
-      else {
-        break;
-      }
-    }
-  }
-  return currentKey;
-} 
-
-export function timeSignatureAtQ(
-  quarter: number, currentTimeSignature: TimeSignatureInfo, staffInfo: StaffInfo
-): TimeSignatureInfo {
-  if (staffInfo.timeSignatures) {
-    for (let i = 0; i < staffInfo.timeSignatures.length; ++i) {
-      if (staffInfo.timeSignatures[i].start <= quarter) {
-        currentTimeSignature = staffInfo.timeSignatures[i];
-      }
-      else {
-        break;
-      }
-    }
-  }
-  return currentTimeSignature;
-}
-
-export function getBarLength(timeSignature: TimeSignatureInfo) {
-  return timeSignature.numerator * 4 / timeSignature.denominator;
-}
-
 /**
- * Clef deduction: Average pitch under C4 -> F clef, otherwise G clef
- * @param staffInfo The staff description to look into
+ * Calculates the number of quarters that fits within a bar in a given
+ * time signature
+ * @param timeSignature The time signature
+ * @returns The number of quarters that fit in
  */
-export function guessClef(staffInfo: StaffInfo): number {
-  let pitchSum = 0;
-  let countSum = 0;
-  staffInfo.notes.forEach(
-    note => {
-      pitchSum += note.pitch;
-      ++countSum;
-    }
-  );
-  const averagePitch = pitchSum / countSum;
-  return averagePitch < 60 ? 50 : 71; // Numbers are MIDI pitch values  
+export function getBarLength(timeSignature: TimeSignatureInfo): number {
+  return timeSignature.numerator * 4 / timeSignature.denominator;
 }

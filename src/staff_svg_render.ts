@@ -31,9 +31,8 @@ import  {
 } from './svg_paths';
 
 import {
-  NoteInfo, StaffInfo, StaffBlock, getNoteDetails, getBarLength, 
-  guessClef, keySignatureAtQ, timeSignatureAtQ, KEY_ACCIDENTALS, 
-  TimeSignatureInfo, StaffNote, StaffDefaults, StaffModel
+  NoteInfo, TimeSignatureInfo, StaffInfo, StaffNote, StaffBlock, StaffModel, 
+  StaffDefaults, getNoteDetails, getBarLength, KEY_ACCIDENTALS
 } from './staff_model';
 
 /**
@@ -223,7 +222,7 @@ export class StaffSVGRender {
     this.div = div;
 
     // Musical defaults can be overwritten 
-    this.clef = guessClef(this.staffInfo);
+    this.clef = 71; // TODO: Review
     this.currentKey = config.defaultKey || 0;
     this.currentTimeSignature = {start: 0, numerator: 4, denominator: 4};
     this.initialRest = { // TODO: Optimize
@@ -259,6 +258,7 @@ export class StaffSVGRender {
       initialRest: this.initialRest
     }
     this.staffModel = new StaffModel(this.staffInfo, defaults);
+    this.clef = this.staffModel.staffDefaults.clef; // TODO: Review
     this.clear(); // This will complete rest of member values initialization.
     this.redraw();
   }
@@ -425,7 +425,7 @@ export class StaffSVGRender {
       staffBlockMap.forEach( // Music Blocks
         (staffBlock, quarters) => {
           if (!isCompact) {
-            x = this.quartersToTime(quarters) * this.hStepSize;
+            x = this.staffModel.quartersToTime(quarters) * this.hStepSize;
           }
           if (quarters > this.lastQ) {
             width += this.drawStaffBlock(staffBlock, x + width, linkedNoteMap);
@@ -447,7 +447,7 @@ export class StaffSVGRender {
       else { // Proportional staff horizontal resizing
         const lastBlock = staffBlockMap.get(this.lastQ);
         const endTime = 
-          this.quartersToTime(this.lastQ + lastBlock.notes[0].length);
+          this.staffModel.quartersToTime(this.lastQ + lastBlock.notes[0].length);
         this.width = endTime * this.config.pixelsPerTimeStep;
       }
       this.staffSVG.setAttributeNS(null, 'width', `${this.width}`);
@@ -608,7 +608,7 @@ export class StaffSVGRender {
     let remainingLength = staffBlock.restToNextLength;
     if (remainingLength) {
       if (this.config.pixelsPerTimeStep > 0) {
-        x += this.quartersToTime(staffBlock.notes[0].length) * this.hStepSize;
+        x += this.staffModel.quartersToTime(staffBlock.notes[0].length) * this.hStepSize;
       }
       // Find a possible rest bar split
       let quarters = staffBlock.notes[0].start + staffBlock.notes[0].length;
@@ -635,7 +635,7 @@ export class StaffSVGRender {
             this.musicG, REST_PATHS[l], x + width, 0, this.scale, this.scale
           );
           if (this.config.pixelsPerTimeStep > 0) { // Proportional visualization
-            x += this.quartersToTime(l) * this.hStepSize;
+            x += this.staffModel.quartersToTime(l) * this.hStepSize;
           }
           else { // Compact visualization
             width += rest.getBoundingClientRect().width;
@@ -850,7 +850,7 @@ export class StaffSVGRender {
     if (this.config.pixelsPerTimeStep > 0) { // Proportional visualization
       const firstOverlay = this.signaturesQuarters === 0;
       if (firstOverlay) { // First time overlay is drawn
-        this.signaturesQuarters = this.timeToQuarters(width/this.hStepSize);
+        this.signaturesQuarters = this.staffModel.timeToQuarters(width/this.hStepSize);
       }
       if (firstOverlay || x > 0) { // Excludes second overlay drawings
         this.signaturesBlinking = true;
@@ -869,7 +869,7 @@ export class StaffSVGRender {
    * @returns Wether it changed or not
    */
   private changeKeySignatureIfNeeded(quarters: number): boolean {
-    const candidateKey = keySignatureAtQ(quarters, this.currentKey, this.staffInfo);
+    const candidateKey = this.staffModel.keySignatureAtQ(quarters);
     if (candidateKey !== this.currentKey) {
       this.currentKey = candidateKey;
       return true;
@@ -885,9 +885,7 @@ export class StaffSVGRender {
    * @returns Wether it changed or not
    */
   private changeTimeSignatureIfNeeded(quarter: number): boolean {
-    const candidateTimeSign = timeSignatureAtQ(
-      quarter, this.currentTimeSignature, this.staffInfo
-    );
+    const candidateTimeSign = this.staffModel.timeSignatureAtQ(quarter);
     if (
       candidateTimeSign.numerator !== this.currentTimeSignature.numerator ||
       candidateTimeSign.denominator != this.currentTimeSignature.denominator
@@ -1051,16 +1049,4 @@ export class StaffSVGRender {
     return this.staffSVG.querySelector(`g[data-id="${quarters}-${pitch}"]`);
   }
 
-  /**
-   * 
-   * @param quarters 
-   */
-  private quartersToTime(quarters: number): number {
-    return quarters / this.staffInfo.tempos[0].qpm * 60;
-  }
-  
-  private timeToQuarters(time: number): number {
-    return time * this.staffInfo.tempos[0].qpm / 60;
-  }
-  
 }
