@@ -1,51 +1,121 @@
+/**
+ * @license
+ * Copyright 2019 Pascual de Juan. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * =============================================================================
+ */
+
+/** Stores minimal information related to a musical note */
 export interface NoteInfo {
-  start: number; // Starting time, in quarter note quantities (float)
-  length: number; // Note length, in quarter note quantities (float)
-  pitch: number; // Note pitch according to MIDI standard
-  intensity: number; // Note intensity according to MIDI velocity
+  /** Starting time, in quarter note quantities (float) */
+  start: number;
+  /** Note length, in quarter note quantities (float) */
+  length: number;
+  /** Note pitch according to MIDI standard */
+  pitch: number;
+  /** Note intensity according to MIDI velocity */
+  intensity: number;
 }
 
+/** Stores information related to a tempo change on a score (not used yet) */
 export interface TempoInfo {
+  /** Starting time, in quarter note quantities (float) */
   start: number; 
+  /** Quarters Per Minute from this quarter on, unless further changes */
   qpm: number;
 }
+
+/** Stores information related to a key signature change on a score */
 export interface KeySignatureInfo {
+  /** Starting time, in quarter note quantities (float) */
   start: number; 
+  /** Key signature from this quarter on, unless further changes */
   key: number;
 }
+
+/** Stores information related to a time signature change on a score */
 export interface TimeSignatureInfo {
-  start: number; 
+  /** Starting time, in quarter note quantities (float) */
+  start: number;
+  /** Would hold 3 in a 3/4 time signature change */
   numerator: number; 
+  /** Would hold 4 in a 3/4 time signature change*/
   denominator: number;
 }
+
+/** Stores the bare minimal information related to a full single staff score */
 export interface StaffInfo {
+  /** All notes in a staff. There's no need to be sorted by start q */
   notes: NoteInfo[];
+  /** All tempo changes in a staff. They will get sorted by start q */
   tempos?: TempoInfo[];
+  /** All key signature changes in a staff. They will get sorted by start q */
   keySignatures?: KeySignatureInfo[];
+  /** All time signature changes in a staff. They will get sorted by start q */
   timeSignatures?: TimeSignatureInfo[];
 }
 
-export interface StaffNote {
-  start: number; // In quarter note quantities (float)
-  length: number; // In quarter note quantities (float)
-  pitch: number; // MIDI/Protobuf pitch needed to name SVG Group
-  intensity: number; // Note intensity according to MIDI velocity
-  vSteps: number; // In score steps (int, 2 per staff line), vertically invert.
-  accidental: number; // Kind: -1 = natural, 0 = none, 1 = accidental
-  tiedFrom?: StaffNote; // Reference to previous tied note // TODO: Remove ?
-  tiedTo?: StaffNote; // Reference to following tied note
+/** Stores processed information related to a musical note in a staff */
+export interface StaffNote extends NoteInfo {
+  /** 
+   * Vertical steps to position a note on score. It is measured in integer 
+   * value, considering 2 positions per staff line, vertically inverted, being
+   * in G clef value 0 used for middle C note and -1 used for following D note.
+   */
+  vSteps: number;
+  /** 
+   * Identificator of the accidental kind as following encoding: 
+   * -1 = natural, 0 = none, 1 = accidental (the one used in the key)
+   */
+  accidental: number;
+  /** Reference to previous tied note */
+  tiedFrom?: StaffNote;
+  /** Reference to following tied note */
+  tiedTo?: StaffNote;
 }
 
+/** 
+ * Stores a block of notes in a staff, all of them starting and ending at once, 
+ * even though some notes can be tied to notes in other blocks. It can be 
+ * followed by a rest, which has no representation in a separate data structure.
+ */
 export interface StaffBlock {
+  /** Upper limit of vertical steps in block notes */
   maxVStep: number;
+  /** Lower limit of vertical steps in block notes */
   minVStep: number;
+  /** Following rest to next block, if any */
   restToNextLength: number;
+  /** Wether the block is starting a new bar */
   isBarBeginning: boolean;
+  /** The list of notes related to the block */
   notes: StaffNote[];
 }
 
+/** A map of staff blocks indexed by starting quarter */
 export type StaffBlockMap = Map<number, StaffBlock>;
 
+/** Default key in case none is found (C key) */
+const DEFAULT_KEY: number = 0;
+
+/** Default time signature in case none is found (4/4) */
+const DEFAULT_TIME_SIGNATURE: TimeSignatureInfo = {
+  start: 0, 
+  numerator: 4, 
+  denominator: 4
+}
+
+/** Chromatic scales per key, encoded for staff note placement */
 const SCALES = [ // Accidentals: 0=none, 1=sharp, 2=flat, 3=normal
   { // Chromatic  C C#/Db D D#/Eb E   F F#/Gb G G#/Ab A A#/Bb B   / KEY
     steps:      [ 0,  0, -1, -1, -2, -3, -3, -4, -4, -5, -5, -6], // C
@@ -74,6 +144,9 @@ const SCALES = [ // Accidentals: 0=none, 1=sharp, 2=flat, 3=normal
     accidental: [ 3,  0,  3,  0,  0,  3,  0,  3,  0,  3,  0,  0] }
 ];
 
+/** 
+ * A list of all key accidentals indicating the accidental kind (1 = sharp
+ * and 2 = flat) and the MIDI note it is associated to */
 export const KEY_ACCIDENTALS = [
   {accidental: 1, pitches: []},                       // C
   {accidental: 2, pitches: [70, 75, 68, 73, 66]},     // Db
@@ -89,14 +162,8 @@ export const KEY_ACCIDENTALS = [
   {accidental: 1, pitches: [78, 73, 80, 75, 70]}      // B
 ];
 
+/** Temporary storage of accidentals activated on a bar by MIDI note */
 type BarAccidentals = {[pitch: number]: number};
-
-export type StaffDefaults = {
-  clef: number; // As MIDI pitch note at the staff 3rd line (G clef -> B = 71)
-  key: number; // As semitones (0 = C, 1 = C#, ... 11 = B)
-  timeSignature: TimeSignatureInfo; // Like 3/4 at some precise bar
-  initialRest: StaffBlock;
-};
 
 /**
  * Models a staff info into a musical structure of staff blocks indexed by the
@@ -105,8 +172,12 @@ export type StaffDefaults = {
 export class StaffModel {
   /** The input staff info, stored for further outer modifications */
   public staffInfo: StaffInfo;
-  /** The input staff defaults, stored for further outer modifications */
-  public staffDefaults: StaffDefaults;
+  /**  Staff clef as MIDI pitch note at the staff 3rd line (G clef -> B = 71) */
+  public clef: number;
+  /** Default Key in case there's none on staff info */
+  public defaultKey: number;
+  /** An extra block to store previous rest to complete anacrusis bar */
+  public initialRest: StaffBlock;
   /** The resut of staff analysis on staff blocks indexed by starting quarter */
   public staffBlockMap: StaffBlockMap;
 
@@ -115,10 +186,42 @@ export class StaffModel {
    * @param staffInfo Generic information about a score to crate a staff with
    * @param staffDefaults Default values to fill the gaps if needed
    */
-  constructor(staffInfo: StaffInfo, staffDefaults: StaffDefaults) {
+  constructor(staffInfo: StaffInfo, defaultKey?: number) {
     this.staffInfo = staffInfo;
-    this.staffDefaults = staffDefaults;
-    this.staffDefaults.clef = this.guessClef(); // TODO: Review
+    this.staffInfo.notes.sort( (x, y) => x.start - y.start );
+    if (this.staffInfo.tempos) {
+      this.staffInfo.tempos.sort( (x, y) => x.start - y.start );
+    }
+    if (this.staffInfo.keySignatures) {
+      this.staffInfo.keySignatures.sort( (x, y) => x.start - y.start );
+    }
+    if (this.staffInfo.timeSignatures) {
+      this.staffInfo.keySignatures.sort( (x, y) => x.start - y.start );
+    }
+
+    this.clef = this.guessClef();
+    this.defaultKey = (
+      staffInfo.keySignatures && staffInfo.keySignatures.length && staffInfo.keySignatures[0].start === 0
+    ) ? staffInfo.keySignatures[0].key : defaultKey || DEFAULT_KEY;
+    this.defaultKey = staffInfo.keySignatures ? 
+      staffInfo.keySignatures.length ? staffInfo.keySignatures[0].key : defaultKey :
+      defaultKey;
+    this.initialRest = { // TODO: Optimize
+      maxVStep: 0,
+      minVStep: 0, 
+      restToNextLength: 0,
+      isBarBeginning: true,
+      notes: [
+        {
+          start: 0, 
+          length:0, 
+          pitch: 0, 
+          intensity: 0,
+          vSteps: 0, 
+          accidental: 0, 
+        }
+      ]
+    };
     this.staffBlockMap = null;
     this.analyzeStaffInfo(this.staffInfo);
   }
@@ -145,9 +248,7 @@ export class StaffModel {
       const barBeginnings = this.getBarBeginnings();
       const splites = new Set<number>(barBeginnings); // Bars = split points
       // First pass to translate all notes to quarters
-      const sortedNotes = this.staffInfo.notes.slice().sort(
-        (x, y) => x.start - y.start
-      );
+      const sortedNotes = this.staffInfo.notes.slice();
       sortedNotes.forEach( 
         note => {
           const staffNote = getStaffNote(note);
@@ -190,7 +291,6 @@ export class StaffModel {
       );
       blocks = new Map(Array.from(blocks).sort((x, y) => x[0] - y[0]));
       // Third pass to fill vertical step, accidentals, min/max values and rests.
-      const initialKey = this.staffDefaults.key;
       let lastStaffBlock: StaffBlock = null;
       let lastBlockEnd = 0;
       const it = barBeginnings[Symbol.iterator]();
@@ -204,10 +304,9 @@ export class StaffModel {
             isBarBeginning: false,
             notes: []
           };
-          this.staffDefaults.key = this.keySignatureAtQ(quarters);
-          this.staffDefaults.timeSignature = this.timeSignatureAtQ(quarters); // TODO: Review adding here ???
+          const tmpKey = this.keySignatureAtQ(quarters);
           const value: number = currentBar.value;
-          const currentBarEnd = value + getBarLength(this.staffDefaults.timeSignature);
+          const currentBarEnd = value + getBarLength(this.timeSignatureAtQ(quarters));
           if (!currentBar.done && quarters >= currentBarEnd) {
             currentBar = it.next();
             barAccidentals = {}; // Reset bar accidentals
@@ -215,7 +314,7 @@ export class StaffModel {
           }
           block.forEach(
             staffNote => {
-              analyzeNote(staffNote, this.staffDefaults.clef, this.staffDefaults.key, barAccidentals);
+              analyzeNote(staffNote, this.clef, tmpKey, barAccidentals);
               staffBlock.minVStep = 
                 Math.max(staffNote.vSteps, staffBlock.minVStep);
               staffBlock.maxVStep = 
@@ -231,8 +330,8 @@ export class StaffModel {
           lastBlockEnd = quarters + staffBlock.notes[0].length;
         }
       );
-      this.staffDefaults.initialRest.restToNextLength = this.staffBlockMap.values().next().value.notes[0].start;
-      this.staffDefaults.key = initialKey;
+  
+      this.initialRest.restToNextLength = this.staffBlockMap.values().next().value.notes[0].start;
     }
     return this.staffBlockMap
   }
@@ -274,7 +373,7 @@ export class StaffModel {
    * @returns The key which is operative at given quarter 
    */
   public keySignatureAtQ(quarter: number): number {
-    let key = this.staffDefaults.key;
+    let key = this.defaultKey;
     if (this.staffInfo.keySignatures) {
       for (let i = 0; i < this.staffInfo.keySignatures.length; ++i) {
         if (this.staffInfo.keySignatures[i].start <= quarter) {
@@ -294,7 +393,7 @@ export class StaffModel {
    * @returns The time signature which is operative at given quarter 
    */
   public timeSignatureAtQ(quarter: number): TimeSignatureInfo {
-    let timeSignature = this.staffDefaults.timeSignature;
+    let timeSignature = DEFAULT_TIME_SIGNATURE;
     if (this.staffInfo.timeSignatures) {
       for (let i = 0; i < this.staffInfo.timeSignatures.length; ++i) {
         if (this.staffInfo.timeSignatures[i].start <= quarter) {

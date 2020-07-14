@@ -32,7 +32,7 @@ import  {
 
 import {
   NoteInfo, TimeSignatureInfo, StaffInfo, StaffNote, StaffBlock, StaffModel, 
-  StaffDefaults, getNoteDetails, getBarLength, KEY_ACCIDENTALS
+  getNoteDetails, getBarLength, KEY_ACCIDENTALS
 } from './staff_model';
 
 /**
@@ -171,8 +171,6 @@ export class StaffSVGRender {
   private hStepSize: number;
   /** Vertical SVG distance to middle staff line */
   private staffOffset: number;
-  /** MIDI pitch note at the 3rd line (G clef -> B = 71) */
-  private clef: number;
   /** Coded in semitones (0 = C, 1 = C#, ... 11 = B) */
   private currentKey: number;
   /** Like 3/4 */
@@ -183,8 +181,6 @@ export class StaffSVGRender {
   private signatureCurrent: number;
   /** Current signature end x position */
   private signatureNext: number;
-  /** initial block to hold starting rest */
-  private initialRest: StaffBlock;
   /** Highlited ones */
   private playingNotes: NoteInfo[];
   /** Kind of scrolling if any */
@@ -221,27 +217,6 @@ export class StaffSVGRender {
     };
     this.div = div;
 
-    // Musical defaults can be overwritten 
-    this.clef = 71; // TODO: Review
-    this.currentKey = config.defaultKey || 0;
-    this.currentTimeSignature = {start: 0, numerator: 4, denominator: 4};
-    this.initialRest = { // TODO: Optimize
-      maxVStep: 0,
-      minVStep: 0, 
-      restToNextLength: 0,
-      isBarBeginning: true,
-      notes: [
-        {
-          start: 0, 
-          length:0, 
-          pitch: 0, 
-          intensity: 0,
-          vSteps: 0, 
-          accidental: 0, 
-        }
-      ]
-    };
-
     this.scrollType = config.scrollType || ScrollType.PAGE;
     this.scale = this.config.noteHeight / PATH_SCALE;
     if (
@@ -251,14 +226,10 @@ export class StaffSVGRender {
       this.config.noteSpacing = COMPACT_SPACING * this.scale;
     }
 
-    const defaults: StaffDefaults = { // TODO: Optimize
-      clef: this.clef, 
-      key: this.currentKey, 
-      timeSignature: this.currentTimeSignature,
-      initialRest: this.initialRest
-    }
-    this.staffModel = new StaffModel(this.staffInfo, defaults);
-    this.clef = this.staffModel.staffDefaults.clef; // TODO: Review
+    this.staffModel = new StaffModel(this.staffInfo, config.defaultKey);
+    // Musical defaults can be overwritten by staffModel
+    this.currentKey = this.staffModel.defaultKey;
+    this.currentTimeSignature = this.staffModel.timeSignatureAtQ(0);
     this.clear(); // This will complete rest of member values initialization.
     this.redraw();
   }
@@ -416,7 +387,7 @@ export class StaffSVGRender {
           // First padding if compacted. Following are placed after drawings
           width += this.config.noteSpacing;
         }
-        width += this.drawRests(this.initialRest, x + width);
+        width += this.drawRests(this.staffModel.initialRest, x + width);
       }
       else {
         x = this.width;
@@ -788,17 +759,17 @@ export class StaffSVGRender {
     }
     if (drawClef) {
       const clef = drawSVGPath(
-        e, CLEF_PATHS[this.clef].path, x + width, 0, this.scale, this.scale
+        e, CLEF_PATHS[this.staffModel.clef].path, x + width, 0, this.scale, this.scale
       );
       setFill(clef, this.getColor());
       width += 3 * spacing;
     }
     if (drawKey) {
       const accidental = KEY_ACCIDENTALS[this.currentKey].accidental;
-      const offset = (this.clef === 71) ? 0 : 14; // Measured in vStep
+      const offset = (this.staffModel.clef === 71) ? 0 : 14; // Measured in vStep
       KEY_ACCIDENTALS[this.currentKey].pitches.forEach(
         pitch => {
-          const steps = getNoteDetails(pitch,this.clef, this.currentKey).vSteps;
+          const steps = getNoteDetails(pitch,this.staffModel.clef, this.currentKey).vSteps;
           const p = drawSVGPath(e, ACCIDENTAL_PATHS[accidental], 
             x + width, (offset + steps) * this.vStepSize, 
             this.scale, this.scale);
