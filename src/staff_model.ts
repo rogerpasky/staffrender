@@ -115,6 +115,12 @@ const DEFAULT_TIME_SIGNATURE: TimeSignatureInfo = {
   denominator: 4
 }
 
+/** 
+ * Minimal duration recognized note, which currently is valid for sixteenth 
+ * note triplets and quintuplets.
+ */
+export const MAX_QUARTER_DIVISION = 16*3*5; 
+
 /** Chromatic scales per key, encoded for staff note placement */
 const SCALES = [ // Accidentals: 0=none, 1=sharp, 2=flat, 3=normal
   { // Chromatic  C C#/Db D D#/Eb E   F F#/Gb G G#/Ab A A#/Bb B   / KEY
@@ -436,12 +442,15 @@ export class StaffModel {
   
   /**
    * Convert a given amount of seconds to quarters. **NOTE**: it doesn't 
-   * covers tempo changes yrt, and assumes score keeps it stable till the end.
+   * covers tempo changes yet, and assumes score keeps it stable till the end.
+   * It will be rounded to minimum note division to avoid JavaScript number
+   * rounding issues.
    * @param quarters The given amount of seconds
    * @returns The equivalent amount of quarters
    */
   public timeToQuarters(time: number): number {
-    return time * this.staffInfo.tempos[0].qpm / 60;
+    const q = time * this.staffInfo.tempos[0].qpm / 60;
+    return Math.round(q * MAX_QUARTER_DIVISION) / MAX_QUARTER_DIVISION;
   }
   
 }
