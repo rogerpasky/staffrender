@@ -119,7 +119,7 @@ const DEFAULT_TIME_SIGNATURE: TimeSignatureInfo = {
  * Minimal duration recognized note, which currently is valid for sixtyfourth 
  * note (1/16 of a quarter note) triplets and quintuplets.
  */
-export const MAX_QUARTER_DIVISION = 16*3*5; 
+const MAX_QUARTER_DIVISION = 16*3*5; // TODO: merge with equivalent constants
 
 /** Chromatic scales per key, encoded for staff note placement */
 const SCALES = [ // Accidentals: 0=none, 1=sharp, 2=flat, 3=normal
