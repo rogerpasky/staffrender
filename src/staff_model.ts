@@ -116,8 +116,8 @@ const DEFAULT_TIME_SIGNATURE: TimeSignatureInfo = {
 }
 
 /** 
- * Minimal duration recognized note, which currently is valid for sixteenth 
- * note triplets and quintuplets.
+ * Minimal duration recognized note, which currently is valid for sixtyfourth 
+ * note (1/16 of a quarter note) triplets and quintuplets.
  */
 export const MAX_QUARTER_DIVISION = 16*3*5; 
 
