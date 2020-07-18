@@ -8,6 +8,9 @@ dist/
 **/*.d.ts
 **/*.js
 
+# Docs-specific files
+!docs/**/*.js
+
 # Yarn / npm package handling
 node_modules/
 yarn-error.log
