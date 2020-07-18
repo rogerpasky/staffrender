@@ -49,7 +49,7 @@ export interface TimeSignatureInfo {
   start: number;
   /** Would hold 3 in a 3/4 time signature change */
   numerator: number; 
-  /** Would hold 4 in a 3/4 time signature change*/
+  /** Would hold 4 in a 3/4 time signature change */
   denominator: number;
 }
 
@@ -106,14 +106,14 @@ export interface StaffBlock {
 export type StaffBlockMap = Map<number, StaffBlock>;
 
 /** Default key in case none is found (C key) */
-const DEFAULT_KEY: number = 0;
+const DEFAULT_KEY = 0;
 
 /** Default time signature in case none is found (4/4) */
 const DEFAULT_TIME_SIGNATURE: TimeSignatureInfo = {
   start: 0, 
   numerator: 4, 
   denominator: 4
-}
+};
 
 /** 
  * Minimal duration recognized note, which currently is valid for sixtyfourth 
@@ -152,7 +152,8 @@ const SCALES = [ // Accidentals: 0=none, 1=sharp, 2=flat, 3=normal
 
 /** 
  * A list of all key accidentals indicating the accidental kind (1 = sharp
- * and 2 = flat) and the MIDI note it is associated to */
+ * and 2 = flat) and the MIDI note it is associated to
+ */
 export const KEY_ACCIDENTALS = [
   {accidental: 1, pitches: []},                       // C
   {accidental: 2, pitches: [70, 75, 68, 73, 66]},     // Db
@@ -207,10 +208,12 @@ export class StaffModel {
 
     this.clef = this.guessClef();
     this.defaultKey = (
-      staffInfo.keySignatures && staffInfo.keySignatures.length && staffInfo.keySignatures[0].start === 0
+      staffInfo.keySignatures && staffInfo.keySignatures.length && 
+      staffInfo.keySignatures[0].start === 0
     ) ? staffInfo.keySignatures[0].key : defaultKey || DEFAULT_KEY;
     this.defaultKey = staffInfo.keySignatures ? 
-      staffInfo.keySignatures.length ? staffInfo.keySignatures[0].key : defaultKey :
+      staffInfo.keySignatures.length ? 
+        staffInfo.keySignatures[0].key : defaultKey :
       defaultKey;
     this.initialRest = { // TODO: Optimize
       maxVStep: 0,
@@ -253,7 +256,7 @@ export class StaffModel {
       let blocks = new Map<number, StaffNote[]>();
       const barBeginnings = this.getBarBeginnings();
       const splites = new Set<number>(barBeginnings); // Bars = split points
-      // First pass to translate all notes to quarters
+      // 1st pass to translate all notes to quarters
       const sortedNotes = this.staffInfo.notes.slice();
       sortedNotes.forEach( 
         note => {
@@ -268,7 +271,7 @@ export class StaffModel {
           }
         }
       );
-      // Second pass to apply all splites to the right blocks
+      // 2nd pass to apply all splites to the right blocks
       const sortedSplites = Array.from(splites).sort((x, y) => x - y);
       sortedSplites.forEach(
         split => {
@@ -296,7 +299,7 @@ export class StaffModel {
         }
       );
       blocks = new Map(Array.from(blocks).sort((x, y) => x[0] - y[0]));
-      // Third pass to fill vertical step, accidentals, min/max values and rests.
+      // 3rd pass to fill vertical step, accidentals, min/max values and rests.
       let lastStaffBlock: StaffBlock = null;
       let lastBlockEnd = 0;
       const it = barBeginnings[Symbol.iterator]();
@@ -312,7 +315,8 @@ export class StaffModel {
           };
           const tmpKey = this.keySignatureAtQ(quarters);
           const value: number = currentBar.value;
-          const currentBarEnd = value + getBarLength(this.timeSignatureAtQ(quarters));
+          const currentBarEnd = 
+            value + getBarLength(this.timeSignatureAtQ(quarters));
           if (!currentBar.done && quarters >= currentBarEnd) {
             currentBar = it.next();
             barAccidentals = {}; // Reset bar accidentals
@@ -337,9 +341,10 @@ export class StaffModel {
         }
       );
   
-      this.initialRest.restToNextLength = this.staffBlockMap.values().next().value.notes[0].start;
+      this.initialRest.restToNextLength = 
+        this.staffBlockMap.values().next().value.notes[0].start;
     }
-    return this.staffBlockMap
+    return this.staffBlockMap;
   }
 
   /**

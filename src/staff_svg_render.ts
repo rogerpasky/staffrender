@@ -417,8 +417,9 @@ export class StaffSVGRender {
       }
       else { // Proportional staff horizontal resizing
         const lastBlock = staffBlockMap.get(this.lastQ);
-        const endTime = 
-          this.staffModel.quartersToTime(this.lastQ + lastBlock.notes[0].length);
+        const endTime = this.staffModel.quartersToTime(
+          this.lastQ + lastBlock.notes[0].length
+        );
         this.width = endTime * this.config.pixelsPerTimeStep;
       }
       this.staffSVG.setAttributeNS(null, 'width', `${this.width}`);
@@ -434,7 +435,9 @@ export class StaffSVGRender {
    * @param linkedNoteMap Temporary storage of visual data aids
    * @returns The width of the drawn block
    */
-  private drawStaffBlock(staffBlock: StaffBlock, x: number, linkedNoteMap: LinkedNoteMap): number {
+  private drawStaffBlock(
+    staffBlock: StaffBlock, x: number, linkedNoteMap: LinkedNoteMap
+  ): number {
     const quarter = staffBlock.notes[0].start;
     // Preceding bar
     let width = this.drawBarIfNeeded(quarter, x);
@@ -489,9 +492,11 @@ export class StaffSVGRender {
         }
         // Preceding Tie
         if (note.tiedFrom) {
-          const tieWidth = x + width - linkedNoteMap.get(note.tiedFrom).xHeadRight; // TODO: Simplify
+          const tieWidth =  // TODO: Simplify
+            x + width - linkedNoteMap.get(note.tiedFrom).xHeadRight;
           drawSVGPath(
-            _g, tiePath, linkedNoteMap.get(note.tiedFrom).xHeadRight, y, tieWidth/PATH_SCALE, // TODO: Simplify
+            _g, tiePath, linkedNoteMap.get(note.tiedFrom).xHeadRight, y, 
+            tieWidth/PATH_SCALE, // TODO: Simplify
             this.scale * (note.vSteps < 0 ? -1 : 1), opacity
           );
         }
@@ -518,7 +523,7 @@ export class StaffSVGRender {
         }
         // Store for further visual linkage if linked to some other note
         if (note.tiedTo) {
-          linkedNoteMap.set(note, {g: _g, xHeadRight: _xHeadRight})
+          linkedNoteMap.set(note, {g: _g, xHeadRight: _xHeadRight});
         }
       }
     );
@@ -579,12 +584,14 @@ export class StaffSVGRender {
     let remainingLength = staffBlock.restToNextLength;
     if (remainingLength) {
       if (this.config.pixelsPerTimeStep > 0) {
-        x += this.staffModel.quartersToTime(staffBlock.notes[0].length) * this.hStepSize;
+        x += this.staffModel.quartersToTime(staffBlock.notes[0].length) * 
+          this.hStepSize;
       }
       // Find a possible rest bar split
       let quarters = staffBlock.notes[0].start + staffBlock.notes[0].length;
       let lengthAfterNextBar = 0;
-      const quartersToNextBar = this.lastBar + getBarLength(this.currentTimeSignature) - quarters;
+      const quartersToNextBar = 
+        this.lastBar + getBarLength(this.currentTimeSignature) - quarters;
       if (remainingLength > quartersToNextBar) {
         lengthAfterNextBar = remainingLength - quartersToNextBar;
         remainingLength = quartersToNextBar;
@@ -592,7 +599,8 @@ export class StaffSVGRender {
       let maxRest: number;
       for ( // Set the minimum viable rest in the bar
         maxRest = 4; 
-        maxRest > getBarLength(this.currentTimeSignature) && maxRest >= MIN_RESOLUTION;
+        maxRest > getBarLength(this.currentTimeSignature) && 
+          maxRest >= MIN_RESOLUTION;
         maxRest /= 2
       ) {}
       let l = maxRest;
@@ -627,7 +635,8 @@ export class StaffSVGRender {
           }
           for ( // Set the minimum viable rest in the starting bar
             maxRest = 4; 
-            maxRest > getBarLength(this.currentTimeSignature) && maxRest >= MIN_RESOLUTION;
+            maxRest > getBarLength(this.currentTimeSignature) && 
+              maxRest >= MIN_RESOLUTION;
             maxRest /= 2
           ) {}
           l = maxRest;
@@ -759,17 +768,20 @@ export class StaffSVGRender {
     }
     if (drawClef) {
       const clef = drawSVGPath(
-        e, CLEF_PATHS[this.staffModel.clef], x + width, 0, this.scale, this.scale
+        e, CLEF_PATHS[this.staffModel.clef], 
+        x + width, 0, this.scale, this.scale
       );
       setFill(clef, this.getColor());
       width += 3 * spacing;
     }
     if (drawKey) {
       const accidental = KEY_ACCIDENTALS[this.currentKey].accidental;
-      const offset = (this.staffModel.clef === 71) ? 0 : 14; // Measured in vStep
+      const offset = 
+        (this.staffModel.clef === 71) ? 0 : 14; // Measured in vStep
       KEY_ACCIDENTALS[this.currentKey].pitches.forEach(
         pitch => {
-          const steps = getNoteDetails(pitch,this.staffModel.clef, this.currentKey).vSteps;
+          const steps = 
+            getNoteDetails(pitch,this.staffModel.clef, this.currentKey).vSteps;
           const p = drawSVGPath(e, ACCIDENTAL_PATHS[accidental], 
             x + width, (offset + steps) * this.vStepSize, 
             this.scale, this.scale);
@@ -821,7 +833,8 @@ export class StaffSVGRender {
     if (this.config.pixelsPerTimeStep > 0) { // Proportional visualization
       const firstOverlay = this.signaturesQuarters === 0;
       if (firstOverlay) { // First time overlay is drawn
-        this.signaturesQuarters = this.staffModel.timeToQuarters(width/this.hStepSize);
+        this.signaturesQuarters = 
+          this.staffModel.timeToQuarters(width/this.hStepSize);
       }
       if (firstOverlay || x > 0) { // Excludes second overlay drawings
         this.signaturesBlinking = true;
@@ -859,9 +872,9 @@ export class StaffSVGRender {
     const candidateTimeSign = this.staffModel.timeSignatureAtQ(quarter);
     if (
       candidateTimeSign.numerator !== this.currentTimeSignature.numerator ||
-      candidateTimeSign.denominator != this.currentTimeSignature.denominator
+      candidateTimeSign.denominator !== this.currentTimeSignature.denominator
     ) {
-      this.currentTimeSignature = candidateTimeSign
+      this.currentTimeSignature = candidateTimeSign;
       return true;
     }
     else {
@@ -872,11 +885,11 @@ export class StaffSVGRender {
   /**
    * Combines signatures change and drawing according to x position. It's used
    * to replace overlays on horizontal scrolling according to next diagram:
-   *```
-   *   current  x     next   <= current & next include the starting point
-   *         |  |     |
-   *[0      )[1      )[2     )null
-   *```
+   * ```
+   *    current  x     next   <= current & next include the starting point
+   *          |  |     |
+   * [0      )[1      )[2     )null
+   * ```
    * @param x Horizontal position to draw signatures
    */
   private changeAndDrawSignaturesIfNeeded(x: number) {
@@ -992,7 +1005,7 @@ export class StaffSVGRender {
    * @param isActive Wether the color is active (highlight) or not
    * @returns The color string
    */
-  private getColor(isActive: boolean=false): string {
+  private getColor(isActive=false): string {
     return `rgb(${isActive ? this.config.activeNoteRGB : this.config.noteRGB})`;
   }
 
