@@ -10,7 +10,7 @@ This is a **work in process** project, who has some to do list, like triplets, q
 ## Usage
 - `npm install staffrender`
 - Latest version: `1.0.0`
-- Documentation: [Staffrender Homepage](https://rogerpasky.github.io/staffrender/docs)
+- Documentation: [Staffrender Homepage](https://rogerpasky.github.io/staffrender/)
 
 ## Development
 - Clone the repo
