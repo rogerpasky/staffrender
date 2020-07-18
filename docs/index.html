@@ -67,7 +67,33 @@
 				</a>
 				<p>A plain vanilla TypeScrip library to render music score in browsers</p>
 				<p>It has been created to support Tensorflow/Magenta-JS staff visualizer, but it could be used standalone.</p>
-				<p>This is a <strong>work in process</strong> project, who has some to do list, like triplets, quintuplets and shorter-than-quarter notes aggregation into beams (instead individual note flags), but it is fully operative. It will keep on growing and evolving. NPM packaging deserves some cleanup as well, and some stand alone demos will be offered (currently focused on magenta-js consumption demos).</p>
+				<p>From version 1.0.0 on, it offers access to its internal data structure <code>StaffModel</code> to process scores and hold musical blocks without visual representation.</p>
+				<p>This is a <strong>work in process</strong> project, who has some to do list, like triplets, quintuplets and shorter-than-quarter notes aggregation into beams (instead individual note flags), but it is fully operative. It will keep on growing and evolving. Some stand alone demos will be offered (currently focused on magenta-js consumption demos), but you can watch it in action building and serving the <code>./test</code> directory on local deployment.</p>
+				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
+					<h2>Usage</h2>
+				</a>
+				<ul>
+					<li><code>npm install staffrender</code></li>
+					<li>Latest version: <code>1.0.0</code></li>
+					<li>Documentation: <a href="https://rogerpasky.github.io/staffrender/docs">Staffrender Homepage</a></li>
+				</ul>
+				<a href="#development" id="development" style="color: inherit; text-decoration: none;">
+					<h2>Development</h2>
+				</a>
+				<ul>
+					<li>Clone the repo</li>
+					<li>Go to root directory (where README.md is located)</li>
+					<li>Run <code>yarn install</code> to set up dependencies</li>
+					<li>Run <code>yarn build</code> to preprocess typescript and create package</li>
+					<li>Run <code>yarn docs</code> to compile typedoc documentation and serve it to verify content on local server</li>
+					<li>Go to <code>./test</code> to run <code>yarn build</code>and <code>yarn serve</code> to visually and acustically test the code</li>
+					<li>Run <code>yarn prepublish</code> to verify new version standard before any contribution</li>
+					<li>Admin only:<ul>
+							<li>Update version</li>
+							<li>Run <code>npm publish</code> </li>
+						</ul>
+					</li>
+				</ul>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
