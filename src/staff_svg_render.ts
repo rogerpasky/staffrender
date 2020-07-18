@@ -759,7 +759,7 @@ export class StaffSVGRender {
     }
     if (drawClef) {
       const clef = drawSVGPath(
-        e, CLEF_PATHS[this.staffModel.clef].path, x + width, 0, this.scale, this.scale
+        e, CLEF_PATHS[this.staffModel.clef], x + width, 0, this.scale, this.scale
       );
       setFill(clef, this.getColor());
       width += 3 * spacing;

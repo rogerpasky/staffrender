@@ -15,8 +15,12 @@
  * =============================================================================
  */
 
-export const MIN_RESOLUTION = 0.0625; // 1/16 of a quarter note (1/64th note)
+/** 1/16 of a quarter note (1/64th note) */
+export const MIN_RESOLUTION = 0.0625; // TODO: Unify
 
-export const STEM_WIDTH = 15; // 15% of accidentals width
-export const LINE_STROKE = 1; // 1 pixel
-export const COMPACT_SPACING = 150; // 150% of accidentals width
+/** 15% of accidentals width */
+export const STEM_WIDTH = 15;
+/** 1 pixel */
+export const LINE_STROKE = 1;
+/** 150% of accidentals width */
+export const COMPACT_SPACING = 150;

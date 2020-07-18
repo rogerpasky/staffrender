@@ -15,8 +15,20 @@
  * =============================================================================
  */
 
+ /** SVG NameSpace string */
 export const SVGNS = 'http://www.w3.org/2000/svg';
 
+/**
+ * Draws a SVG path on a SVG container element
+ * @param e The SVG container element
+ * @param path The SVG path
+ * @param x Horizontal position relative to container origin
+ * @param y Vertical position relative to container origin
+ * @param scaleX Horizontal scale in a factor over 1.0
+ * @param scaleY Vertical scale in a factor over 1.0
+ * @param opacity Opacity (where 0 is transparent and 1 is fully opaque)
+ * @returns The drawn SVG path element
+ */
 export function drawSVGPath(
   e: SVGElement, path: string, x: number, y: number, 
   scaleX: number, scaleY: number, opacity = 1
@@ -31,6 +43,18 @@ export function drawSVGPath(
   return child;
 }
 
+/**
+ * Draws a SVG text on a SVG container element
+ * @param e The SVG container element
+ * @param text The text to be drawn
+ * @param x Horizontal position relative to container origin
+ * @param y Vertical position relative to container origin
+ * @param fontSize The font size
+ * @param isBold Wether the text should be bold or not
+ * @param scaleX Horizontal scale in a factor over 1.0
+ * @param scaleY Vertical scale in a factor over 1.0
+ * @returns The drawn SVG text element
+ */
 export function drawSVGText(
   e: SVGElement, text: string, x: number, y: number, 
   fontSize: string, isBold=false, scaleX = 1, scaleY = 1
@@ -48,6 +72,12 @@ export function drawSVGText(
   return child;
 }
 
+/**
+ * Creates a SVG group on a SVG container element
+ * @param e The SVG container element
+ * @param id The string to identify it when searched for
+ * @returns The created SVG group element
+ */
 export function createSVGGroupChild(e: SVGElement, id: string): SVGElement {
   const child = document.createElementNS(SVGNS, 'g');
   child.setAttribute('data-id', id);
@@ -55,6 +85,14 @@ export function createSVGGroupChild(e: SVGElement, id: string): SVGElement {
   return child;
 }
 
+/**
+ * Creates a fading animation to play on a SVG element
+ * @param e The element to be animated
+ * @param bounce Wether the animation should repeat backwards and forward
+ * @param from Initial opacity (1 is fully opaque)
+ * @param to Final opacity (0 is transparent)
+ * @returns The received SVG element to be animated
+ */
 export function setFade(
   e: SVGElement, bounce = false, from = 1, to = 0
 ): SVGElement {
@@ -80,24 +118,32 @@ export function setFade(
   return e;
 }
 
+/**
+ * Fills a SVG element with a given color
+ * @param e The SVG element fo be filled
+ * @param color The fill color
+ */
 export function setFill(e: SVGElement, color: string) {
   e.setAttributeNS(null, 'fill', color);
 }
 
+/**
+ * Changes stroke width and colour of a given SVG element
+ * @param e The SVG element to change the stroke to
+ * @param strokeWidth The stroke width
+ * @param color The new colour
+ */
 export function setStroke(e: SVGElement, strokeWidth: number, color: string) {
   e.setAttributeNS(null, 'stroke-width', `${strokeWidth}`);
   e.setAttributeNS(null, 'stroke', color);
 }
 
+/**
+ * Changes both fill and stroke colours of a SVG element
+ * @param e The SVG element to change colours
+ * @param color The new colour
+ */
 export function highlightElement(e: SVGElement, color: string) {
   e.setAttribute('fill', color);
   e.setAttribute('stroke', color);
 }
-
-/*
-  private highlightElement(e: SVGElement, isActive: boolean) {
-    e.setAttribute('fill', this.getColor(isActive));
-    e.setAttribute('stroke', this.getColor(isActive));
-  }
-
-*/

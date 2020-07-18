@@ -64,6 +64,25 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<dl class="tsd-comment-tags">
+						<dt>license</dt>
+						<dd><p>Copyright 2019 Pascual de Juan. All Rights Reserved.
+								Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+								you may not use this file except in compliance with the License.
+							You may obtain a copy of the License at</p>
+							<p><a href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+							<p>Unless required by applicable law or agreed to in writing, software
+								distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+								WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+								See the License for the specific language governing permissions and
+								limitations under the License.
+							=============================================================================</p>
+						</dd>
+					</dl>
+				</div>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
@@ -80,7 +99,10 @@
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_svg_tools_.html#createsvggroupchild" class="tsd-kind-icon">createSVGGroup<wbr>Child</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_svg_tools_.html#drawsvgpath" class="tsd-kind-icon">drawSVGPath</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_svg_tools_.html#drawsvgtext" class="tsd-kind-icon">drawSVGText</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_svg_tools_.html#highlightelement" class="tsd-kind-icon">highlight<wbr>Element</a></li>
 								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_svg_tools_.html#setfade" class="tsd-kind-icon">set<wbr>Fade</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_svg_tools_.html#setfill" class="tsd-kind-icon">set<wbr>Fill</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_svg_tools_.html#setstroke" class="tsd-kind-icon">set<wbr>Stroke</a></li>
 							</ul>
 						</section>
 					</div>
@@ -94,25 +116,13 @@
 					<div class="tsd-signature tsd-kind-icon">SVGNS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"http://www.w3.org/2000/svg"</span><span class="tsd-signature-symbol"> = &quot;http://www.w3.org/2000/svg&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/17d4f78/src/svg_tools.ts#L18">svg_tools.ts:18</a></li>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/058ac7a/src/svg_tools.ts#L19">svg_tools.ts:19</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
-						<dl class="tsd-comment-tags">
-							<dt>license</dt>
-							<dd><p>Copyright 2019 Pascual de Juan. All Rights Reserved.
-									Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
-									you may not use this file except in compliance with the License.
-								You may obtain a copy of the License at</p>
-								<p><a href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
-								<p>Unless required by applicable law or agreed to in writing, software
-									distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
-									WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-									See the License for the specific language governing permissions and
-									limitations under the License.
-								=============================================================================</p>
-							</dd>
-						</dl>
+						<div class="lead">
+							<p>SVG NameSpace string</p>
+						</div>
 					</div>
 				</section>
 			</section>
@@ -128,19 +138,31 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/17d4f78/src/svg_tools.ts#L51">svg_tools.ts:51</a></li>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/058ac7a/src/svg_tools.ts#L81">svg_tools.ts:81</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a SVG group on a SVG container element</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>e: <span class="tsd-signature-type">SVGElement</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The SVG container element</p>
+									</div>
 								</li>
 								<li>
 									<h5>id: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The string to identify it when searched for</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">SVGElement</span></h4>
+							<p>The created SVG group element</p>
 						</li>
 					</ul>
 				</section>
@@ -154,34 +176,61 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/17d4f78/src/svg_tools.ts#L20">svg_tools.ts:20</a></li>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/058ac7a/src/svg_tools.ts#L32">svg_tools.ts:32</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Draws a SVG path on a SVG container element</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>e: <span class="tsd-signature-type">SVGElement</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The SVG container element</p>
+									</div>
 								</li>
 								<li>
 									<h5>path: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The SVG path</p>
+									</div>
 								</li>
 								<li>
 									<h5>x: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Horizontal position relative to container origin</p>
+									</div>
 								</li>
 								<li>
 									<h5>y: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Vertical position relative to container origin</p>
+									</div>
 								</li>
 								<li>
 									<h5>scaleX: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Horizontal scale in a factor over 1.0</p>
+									</div>
 								</li>
 								<li>
 									<h5>scaleY: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Vertical scale in a factor over 1.0</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> opacity: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Opacity (where 0 is transparent and 1 is fully opaque)</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">SVGElement</span></h4>
+							<p>The drawn SVG path element</p>
 						</li>
 					</ul>
 				</section>
@@ -195,37 +244,104 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/17d4f78/src/svg_tools.ts#L34">svg_tools.ts:34</a></li>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/058ac7a/src/svg_tools.ts#L58">svg_tools.ts:58</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Draws a SVG text on a SVG container element</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>e: <span class="tsd-signature-type">SVGElement</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The SVG container element</p>
+									</div>
 								</li>
 								<li>
 									<h5>text: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The text to be drawn</p>
+									</div>
 								</li>
 								<li>
 									<h5>x: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Horizontal position relative to container origin</p>
+									</div>
 								</li>
 								<li>
 									<h5>y: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Vertical position relative to container origin</p>
+									</div>
 								</li>
 								<li>
 									<h5>fontSize: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The font size</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> isBold: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Wether the text should be bold or not</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> scaleX: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Horizontal scale in a factor over 1.0</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> scaleY: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Vertical scale in a factor over 1.0</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">SVGElement</span></h4>
+							<p>The drawn SVG text element</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="highlightelement" class="tsd-anchor"></a>
+					<h3>highlight<wbr>Element</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">highlight<wbr>Element<span class="tsd-signature-symbol">(</span>e<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">SVGElement</span>, color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/058ac7a/src/svg_tools.ts#L146">svg_tools.ts:146</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Changes both fill and stroke colours of a SVG element</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>e: <span class="tsd-signature-type">SVGElement</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The SVG element to change colours</p>
+									</div>
+								</li>
+								<li>
+									<h5>color: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The new colour</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -239,25 +355,123 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/17d4f78/src/svg_tools.ts#L58">svg_tools.ts:58</a></li>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/058ac7a/src/svg_tools.ts#L96">svg_tools.ts:96</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a fading animation to play on a SVG element</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>e: <span class="tsd-signature-type">SVGElement</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The element to be animated</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> bounce: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Wether the animation should repeat backwards and forward</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> from: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Initial opacity (1 is fully opaque)</p>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> to: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Final opacity (0 is transparent)</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">SVGElement</span></h4>
+							<p>The received SVG element to be animated</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="setfill" class="tsd-anchor"></a>
+					<h3>set<wbr>Fill</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Fill<span class="tsd-signature-symbol">(</span>e<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">SVGElement</span>, color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/058ac7a/src/svg_tools.ts#L126">svg_tools.ts:126</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Fills a SVG element with a given color</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>e: <span class="tsd-signature-type">SVGElement</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The SVG element fo be filled</p>
+									</div>
+								</li>
+								<li>
+									<h5>color: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The fill color</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
+					<a name="setstroke" class="tsd-anchor"></a>
+					<h3>set<wbr>Stroke</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Stroke<span class="tsd-signature-symbol">(</span>e<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">SVGElement</span>, strokeWidth<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/058ac7a/src/svg_tools.ts#L136">svg_tools.ts:136</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Changes stroke width and colour of a given SVG element</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>e: <span class="tsd-signature-type">SVGElement</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The SVG element to change the stroke to</p>
+									</div>
+								</li>
+								<li>
+									<h5>strokeWidth: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The stroke width</p>
+									</div>
+								</li>
+								<li>
+									<h5>color: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The new colour</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -301,7 +515,16 @@
 						<a href="_svg_tools_.html#drawsvgtext" class="tsd-kind-icon">drawSVGText</a>
 					</li>
 					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="_svg_tools_.html#highlightelement" class="tsd-kind-icon">highlight<wbr>Element</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
 						<a href="_svg_tools_.html#setfade" class="tsd-kind-icon">set<wbr>Fade</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="_svg_tools_.html#setfill" class="tsd-kind-icon">set<wbr>Fill</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="_svg_tools_.html#setstroke" class="tsd-kind-icon">set<wbr>Stroke</a>
 					</li>
 				</ul>
 			</nav>
