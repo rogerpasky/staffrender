@@ -355,7 +355,6 @@ export class StaffSVGRender {
       this.playingNotes = keepOnPlayingNotes;
       const g = this.getGroup(activeNote);
       if (g) {
-        console.log(activeNote);
         this.playingNotes.push(activeNote); // Store to revert highlight later
         highlightElement(g, this.getColor(true));
         activeNotePosition = g.getBoundingClientRect().left - 
@@ -456,9 +455,9 @@ export class StaffSVGRender {
       const noteLength = staffBlock.notes[0].length === 0 ? '[infinite]' : 
         `${4 / staffBlock.notes[0].length}`;
       console.warn(
-        ' StaffRender ', 'background:orange; color:white', 
-        'StaffRender does not handle notes shorther than ' +
-        `1/${4 / MIN_RESOLUTION}th, and this score tries to draw a ` +
+        '%cStaffRender:', 'background:orange; color:white', 
+        'StaffRender does not handle notes shorther than' +
+        `1/${4 / MIN_RESOLUTION}th, and this score tries to draw a` +
         `1/${noteLength}th. Shortest possible note will be drawn instead.`
       );
       headIndex = MIN_RESOLUTION;
