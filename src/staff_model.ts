@@ -100,6 +100,8 @@ export interface StaffBlock {
   isBarBeginning: boolean;
   /** The list of notes related to the block */
   notes: StaffNote[];
+  /** Block bar number (float) being .0 at bar beginning and .5 at bar half. */
+  bar: number;
 }
 
 /** A map of staff blocks indexed by starting quarter */
@@ -229,7 +231,8 @@ export class StaffModel {
           vSteps: 0, 
           accidental: 0, 
         }
-      ]
+      ],
+      bar: 0
     };
     this.staffBlockMap = null;
     this.analyzeStaffInfo(this.staffInfo);
@@ -251,29 +254,23 @@ export class StaffModel {
     ) {
       this.staffInfo = staffInfo;
       this.staffBlockMap = new Map(); // Future usage for incremental blocks
-
-      let barAccidentals: BarAccidentals = {}; // Temporal accidentals
-      let blocks = new Map<number, StaffNote[]>();
       const barBeginnings = this.getBarBeginnings();
+
+      // 1st pass to group all notes into blocks and define split points
+      let blocks = new Map<number, StaffNote[]>();
       const splites = new Set<number>(barBeginnings); // Bars = split points
-      // 1st pass to translate all notes to quarters
-      const sortedNotes = this.staffInfo.notes.slice();
-      sortedNotes.forEach( 
+      this.staffInfo.notes.forEach( 
         note => {
-          const staffNote = getStaffNote(note);
+          const staffNote = toStaffNote(note);
+          noteToBlock(staffNote, blocks);
           splites.add(staffNote.start);
           splites.add(staffNote.start + staffNote.length);
-          if (blocks.has(staffNote.start)) {
-            blocks.get(staffNote.start).push(staffNote);
-          }
-          else {
-            blocks.set(staffNote.start, [staffNote]);
-          }
         }
       );
+
       // 2nd pass to apply all splites to the right blocks
       const sortedSplites = Array.from(splites).sort((x, y) => x - y);
-      sortedSplites.forEach(
+      sortedSplites.forEach( // TODO: Review optimization
         split => {
           const remains: StaffNote[] = [];
           blocks.forEach(
@@ -281,50 +278,46 @@ export class StaffModel {
               block.forEach(
                 staffNote => {
                   const remainStaffNote = splitStaffNote(staffNote, split);
-                  if (remainStaffNote) { remains.push(remainStaffNote); }
+                  if (remainStaffNote) {
+                    remains.push(remainStaffNote);
+                  }
                 }
               );
             }
           );
-          remains.forEach(
-            staffNote => {
-              if (blocks.has(staffNote.start)) {
-                blocks.get(staffNote.start).push(staffNote);
-              }
-              else {
-                blocks.set(staffNote.start, [staffNote]);
-              }
-            }
-          );
+          remains.forEach(staffNote => noteToBlock(staffNote, blocks));
         }
       );
       blocks = new Map(Array.from(blocks).sort((x, y) => x[0] - y[0]));
+
       // 3rd pass to fill vertical step, accidentals, min/max values and rests.
+      let barAccidentals: BarAccidentals = {}; // Temporal accidentals
       let lastStaffBlock: StaffBlock = null;
       let lastBlockEnd = 0;
       const it = barBeginnings[Symbol.iterator]();
       let currentBar = it.next();
       blocks.forEach(
         (block: StaffNote[], quarters: number) => {
-          const staffBlock: StaffBlock = {
+          const staffBlock: StaffBlock = { // The block to be filled & inserted
             maxVStep: Number.MAX_SAFE_INTEGER,
             minVStep: Number.MIN_SAFE_INTEGER, 
             restToNextLength: 0,
             isBarBeginning: false,
-            notes: []
+            notes: [],
+            bar: 0
           };
-          const tmpKey = this.keySignatureAtQ(quarters);
-          const value: number = currentBar.value;
-          const currentBarEnd = 
-            value + getBarLength(this.timeSignatureAtQ(quarters));
-          if (!currentBar.done && quarters >= currentBarEnd) {
+          const keySignature = this.keySignatureAtQ(quarters);
+          const barStart: number = currentBar.value;
+          const barEnd = 
+            barStart + getBarLength(this.timeSignatureAtQ(quarters));
+          if (!currentBar.done && quarters >= barEnd) { // New bar
             currentBar = it.next();
             barAccidentals = {}; // Reset bar accidentals
             staffBlock.isBarBeginning = true;
           }
           block.forEach(
             staffNote => {
-              analyzeNote(staffNote, this.clef, tmpKey, barAccidentals);
+              placeNote(staffNote, barAccidentals, this.clef, keySignature);
               staffBlock.minVStep = 
                 Math.max(staffNote.vSteps, staffBlock.minVStep);
               staffBlock.maxVStep = 
@@ -335,9 +328,9 @@ export class StaffModel {
           if (lastStaffBlock) { // Rest length from last block to this one
             lastStaffBlock.restToNextLength = quarters - lastBlockEnd;
           }
-          this.staffBlockMap.set(quarters, staffBlock);
           lastStaffBlock = staffBlock;
           lastBlockEnd = quarters + staffBlock.notes[0].length;
+          this.staffBlockMap.set(quarters, staffBlock); // Block insertion
         }
       );
   
@@ -362,7 +355,7 @@ export class StaffModel {
       }
     );
     const timeSignatures = (this.staffInfo.timeSignatures) ?
-    this.staffInfo.timeSignatures.slice(0) : 
+      this.staffInfo.timeSignatures.slice(0) : 
       [{start: 0, numerator: 4, denominator: 4}];
     timeSignatures.sort((x, y) => x.start - y.start);
     let q = 0;
@@ -461,19 +454,35 @@ export class StaffModel {
 }
 
 /**
- * Converts a note from `NoteInfo` interface to `StaffNote` interface
+ * Converts a note from `NoteInfo` interface to `StaffNote` interface. It 
+ * resets `vStep` and `accidental` to zero and lets `tiedFrom` and `tiedTo`
+ * as `undefined`.
  * @param note The note to be converted
  * @returns The converted note
  */
-function getStaffNote(note: NoteInfo): StaffNote {
+function toStaffNote(note: NoteInfo): StaffNote {
   return {
     start: note.start,
     length: note.length,
     pitch: note.pitch,
     intensity: note.intensity,
-    vSteps: 0, // Delayed assignation till analyzeNote() call
-    accidental: 0 // Delayed assignation till analyzeNote() call
+    vSteps: 0, // Delayed assignation till placeNote() call
+    accidental: 0 // Delayed assignation till placeNote() call
   };
+}
+
+/**
+ * Inserts or appends a note into a new or existing block, respectively.
+ * @param note Note to be included into a block map indexed by starting quarter
+ * @param blocks Block map to hold notes
+ */
+function noteToBlock(note: StaffNote, blocks: Map<number, StaffNote[]>) {
+  if (blocks.has(note.start)) {
+    blocks.get(note.start).push(note);
+  }
+  else {
+    blocks.set(note.start, [note]);
+  }
 }
 
 /**
@@ -503,20 +512,18 @@ function splitStaffNote(staffNote: StaffNote, quarters: number): StaffNote {
 }
 
 /**
- * Analyzes a note based on full context
+ * Analyzes a note based on full accidentals context, updating `barAccidentals`
  * @param staffNote Note to be analyzed 
+ * @param barAccidentals Active accidentals in current bar
  * @param clef Contextual applicable clef
  * @param key Contextual applicable key
- * @param barAccidentals Active accidentals in current bar
  */
-function analyzeNote(
-  staffNote: StaffNote, clef:number, key:number, barAccidentals: BarAccidentals
+function placeNote(
+  staffNote: StaffNote, barAccidentals: BarAccidentals, clef:number, key:number
 ) {
   const pitchDetails = getNoteDetails(staffNote.pitch, clef, key);
   if (pitchDetails.vSteps in barAccidentals) { // Previous occurrence
-    if (
-      pitchDetails.accidental === barAccidentals[pitchDetails.vSteps]
-    ) {
+    if (pitchDetails.accidental === barAccidentals[pitchDetails.vSteps]) {
       pitchDetails.accidental = 0; // Ignore repetitions
     }
     else { // Replace with the new one
@@ -546,7 +553,9 @@ function analyzeNote(
  * @param notePitch pitch of the note to get the details from
  * @param clef Encoded as MIDI pitch note at the 3rd line (G clef -> B = 71)
  * @param key Encoded as semitones (0 = C, 1 = C#, ... 11 = B)
- * @returns 
+ * @returns An object where `vSteps:` is the note height in the staff,
+ * `accidental:` is the accidental to be drawn if it were applied C key and 
+ * `keyAccidental:` is the accidental forced by current key, if any
  */
 export function getNoteDetails(notePitch: number, clef: number, key: number)
 : {vSteps: number, accidental: number, keyAccidental: number} {
