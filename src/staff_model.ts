@@ -96,12 +96,10 @@ export interface StaffBlock {
   minVStep: number;
   /** Following rest to next block, if any */
   restToNextLength: number;
-  /** Wether the block is starting a new bar */
-  isBarBeginning: boolean;
   /** The list of notes related to the block */
   notes: StaffNote[];
   /** Block bar number (float) being .0 at bar beginning and .5 at bar half. */
-  bar: number;
+  barNumber: number;
 }
 
 /** A map of staff blocks indexed by starting quarter */
@@ -221,7 +219,6 @@ export class StaffModel {
       maxVStep: 0,
       minVStep: 0, 
       restToNextLength: 0,
-      isBarBeginning: true,
       notes: [
         {
           start: 0, 
@@ -232,7 +229,7 @@ export class StaffModel {
           accidental: 0, 
         }
       ],
-      bar: 0
+      barNumber: 0
     };
     this.staffBlockMap = null;
     this.analyzeStaffInfo(this.staffInfo);
@@ -298,22 +295,22 @@ export class StaffModel {
       let currentBar = it.next();
       blocks.forEach(
         (block: StaffNote[], quarters: number) => {
+          const keySignature = this.keySignatureAtQ(quarters);
+          const barStart: number = currentBar.value;
+          const barLength = getBarLength(this.timeSignatureAtQ(quarters));
+          const barEnd = barStart + barLength;
           const staffBlock: StaffBlock = { // The block to be filled & inserted
             maxVStep: Number.MAX_SAFE_INTEGER,
             minVStep: Number.MIN_SAFE_INTEGER, 
             restToNextLength: 0,
-            isBarBeginning: false,
             notes: [],
-            bar: 0
+            barNumber: quarters / barLength // TODO: Review time changes
           };
-          const keySignature = this.keySignatureAtQ(quarters);
-          const barStart: number = currentBar.value;
-          const barEnd = 
-            barStart + getBarLength(this.timeSignatureAtQ(quarters));
-          if (!currentBar.done && quarters >= barEnd) { // New bar
-            currentBar = it.next();
+          if (isBarBeginning(staffBlock)) {
             barAccidentals = {}; // Reset bar accidentals
-            staffBlock.isBarBeginning = true;
+          }
+          if (!currentBar.done && quarters >= barEnd) { // New bar
+            currentBar = it.next(); // Prepare for next iteration
           }
           block.forEach(
             staffNote => {
@@ -583,4 +580,8 @@ export function getNoteDetails(notePitch: number, clef: number, key: number)
  */
 export function getBarLength(timeSignature: TimeSignatureInfo): number {
   return timeSignature.numerator * 4 / timeSignature.denominator;
+}
+
+export function isBarBeginning(staffBlock: StaffBlock): boolean {
+  return staffBlock.barNumber - Math.trunc(staffBlock.barNumber) === 0.0
 }

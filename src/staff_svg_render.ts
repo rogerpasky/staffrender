@@ -32,7 +32,7 @@ import  {
 
 import {
   NoteInfo, TimeSignatureInfo, StaffInfo, StaffNote, StaffBlock, StaffModel, 
-  getNoteDetails, getBarLength, KEY_ACCIDENTALS
+  getNoteDetails, getBarLength, KEY_ACCIDENTALS, isBarBeginning
 } from './staff_model';
 
 /**
@@ -486,7 +486,7 @@ export class StaffSVGRender {
         // Highlightable overall grouping placeholder
         const _g = (note.tiedFrom) ? linkedNoteMap.get(note.tiedFrom).g : 
           createSVGGroupChild(this.musicG, `${note.start}-${note.pitch}`);
-        if (staffBlock.isBarBeginning) {
+        if (isBarBeginning(staffBlock)) {
           _g.setAttribute('data-is-bar-beginning', 'true');
         }
         // Preceding Tie
