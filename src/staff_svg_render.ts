@@ -424,7 +424,7 @@ export class StaffSVGRender {
       else { // Proportional staff horizontal resizing
         const lastBlock = staffBlockMap.get(this.lastQ);
         const endTime = this.staffModel.quartersToTime(
-          this.lastQ + lastBlock.notes[0].length
+          this.lastQ + lastBlock.length
         );
         this.width = endTime * this.config.pixelsPerTimeStep;
       }
@@ -471,15 +471,15 @@ export class StaffSVGRender {
     // Kind of note selection (all block notes have same aspect, some are tied)
     let headIndex = 0;
     for (let i = 4; i >= MIN_RESOLUTION && !headIndex; i /= 2) {
-      if (i <= staffBlock.notes[0].length) {
+      if (i <= staffBlock.length) {
         headIndex = i;
       }
     }
     // Fallback for notes shorter than MIN_RESOLUTION. It will be warned on 
     // console and MIN_RESOLUTION note will be drawn.
     if (headIndex === 0) {
-      const noteLength = staffBlock.notes[0].length === 0 ? '[infinite]' : 
-        `${4 / staffBlock.notes[0].length}`;
+      const noteLength = staffBlock.length === 0 ? '[infinite]' : 
+        `${4 / staffBlock.length}`;
       console.warn(
         '%cStaffRender:', 'background:orange; color:white', 
         'StaffRender does not handle notes shorther than' +
@@ -532,7 +532,7 @@ export class StaffSVGRender {
         );
         const _xHeadRight = x + width + noteHead.width*this.scale;
         // Dotted note
-        if (headIndex * 1.5 <= note.length) {
+        if (headIndex * 1.5 <= staffBlock.length) {
           drawSVGPath(
             _g, dotPath, 
             x + width + noteHead.width*this.scale + this.vStepSize/2, 
@@ -608,11 +608,11 @@ export class StaffSVGRender {
     let remainingLength = staffBlock.restToNextLength;
     if (remainingLength) {
       if (this.config.pixelsPerTimeStep > 0) {
-        x += this.staffModel.quartersToTime(staffBlock.notes[0].length) * 
+        x += this.staffModel.quartersToTime(staffBlock.length) * 
           this.hStepSize;
       }
       // Find a possible rest bar split
-      let quarters = staffBlock.notes[0].start + staffBlock.notes[0].length;
+      let quarters = staffBlock.notes[0].start + staffBlock.length;
       let lengthAfterNextBar = 0;
       const quartersToNextBar = 
         this.lastBar + getBarLength(this.currentTimeSignature) - quarters;

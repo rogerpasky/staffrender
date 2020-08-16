@@ -150,6 +150,7 @@ export class StaffModel {
           const barEnd = barStart + barLength;
           const staffBlock = new StaffBlock( // The block to be filled&inserted
             quarters,
+            chunk[0].length,
             quarters / barLength // TODO: Review time changes
           );
           if (staffBlock.isBarBeginning()) {

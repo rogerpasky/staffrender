@@ -46,6 +46,8 @@ export interface StaffNote extends NoteInfo {
 export class StaffBlock {
   /** Starting time, in quarter note quantities (float) */
   public start: number;
+  /** Note length, in quarter note quantities (float) */
+  length: number;
   /** Block bar number (float) being .0 at bar beginning and .5 at bar half. */
   public barNumber: number;
   /** The list of notes related to the block */
@@ -59,6 +61,7 @@ export class StaffBlock {
 
   constructor (
     start=0, 
+    length=0, 
     barNumber=0,
     notes: StaffNote[]=[],
     maxVStep=Number.MAX_SAFE_INTEGER,
@@ -66,6 +69,7 @@ export class StaffBlock {
     restToNextLength=0,
   ) {
     this.start = start;
+    this.length = length;
     this.barNumber = barNumber;
     this.notes = notes;
     this.maxVStep = maxVStep;

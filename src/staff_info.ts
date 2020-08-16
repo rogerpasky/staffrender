@@ -17,15 +17,15 @@
 
 /** Stores minimal information related to a musical note */
 export interface NoteInfo {
-    /** Starting time, in quarter note quantities (float) */
-    start: number;
-    /** Note length, in quarter note quantities (float) */
-    length: number;
-    /** Note pitch according to MIDI standard */
-    pitch: number;
-    /** Note intensity according to MIDI velocity */
-    intensity: number;
-  }
+  /** Starting time, in quarter note quantities (float) */
+  start: number;
+  /** Note length, in quarter note quantities (float) */
+  length: number;
+  /** Note pitch according to MIDI standard */
+  pitch: number;
+  /** Note intensity according to MIDI velocity */
+  intensity: number;
+}
   
 /** Stores information related to a tempo change on a score (not used yet) */
 export interface TempoInfo {
