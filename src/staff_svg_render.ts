@@ -17,7 +17,7 @@
 
 import {
   MIN_RESOLUTION, STEM_WIDTH, LINE_STROKE, COMPACT_SPACING
-} from "./constants";
+} from './render_constants';
 
 import {
   SVGNS, drawSVGPath, drawSVGText, createSVGGroupChild, setFade, setFill,
@@ -31,8 +31,15 @@ import  {
 } from './svg_paths';
 
 import {
-  NoteInfo, TimeSignatureInfo, StaffInfo, StaffNote, StaffBlock, StaffModel, 
-  getNoteDetails, getBarLength, KEY_ACCIDENTALS, isBarBeginning
+  StaffInfo, TimeSignatureInfo, NoteInfo
+} from './staff_info';
+
+import {
+  StaffBlock, StaffNote
+} from './staff_block';
+
+import {
+  StaffModel, getNoteDetails, getBarLength, KEY_ACCIDENTALS
 } from './staff_model';
 
 /**
@@ -428,7 +435,7 @@ export class StaffSVGRender {
   }
 
   /**
-   * Draws a set of musical notes grouped in a block into a staff
+   * Draws a set of musical symbols grouped in a block into a staff
    * @param staffBlock The block to be drawn
    * @param x Horizontal position to draw the block
    * @param linkedNoteMap Temporary storage of visual data aids
@@ -437,11 +444,30 @@ export class StaffSVGRender {
   private drawStaffBlock(
     staffBlock: StaffBlock, x: number, linkedNoteMap: LinkedNoteMap
   ): number {
-    const quarter = staffBlock.notes[0].start;
+    const quarter = staffBlock.start;
     // Preceding bar
     let width = this.drawBarIfNeeded(quarter, x);
     // Signature change analysis and possible drawing
     width += this.drawSignaturesIfNeeded(quarter, x + width);
+    if (staffBlock.notes.length){
+      width += this.drawNotes(staffBlock, x + width, linkedNoteMap);
+    }
+    width += this.drawRests(staffBlock, x + width);
+    return width;
+  }
+
+  /**
+   * Draw all notes of a`StaffBlock` (heads, stem, flags, dots, accidentals) 
+   * into a staff
+   * @param staffBlock The block containing the notes to be drawn
+   * @param x Horizontal position to draw the notes
+   * @param linkedNoteMap Temporary storage of visual data aids
+   * @returns The width of the drawn notes
+   */
+  private drawNotes(
+    staffBlock: StaffBlock, x: number, linkedNoteMap: LinkedNoteMap
+  ): number {
+    let width = 0;
     // Kind of note selection (all block notes have same aspect, some are tied)
     let headIndex = 0;
     for (let i = 4; i >= MIN_RESOLUTION && !headIndex; i /= 2) {
@@ -476,7 +502,7 @@ export class StaffSVGRender {
         const y = note.vSteps * this.vStepSize;
         // Over and under staff extra lines
         const start = 2 * (
-          note.vSteps>0 ? Math.floor(note.vSteps/2) : Math.ceil(note.vSteps/2)
+          note.vSteps > 0 ? Math.floor(note.vSteps/2) : Math.ceil(note.vSteps/2)
         );
         const delta = note.vSteps > 0 ? -2 : 2;
         for (let i = start; Math.abs(i) > 4; i += delta) {
@@ -486,7 +512,7 @@ export class StaffSVGRender {
         // Highlightable overall grouping placeholder
         const _g = (note.tiedFrom) ? linkedNoteMap.get(note.tiedFrom).g : 
           createSVGGroupChild(this.musicG, `${note.start}-${note.pitch}`);
-        if (isBarBeginning(staffBlock)) {
+        if (staffBlock.isBarBeginning()) {
           _g.setAttribute('data-is-bar-beginning', 'true');
         }
         // Preceding Tie
@@ -567,7 +593,6 @@ export class StaffSVGRender {
       }
       width += this.config.noteSpacing; // Post-spacing
     }
-    width += this.drawRests(staffBlock, x + width);
     return width;
   }
 
