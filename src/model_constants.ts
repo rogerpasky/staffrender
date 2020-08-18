@@ -15,9 +15,6 @@
  * =============================================================================
  */
 
-/** Default key in case none is found (C key) */
-export const DEFAULT_KEY = 0;
-
 /** 
  * Minimal duration recognized note, which currently is valid for sixtyfourth 
  * note (1/16 of a quarter note) triplets and quintuplets.

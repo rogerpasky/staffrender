@@ -15,20 +15,15 @@
  * =============================================================================
  */
 
+import {
+  StaffInfo, TimeSignatureInfo, NoteInfo, QuarterInfo, 
+  DEFAULT_TEMPO, DEFAULT_TIME_SIGNATURE, DEFAULT_KEY_SIGNATURE
+} from './staff_info';
+import { StaffBlock, StaffNote, splitStaffNote } from './staff_block';
 import { 
-  DEFAULT_KEY, MAX_QUARTER_DIVISION, SCALES, KEY_ACCIDENTALS 
+  MAX_QUARTER_DIVISION, SCALES, KEY_ACCIDENTALS 
 } from './model_constants';
 export { KEY_ACCIDENTALS }; // TODO: Review
-
-import { StaffInfo, TimeSignatureInfo, NoteInfo } from './staff_info';
-import { StaffBlock, StaffNote } from './staff_block';
-
-/** Default time signature in case none is found (4/4) */
-const DEFAULT_TIME_SIGNATURE: TimeSignatureInfo = {
-  start: 0, 
-  numerator: 4, 
-  denominator: 4
-};
 
 /** A map of staff blocks indexed by starting quarter */
 type StaffBlockMap = Map<number, StaffBlock>;
@@ -51,34 +46,58 @@ export class StaffModel {
   public initialRest: StaffBlock;
   /** The resut of staff analysis on staff blocks indexed by starting quarter */
   public staffBlockMap: StaffBlockMap;
+  /** The bar, tempo, time signature and key signature info by quarters */
+  private quartersInfo: Array<QuarterInfo>;
+  /** Last handled quarter, i.e. staff length in quarters */
+  private lastQ:number;
 
   /**
    * Creates a `StaffModel` storing input data and result
    * @param staffInfo Generic information about a score to crate a staff with
-   * @param staffDefaults Default values to fill the gaps if needed
+   * @param defaultKey Default value to force the desired key at bar 0
    */
   constructor(staffInfo: StaffInfo, defaultKey?: number) {
     this.staffInfo = staffInfo;
+    let startingKey = defaultKey? 
+      { start: 0, key: defaultKey }: DEFAULT_KEY_SIGNATURE;
+      
     this.staffInfo.notes.sort( (x, y) => x.start - y.start );
-    if (this.staffInfo.tempos) {
+
+    if (this.staffInfo.tempos && this.staffInfo.tempos.length) {
       this.staffInfo.tempos.sort( (x, y) => x.start - y.start );
     }
-    if (this.staffInfo.keySignatures) {
+    else {
+      this.staffInfo.tempos = [DEFAULT_TEMPO];
+    }
+    if (this.staffInfo.tempos[0].start !== 0) {
+      this.staffInfo.tempos = [DEFAULT_TEMPO].concat(this.staffInfo.tempos);
+    }
+
+    if (this.staffInfo.keySignatures && this.staffInfo.keySignatures.length) {
       this.staffInfo.keySignatures.sort( (x, y) => x.start - y.start );
     }
-    if (this.staffInfo.timeSignatures) {
-      this.staffInfo.keySignatures.sort( (x, y) => x.start - y.start );
+    else {
+      this.staffInfo.keySignatures = [startingKey];
+    }
+    if (this.staffInfo.keySignatures[0].start !== 0) {
+      this.staffInfo.keySignatures = 
+        [startingKey].concat(this.staffInfo.keySignatures);
+    }
+
+    if (this.staffInfo.timeSignatures && this.staffInfo.timeSignatures.length) {
+      this.staffInfo.timeSignatures.sort( (x, y) => x.start - y.start );
+    }
+    else {
+      this.staffInfo.timeSignatures = [DEFAULT_TIME_SIGNATURE];
+    }
+    if (this.staffInfo.timeSignatures[0].start !== 0) {
+      this.staffInfo.timeSignatures = 
+        [DEFAULT_TIME_SIGNATURE].concat(this.staffInfo.timeSignatures);
     }
 
     this.clef = this.guessClef();
-    this.defaultKey = (
-      staffInfo.keySignatures && staffInfo.keySignatures.length && 
-      staffInfo.keySignatures[0].start === 0
-    ) ? staffInfo.keySignatures[0].key : defaultKey || DEFAULT_KEY;
-    this.defaultKey = staffInfo.keySignatures ? 
-      staffInfo.keySignatures.length ? 
-        staffInfo.keySignatures[0].key : defaultKey :
-      defaultKey;
+    this.defaultKey = staffInfo.keySignatures[0].key; // TODO: Remove
+
     this.initialRest = new StaffBlock(); // TODO: Optimize
     this.staffBlockMap = null;
     this.analyzeStaffInfo(this.staffInfo);
@@ -100,6 +119,7 @@ export class StaffModel {
     ) {
       this.staffInfo = staffInfo;
       this.staffBlockMap = new Map(); // Future usage for incremental blocks
+      this.lastQ = -1;
       const barBeginnings = this.getBarBeginnings();
 
       // 1st pass to group all notes into chunks and define split points
@@ -108,11 +128,14 @@ export class StaffModel {
       this.staffInfo.notes.forEach( 
         note => {
           const staffNote = toStaffNote(note);
+          const staffNoteEnd = staffNote.start + staffNote.length;
           noteToChunk(staffNote, chunks);
           splites.add(staffNote.start);
-          splites.add(staffNote.start + staffNote.length);
+          splites.add(staffNoteEnd);
+          if (staffNoteEnd > this.lastQ) { this.lastQ = staffNoteEnd; };
         }
       );
+      this.setQuartersInfo(); // Once this.lastQ is known
 
       // 2nd pass to apply all splites to the right chunks
       const sortedSplites = Array.from(splites).sort((x, y) => x - y);
@@ -171,6 +194,12 @@ export class StaffModel {
           );
           if (lastStaffBlock) { // Rest length from last block to this one
             lastStaffBlock.restToNextLength = quarters - lastBlockEnd;
+            const previousRest = new StaffBlock( // TODO: crossing bars rest ***
+              lastBlockEnd,
+              quarters - lastBlockEnd,
+              lastBlockEnd / barLength // TODO: Review time changes
+            );
+            this.staffBlockMap.set(lastBlockEnd, previousRest);
           }
           lastStaffBlock = staffBlock;
           lastBlockEnd = quarters + staffBlock.notes[0].length;
@@ -178,7 +207,7 @@ export class StaffModel {
         }
       );
   
-      this.initialRest.restToNextLength = 
+      this.initialRest.restToNextLength = // First rest in case of anacrusis
         this.staffBlockMap.values().next().value.notes[0].start;
     }
     return this.staffBlockMap;
@@ -213,6 +242,49 @@ export class StaffModel {
       }
     }
     return barBeginnings;
+  }
+
+  /** Fills the Quarters info (bar, tempo, time signature and key signature) */
+  private setQuartersInfo() {
+    this.quartersInfo = new Array(this.lastQ);
+    let tempoIndex = 0;
+    let keyIndex = 0;
+    let timeIndex = 0;
+    let currentTimeSignature = this.staffInfo.timeSignatures[0];
+    let currentTimeSignatureBar = 0; // Bar where current time signature starts
+    let currentBarLength = getBarLength(currentTimeSignature);
+    for (let quarters = 0; quarters < this.lastQ; ++quarters) { // All quarters
+      let quarterInfo: QuarterInfo = { 
+        barNumber: currentTimeSignatureBar, barLength: currentBarLength 
+      };
+      if (
+        tempoIndex < this.staffInfo.tempos.length && 
+        this.staffInfo.tempos[tempoIndex].start === quarters
+      ) { // Register a tempo change in this quarter
+        quarterInfo.tempoChange = this.staffInfo.tempos[tempoIndex++];
+      };
+      if ( // Register a key signature change in this quarter
+        keyIndex < this.staffInfo.keySignatures.length && 
+        this.staffInfo.keySignatures[keyIndex].start === quarters
+      ) {
+        quarterInfo.keyChange = this.staffInfo.keySignatures[keyIndex++];
+      };
+      if (
+        timeIndex < this.staffInfo.timeSignatures.length && 
+        this.staffInfo.timeSignatures[timeIndex].start === quarters
+      ) { // Register a time signature in this quarter
+        quarterInfo.barNumber += (quarters - currentTimeSignature.start) / 
+          currentBarLength;
+        currentTimeSignatureBar = quarterInfo.barNumber // New time sign. bar
+        quarterInfo.timeChange = this.staffInfo.timeSignatures[timeIndex++];
+        currentTimeSignature = quarterInfo.timeChange; // New time signature
+        quarterInfo.barLength = getBarLength(currentTimeSignature);
+        currentBarLength = quarterInfo.barLength; // New length
+      };
+      quarterInfo.barNumber += (quarters - currentTimeSignature.start) / 
+        currentBarLength; // Add bars from time sign. change
+      this.quartersInfo[quarters] = quarterInfo;
+    }      
   }
 
   /**
@@ -327,32 +399,6 @@ function noteToChunk(note: StaffNote, chunks: Map<number, StaffNote[]>) {
   else {
     chunks.set(note.start, [note]);
   }
-}
-
-/**
- * Splits a note in two by a time point measured in note quarters
- * @param staffNote note to be splitted
- * @param quarters split point
- * @returns The second half of spritted note. First one is the received one,
- * which gets modified.
- */
-function splitStaffNote(staffNote: StaffNote, quarters: number): StaffNote {
-  const remainLength = (staffNote.start + staffNote.length) - quarters;
-  let splitted: StaffNote = null;
-  if (quarters > staffNote.start && remainLength > 0) {
-    staffNote.length -= remainLength;
-    splitted = {
-      start: quarters,
-      length: remainLength,
-      pitch: staffNote.pitch,
-      intensity: staffNote.intensity,
-      vSteps: staffNote.vSteps,
-      accidental: staffNote.accidental,
-      tiedFrom: staffNote
-    };
-    staffNote.tiedTo = splitted;
-  }
-  return splitted;
 }
 
 /**

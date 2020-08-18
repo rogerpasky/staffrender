@@ -64,3 +64,28 @@ export interface StaffInfo {
   /** All time signature changes in a staff. They will get sorted by start q */
   timeSignatures?: TimeSignatureInfo[];
 }
+
+export interface QuarterInfo {
+  barNumber: number;
+  barLength: number;
+  tempoChange?: TempoInfo
+  keyChange?: KeySignatureInfo;
+  timeChange?: TimeSignatureInfo;
+}
+
+/** Default tempo in case none is found (60 bpm) */
+export const DEFAULT_TEMPO: TempoInfo = {
+  start: 0,
+  qpm: 60
+};
+/** Default key in case none is found (C key) */
+export const DEFAULT_KEY_SIGNATURE: KeySignatureInfo = {
+  start: 0,
+  key: 0
+}
+/** Default time signature in case none is found (4/4) */
+export const DEFAULT_TIME_SIGNATURE: TimeSignatureInfo = {
+  start: 0, 
+  numerator: 4, 
+  denominator: 4
+};

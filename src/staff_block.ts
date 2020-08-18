@@ -16,7 +16,7 @@
  */
 
 import {
-  NoteInfo
+  NoteInfo, QuarterInfo
 } from './staff_info';
 
 /** Stores processed information related to a musical note in a staff */
@@ -47,7 +47,7 @@ export class StaffBlock {
   /** Starting time, in quarter note quantities (float) */
   public start: number;
   /** Note length, in quarter note quantities (float) */
-  length: number;
+  public length: number;
   /** Block bar number (float) being .0 at bar beginning and .5 at bar half. */
   public barNumber: number;
   /** The list of notes related to the block */
@@ -80,5 +80,66 @@ export class StaffBlock {
   public isBarBeginning(): boolean {
     return this.barNumber - Math.trunc(this.barNumber) === 0.0;
   }
+
+  /**
+   * Splits a block in two by a time point measured in note quarters
+   * @param quarters split point
+   * @param quartersInfo An Array with bar and signatures info per quarter
+   * @returns The second half of splitted block. First one is the received one,
+   * which gets modified.
+   */
+  public split(
+    quarters: number, quartersInfo: Array<QuarterInfo>
+  ): StaffBlock {
+    const remainLength = (this.start + this.length) - quarters;
+    let splittedBlock: StaffBlock = null;
+    if (quarters > this.start && remainLength > 0) {
+      splittedBlock = new StaffBlock(
+        quarters, 
+        this.length - remainLength,
+        quartersInfo[quarters].barNumber
+      );
+      splittedBlock.restToNextLength = this.restToNextLength; // TODO rm
+      this.length -= remainLength;
+      this.maxVStep=Number.MAX_SAFE_INTEGER,
+      this.minVStep=Number.MIN_SAFE_INTEGER,
+      this.restToNextLength=0,
+      this.notes.forEach(
+        staffNote => {
+          const remainStaffNote = splitStaffNote(staffNote, quarters);
+          if (remainStaffNote) {
+            splittedBlock.notes.push(remainStaffNote);
+          }
+        }
+      );
+    }
+    return splittedBlock;
+  }
+
 }
-  
+
+/**
+ * Splits a note in two by a time point measured in note quarters
+ * @param staffNote note to be splitted
+ * @param quarters split point
+ * @returns The second half of spritted note. First one is the received one,
+ * which gets modified.
+ */
+export function splitStaffNote(staffNote: StaffNote, quarters: number): StaffNote {
+  const remainLength = (staffNote.start + staffNote.length) - quarters;
+  let splitted: StaffNote = null;
+  if (quarters > staffNote.start && remainLength > 0) {
+    staffNote.length -= remainLength;
+    splitted = {
+      start: quarters,
+      length: remainLength,
+      pitch: staffNote.pitch,
+      intensity: staffNote.intensity,
+      vSteps: staffNote.vSteps,
+      accidental: staffNote.accidental,
+      tiedFrom: staffNote
+    };
+    staffNote.tiedTo = splitted;
+  }
+  return splitted;
+} // TODO: review to move interface to class
