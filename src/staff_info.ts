@@ -68,7 +68,10 @@ export interface StaffInfo {
 export interface QuarterInfo {
   barNumber: number;
   barLength: number;
-  tempoChange?: TempoInfo
+  tempo: TempoInfo;
+  keySignature: KeySignatureInfo;
+  timeSignature: TimeSignatureInfo;
+  tempoChange?: TempoInfo;
   keyChange?: KeySignatureInfo;
   timeChange?: TimeSignatureInfo;
 }
@@ -82,7 +85,7 @@ export const DEFAULT_TEMPO: TempoInfo = {
 export const DEFAULT_KEY_SIGNATURE: KeySignatureInfo = {
   start: 0,
   key: 0
-}
+};
 /** Default time signature in case none is found (4/4) */
 export const DEFAULT_TIME_SIGNATURE: TimeSignatureInfo = {
   start: 0, 

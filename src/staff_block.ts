@@ -16,7 +16,7 @@
  */
 
 import {
-  NoteInfo, QuarterInfo
+  NoteInfo
 } from './staff_info';
 
 /** Stores processed information related to a musical note in a staff */
@@ -57,21 +57,21 @@ export class StaffBlock {
   /** Lower limit of vertical steps in block notes */
   public minVStep: number;
   /** Following rest to next block, if any */
-  public restToNextLength: number;
+  public restToNextLength: number; // TODO: Deprecated
 
   constructor (
     start=0, 
     length=0, 
-    barNumber=0,
     notes: StaffNote[]=[],
+    barNumber=0,
     maxVStep=Number.MAX_SAFE_INTEGER,
     minVStep=Number.MIN_SAFE_INTEGER,
     restToNextLength=0,
   ) {
     this.start = start;
     this.length = length;
-    this.barNumber = barNumber;
     this.notes = notes;
+    this.barNumber = barNumber;
     this.maxVStep = maxVStep;
     this.minVStep = minVStep;
     this.restToNextLength = restToNextLength;
@@ -82,33 +82,52 @@ export class StaffBlock {
   }
 
   /**
+   * Adds a note to the block's note list, merging repetitions' length, 
+   * adapting VSteps and block length
+   * @param staffNote The note to be added
+   */
+  public addNote(staffNote: StaffNote) {
+    let newNote = true;
+    for (let i = 0; newNote && i < this.notes.length; ++i) {
+      if (staffNote.pitch === this.notes[i].pitch) { // Repeated
+        newNote = false;
+        this.notes[i].length = Math.max(this.notes[i].length, staffNote.length);
+        this.length = Math.max(this.length, staffNote.length);
+      }
+    }
+    if (newNote) {
+      this.notes.push(staffNote);  
+      this.minVStep = Math.max(staffNote.vSteps, this.minVStep);
+      this.maxVStep = Math.min(staffNote.vSteps, this.maxVStep);
+      this.length = this.length;
+    }
+  }
+
+  /**
    * Splits a block in two by a time point measured in note quarters
    * @param quarters split point
    * @param quartersInfo An Array with bar and signatures info per quarter
    * @returns The second half of splitted block. First one is the received one,
    * which gets modified.
    */
-  public split(
-    quarters: number, quartersInfo: Array<QuarterInfo>
-  ): StaffBlock {
+  public split(quarters: number, barNumber: number): StaffBlock {
     const remainLength = (this.start + this.length) - quarters;
     let splittedBlock: StaffBlock = null;
     if (quarters > this.start && remainLength > 0) {
       splittedBlock = new StaffBlock(
         quarters, 
         this.length - remainLength,
-        quartersInfo[quarters].barNumber
+        [],
+        barNumber
       );
-      splittedBlock.restToNextLength = this.restToNextLength; // TODO rm
+      splittedBlock.restToNextLength = this.restToNextLength;
+      this.restToNextLength=0, // VSteps remain in this block
       this.length -= remainLength;
-      this.maxVStep=Number.MAX_SAFE_INTEGER,
-      this.minVStep=Number.MIN_SAFE_INTEGER,
-      this.restToNextLength=0,
       this.notes.forEach(
         staffNote => {
           const remainStaffNote = splitStaffNote(staffNote, quarters);
           if (remainStaffNote) {
-            splittedBlock.notes.push(remainStaffNote);
+            splittedBlock.addNote(remainStaffNote);
           }
         }
       );
