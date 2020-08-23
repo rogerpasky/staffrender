@@ -381,7 +381,7 @@ export class StaffSVGRender {
       }
     }
     else { // No activeNote given means redrawing it all from scratch
-     const staffBlockMap = this.staffModel.analyzeStaffInfo(this.staffInfo);
+     const staffBlockMap = this.staffModel.infoToBlocks(this.staffInfo);
      const isFirstRedraw = (this.lastQ === -1);
       let x = 0;
       let width = 0;
