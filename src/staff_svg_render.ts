@@ -381,8 +381,8 @@ export class StaffSVGRender {
       }
     }
     else { // No activeNote given means redrawing it all from scratch
-     const staffBlockMap = this.staffModel.infoToBlocks(this.staffInfo);
-     const isFirstRedraw = (this.lastQ === -1);
+      const isFirstRedraw = (this.lastQ === -1);
+      const staffBlockMap = this.staffModel.infoToBlocks(this.staffInfo);
       let x = 0;
       let width = 0;
       if (isFirstRedraw) {
@@ -393,7 +393,7 @@ export class StaffSVGRender {
           // First padding if compacted. Following are placed after drawings
           width += this.config.noteSpacing;
         }
-        width += this.drawRests(this.staffModel.initialRest, x + width);
+//        width += this.drawRests(this.staffModel.initialRest, x + width);
       }
       else {
         x = this.width;
@@ -404,13 +404,13 @@ export class StaffSVGRender {
           if (!isCompact) {
             x = this.staffModel.quartersToTime(quarters) * this.hStepSize;
           }
-          if (quarters > this.lastQ) {
+//          if (quarters > this.lastQ) {
             width += this.drawStaffBlock(staffBlock, x + width, linkedNoteMap);
             this.lastQ = quarters;
-          }
-          else if (quarters === this.lastQ) { // Undrawn ending rests
+/*          }
+          else if (quarters === this.lastQ) { // Undrawn ending rests ************ TODO: Review
             width += this.drawRests(staffBlock, x + width);
-          }
+          }*/
         }
       );
       const svgRect = this.staffSVG.getBoundingClientRect();
@@ -452,7 +452,9 @@ export class StaffSVGRender {
     if (staffBlock.notes.length){
       width += this.drawNotes(staffBlock, x + width, linkedNoteMap);
     }
-    width += this.drawRests(staffBlock, x + width);
+    else {
+      width += this.drawRests(staffBlock, x + width);
+    }
     return width;
   }
 
@@ -605,14 +607,14 @@ export class StaffSVGRender {
    */
   private drawRests(staffBlock: StaffBlock, x: number): number {
     let width = 0;
-    let remainingLength = staffBlock.restToNextLength;
+    let remainingLength = staffBlock.length;
     if (remainingLength) {
       if (this.config.pixelsPerTimeStep > 0) {
-        x += this.staffModel.quartersToTime(staffBlock.length) * 
-          this.hStepSize;
+        x += this.staffModel.quartersToTime(staffBlock.length) * this.hStepSize;
       }
       // Find a possible rest bar split
-      let quarters = staffBlock.notes[0].start + staffBlock.length;
+//      let quarters = staffBlock.start + staffBlock.length; // TODO: ***** Aquí, staffBlock era el antiguo bloque CON notas
+      let quarters = staffBlock.start;
       let lengthAfterNextBar = 0;
       const quartersToNextBar = 
         this.lastBar + getBarLength(this.currentTimeSignature) - quarters;

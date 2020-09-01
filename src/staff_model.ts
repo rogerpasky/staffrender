@@ -130,11 +130,11 @@ export class StaffModel {
       staffInfo.timeSignatures.length !== this.staffInfo.timeSignatures.length
     ) {
       this.staffInfo = staffInfo;
-      this.staffBlockMap = new Map(); // Future usage for incremental blocks
       this.lastQ = 0;
 
       // Group notes into blocks, set note split points
       const blocks: StaffBlockMap = new Map();
+      // TODO: Future approach to this.staffBlockMap for incremental blocks
       const splites = new Set<number>(); // Split points = bars + starts + ends
       let barAccidentals: BarAccidentals = {}; // Temporal accidentals
       let lastBar = 0;
@@ -157,25 +157,27 @@ export class StaffModel {
               const quarters = staffNote.start + staffNote.length;
               const bar = this.quartersInfo[Math.trunc(quarters)].barNumber;
               const splittedBlock = currentBlock.split(quarters, bar);
-              this.staffBlockMap.set(splittedBlock.start, splittedBlock);
+              blocks.set(splittedBlock.start, splittedBlock);
             }
             else if (lastBlock.length < staffNote.length){ // Split to lastBlock
               const quarters = lastBlock.start + lastBlock.length;
               const bar = this.quartersInfo[Math.trunc(quarters)].barNumber;
               const splittedBlock = currentBlock.split(quarters, bar);
-              this.staffBlockMap.set(splittedBlock.start, splittedBlock);
+              blocks.set(splittedBlock.start, splittedBlock);
               this.lastQ = staffNoteEnd;
             } // Otherwise, same length, nothing to do
           }
           else { // Adding notes to a new block
-            if (staffNote.start > this.lastQ) { // Blocks gap means a rest
-              lastBlock.restToNextLength = staffNote.start - this.lastQ; // TODO: Deprecated
+            if (staffNote.start > this.lastQ) { // Blocks gap means a prior rest
+              if (lastBlock) {
+                lastBlock.restToNextLength = staffNote.start - this.lastQ; // TODO: Deprecated
+              }
               const quarters = this.lastQ;
               const bar = this.quartersInfo[Math.trunc(quarters)].barNumber;
               const restBlock = new StaffBlock(
                 quarters, staffNote.start - this.lastQ, [], bar
               );
-              this.staffBlockMap.set(restBlock.start, restBlock);
+              blocks.set(restBlock.start, restBlock);
               this.lastQ = staffNoteEnd;
             }
             else if (staffNote.start < this.lastQ) { // New block start overlaps
@@ -203,6 +205,7 @@ export class StaffModel {
         }
       );
 
+      // TODO: Insert in previous pass with iterators
       // 2nd pass to apply all splites to the right chunks
       const sortedSplites = Array.from(splites).sort((x, y) => x - y);
       sortedSplites.forEach( // TODO: Review optimization
@@ -220,10 +223,14 @@ export class StaffModel {
         }
       );
 
-      this.staffBlockMap = blocks; // TODO: Review
-  
-      this.initialRest.restToNextLength = // First rest in case of anacrusis
-        this.staffBlockMap.values().next().value.notes[0].start;
+      // Sorting for further iteration
+      this.staffBlockMap = 
+        new Map(Array.from(blocks).sort((x, y) => x[0] - y[0]));
+
+      // First rest in case of anacrusis
+      const firstBlock: StaffBlock = this.staffBlockMap.values().next().value;
+      const anacrusisLength = firstBlock.start;
+      this.initialRest.restToNextLength = anacrusisLength;
     }
     return this.staffBlockMap;
   }

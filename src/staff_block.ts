@@ -116,7 +116,7 @@ export class StaffBlock {
     if (quarters > this.start && remainLength > 0) {
       splittedBlock = new StaffBlock(
         quarters, 
-        this.length - remainLength,
+        remainLength,
         [],
         barNumber
       );
