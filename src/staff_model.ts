@@ -42,8 +42,6 @@ export class StaffModel {
   public clef: number;
   /** Default Key in case there's none on staff info */
   public defaultKey: number;
-  /** An extra block to store previous rest to complete anacrusis bar */
-  public initialRest: StaffBlock; // TODO: Deprecated
   /** The resut of staff analysis on staff blocks indexed by starting quarter */
   public staffBlockMap: StaffBlockMap;
   /** The bar, tempo, time signature and key signature info by quarters */
@@ -110,7 +108,6 @@ export class StaffModel {
     this.quartersInfo = new Array();
     this.setQuartersInfo();
 
-    this.initialRest = new StaffBlock(); // TODO: Optimize
     this.staffBlockMap = null;
     this.infoToBlocks(this.staffInfo);
   }
@@ -226,11 +223,6 @@ export class StaffModel {
       // Sorting for further iteration
       this.staffBlockMap = 
         new Map(Array.from(blocks).sort((x, y) => x[0] - y[0]));
-
-      // First rest in case of anacrusis
-      const firstBlock: StaffBlock = this.staffBlockMap.values().next().value;
-      const anacrusisLength = firstBlock.start;
-      this.initialRest.restToNextLength = anacrusisLength;
     }
     return this.staffBlockMap;
   }

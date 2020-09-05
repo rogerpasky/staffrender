@@ -393,7 +393,6 @@ export class StaffSVGRender {
           // First padding if compacted. Following are placed after drawings
           width += this.config.noteSpacing;
         }
-//        width += this.drawRests(this.staffModel.initialRest, x + width);
       }
       else {
         x = this.width;
