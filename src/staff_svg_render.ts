@@ -235,7 +235,7 @@ export class StaffSVGRender {
 
     this.staffModel = new StaffModel(this.staffInfo, config.defaultKey);
     // Musical defaults can be overwritten by staffModel
-    this.currentKey = this.staffModel.defaultKey;
+    this.currentKey = this.staffModel.keySignatureAtQ(0);
     this.currentTimeSignature = this.staffModel.timeSignatureAtQ(0);
     this.clear(); // This will complete rest of member values initialization.
     this.redraw();
@@ -382,7 +382,7 @@ export class StaffSVGRender {
     }
     else { // No activeNote given means redrawing it all from scratch
       const isFirstRedraw = (this.lastQ === -1);
-      const staffBlockMap = this.staffModel.infoToBlocks(this.staffInfo);
+      this.staffModel.update(this.staffInfo, this.config.defaultKey);
       let x = 0;
       let width = 0;
       if (isFirstRedraw) {
@@ -398,18 +398,18 @@ export class StaffSVGRender {
         x = this.width;
       }
       const linkedNoteMap: LinkedNoteMap = new Map();
-      staffBlockMap.forEach( // Music Blocks
+      this.staffModel.staffBlockMap.forEach( // Music Blocks
         (staffBlock, quarters) => {
           if (!isCompact) {
             x = this.staffModel.quartersToTime(quarters) * this.hStepSize;
           }
-//          if (quarters > this.lastQ) {
+          if (quarters > this.lastQ) {
             width += this.drawStaffBlock(staffBlock, x + width, linkedNoteMap);
             this.lastQ = quarters;
-/*          }
-          else if (quarters === this.lastQ) { // Undrawn ending rests ************ TODO: Review
-            width += this.drawRests(staffBlock, x + width);
-          }*/
+          }
+//          else if (quarters === this.lastQ) { // Undrawn ending rests??? ************ TODO: Review
+//            width += this.drawRests(staffBlock, x + width);
+//          }
         }
       );
       const svgRect = this.staffSVG.getBoundingClientRect();
@@ -421,7 +421,7 @@ export class StaffSVGRender {
         this.width += width;
       }
       else { // Proportional staff horizontal resizing
-        const lastBlock = staffBlockMap.get(this.lastQ);
+        const lastBlock = this.staffModel.staffBlockMap.get(this.lastQ);
         const endTime = this.staffModel.quartersToTime(
           this.lastQ + lastBlock.length
         );

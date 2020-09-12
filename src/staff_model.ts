@@ -16,7 +16,7 @@
  */
 
 import {
-  StaffInfo, TimeSignatureInfo, NoteInfo, QuarterInfo, 
+  StaffInfo, NoteInfo, ReferenceInfo, TimeSignatureInfo, KeySignatureInfo, 
   DEFAULT_TEMPO, DEFAULT_TIME_SIGNATURE, DEFAULT_KEY_SIGNATURE
 } from './staff_info';
 import { StaffBlock, StaffNote } from './staff_block';
@@ -40,30 +40,36 @@ export class StaffModel {
   public staffInfo: StaffInfo;
   /**  Staff clef as MIDI pitch note at the staff 3rd line (G clef -> B = 71) */
   public clef: number;
-  /** Default Key in case there's none on staff info */
-  public defaultKey: number;
+  /** The bar, tempo, time signature and key signature info by quarters */
+  private referencesInfo: ReferenceInfo[];
   /** The resut of staff analysis on staff blocks indexed by starting quarter */
   public staffBlockMap: StaffBlockMap;
-  /** The bar, tempo, time signature and key signature info by quarters */
-  private quartersInfo: QuarterInfo[];
   /** Last handled quarter, i.e. staff length in quarters */
-  private lastQ:number; // TODO: Deprecated
+  private lastQ:number;
 
   /**
    * Creates a `StaffModel` storing input data and result
    * @param staffInfo Generic information about a score to crate a staff with
-   * @param defaultKey Default value to force the desired key at bar 0
+   * @param defaultKey Default value to replace missing key at bar 0
    */
   constructor(staffInfo: StaffInfo, defaultKey?: number) {
-    this.staffInfo = staffInfo;
-    const startingKey = defaultKey? 
-      { start: 0, key: defaultKey }: DEFAULT_KEY_SIGNATURE;
-      
-    this.staffInfo.notes.sort( (x, y) => x.start - y.start );
+    this.staffInfo = null;
+    this.clef = this.guessClef(staffInfo);
+    this.staffBlockMap = null;
+    this.update(staffInfo, defaultKey);
+  }
+
+  /**
+   * Processes new staff info to update internal model. It will modify received
+   * staff info if it is disordered or incomplete.
+   * @param staffInfo New staff information to replace previous one
+   */
+  public update(staffInfo: StaffInfo, defaultKey?: number) {
+    staffInfo.notes.sort( (x, y) => x.start - y.start );
 
     // TODO: Review
     this.lastQ = 0;
-    this.staffInfo.notes.forEach(
+    staffInfo.notes.forEach(
       note => {
         if (note.start + note.length > this.lastQ) {
           this.lastQ = note.start + note.length;
@@ -71,45 +77,44 @@ export class StaffModel {
       }
     );
 
-    if (this.staffInfo.tempos && this.staffInfo.tempos.length) {
-      this.staffInfo.tempos.sort( (x, y) => x.start - y.start );
+    if (staffInfo.tempos && staffInfo.tempos.length) {
+      staffInfo.tempos.sort( (x, y) => x.start - y.start );
     }
     else {
-      this.staffInfo.tempos = [DEFAULT_TEMPO];
+      staffInfo.tempos = [DEFAULT_TEMPO];
     }
-    if (this.staffInfo.tempos[0].start !== 0) {
-      this.staffInfo.tempos = [DEFAULT_TEMPO].concat(this.staffInfo.tempos);
+    if (staffInfo.tempos[0].start !== 0) {
+      staffInfo.tempos = [DEFAULT_TEMPO].concat(staffInfo.tempos);
     }
 
-    if (this.staffInfo.keySignatures && this.staffInfo.keySignatures.length) {
-      this.staffInfo.keySignatures.sort( (x, y) => x.start - y.start );
+    const startingKey: KeySignatureInfo = defaultKey? 
+      { start: 0, key: defaultKey }: DEFAULT_KEY_SIGNATURE;
+    if (staffInfo.keySignatures && staffInfo.keySignatures.length) {
+      staffInfo.keySignatures.sort( (x, y) => x.start - y.start );
     }
     else {
-      this.staffInfo.keySignatures = [startingKey];
+      staffInfo.keySignatures = [startingKey];
     }
-    if (this.staffInfo.keySignatures[0].start !== 0) {
-      this.staffInfo.keySignatures = 
-        [startingKey].concat(this.staffInfo.keySignatures);
+    if (staffInfo.keySignatures[0].start !== 0) {
+      staffInfo.keySignatures = 
+        [startingKey].concat(staffInfo.keySignatures);
     }
 
-    if (this.staffInfo.timeSignatures && this.staffInfo.timeSignatures.length) {
-      this.staffInfo.timeSignatures.sort( (x, y) => x.start - y.start );
+    if (staffInfo.timeSignatures && staffInfo.timeSignatures.length) {
+      staffInfo.timeSignatures.sort( (x, y) => x.start - y.start );
     }
     else {
-      this.staffInfo.timeSignatures = [DEFAULT_TIME_SIGNATURE];
+      staffInfo.timeSignatures = [DEFAULT_TIME_SIGNATURE];
     }
-    if (this.staffInfo.timeSignatures[0].start !== 0) {
-      this.staffInfo.timeSignatures = 
-        [DEFAULT_TIME_SIGNATURE].concat(this.staffInfo.timeSignatures);
+    if (staffInfo.timeSignatures[0].start !== 0) {
+      staffInfo.timeSignatures = 
+        [DEFAULT_TIME_SIGNATURE].concat(staffInfo.timeSignatures);
     }
 
-    this.clef = this.guessClef();
-    this.defaultKey = staffInfo.keySignatures[0].key; // TODO: Remove
-    this.quartersInfo = new Array();
-    this.setQuartersInfo();
+    this.referencesInfo = new Array();
+    this.setReferencesInfo(staffInfo);
 
-    this.staffBlockMap = null;
-    this.infoToBlocks(this.staffInfo);
+    this.infoToBlocks(staffInfo);
   }
 
   /**
@@ -118,7 +123,7 @@ export class StaffModel {
    * @param staffInfo New staff information to replace previous one.
    * @returns Analyzed staff as an indexed per quarter `StaffBlockMap`
    */
-  public infoToBlocks(staffInfo: StaffInfo): StaffBlockMap {
+  private infoToBlocks(staffInfo: StaffInfo): StaffBlockMap {
     if (
       this.staffBlockMap === null || // Constructor use case
       staffInfo.notes.length !== this.staffInfo.notes.length ||
@@ -139,7 +144,7 @@ export class StaffModel {
       this.staffInfo.notes.forEach( 
         note => {
           const staffNote = toStaffNote(note); // TODO: Review
-          const currentBar = Math.trunc(this.quartersInfo[Math.trunc(staffNote.start)].barNumber);
+          const currentBar = Math.trunc(this.referencesInfo[Math.trunc(staffNote.start)].barNumber);
           if (currentBar > lastBar) {
             lastBar = currentBar;
             barAccidentals = {}; // Reset
@@ -152,13 +157,13 @@ export class StaffModel {
           if (currentBlock === lastBlock) { // Adding notes to current block
             if (staffNote.length < lastBlock.length) { // Split to staffNote
               const quarters = staffNote.start + staffNote.length;
-              const bar = this.quartersInfo[Math.trunc(quarters)].barNumber;
+              const bar = this.referencesInfo[Math.trunc(quarters)].barNumber;
               const splittedBlock = currentBlock.split(quarters, bar);
               blocks.set(splittedBlock.start, splittedBlock);
             }
             else if (lastBlock.length < staffNote.length){ // Split to lastBlock
               const quarters = lastBlock.start + lastBlock.length;
-              const bar = this.quartersInfo[Math.trunc(quarters)].barNumber;
+              const bar = this.referencesInfo[Math.trunc(quarters)].barNumber;
               const splittedBlock = currentBlock.split(quarters, bar);
               blocks.set(splittedBlock.start, splittedBlock);
               this.lastQ = staffNoteEnd;
@@ -170,7 +175,7 @@ export class StaffModel {
                 lastBlock.restToNextLength = staffNote.start - this.lastQ; // TODO: Deprecated
               }
               const quarters = this.lastQ;
-              const bar = this.quartersInfo[Math.trunc(quarters)].barNumber;
+              const bar = this.referencesInfo[Math.trunc(quarters)].barNumber;
               const restBlock = new StaffBlock(
                 quarters, staffNote.start - this.lastQ, [], bar
               );
@@ -194,9 +199,9 @@ export class StaffModel {
           }
         }
       );
-      this.quartersInfo.forEach( // complete splits with bars in quartersInfo
-        (quarterInfo: QuarterInfo, quarters:number) => {
-          if (quarterInfo.barNumber - Math.trunc(quarterInfo.barNumber) === 0) {
+      this.referencesInfo.forEach( // complete splits with bars in referencesInfo
+        (referenceInfo: ReferenceInfo, quarters:number) => {
+          if (referenceInfo.barNumber - Math.trunc(referenceInfo.barNumber) === 0) {
             splites.add(quarters); // Add bar beginning quarters
           }
         }
@@ -210,7 +215,7 @@ export class StaffModel {
           blocks.forEach(
             block => {
               const splitted = block.split(
-                quarters, this.quartersInfo[Math.trunc(quarters)].barNumber
+                quarters, this.referencesInfo[Math.trunc(quarters)].barNumber
               );
               if (splitted) {
                 blockToBlocks(splitted, blocks);
@@ -227,18 +232,22 @@ export class StaffModel {
     return this.staffBlockMap;
   }
 
-  /** Fills the Quarters info (bar, tempo, time signature and key signature) */
-  private setQuartersInfo() {
+  /** 
+   * Fills the reference info (bar, tempo, time signature and key signature)
+   * in a per quarter array as a fast method to furthe fill details in blocks
+   * @param staffInfo The staff information get references from.
+   */
+  private setReferencesInfo(staffInfo: StaffInfo) {
     let tempoIndex = 0;
     let keyIndex = 0;
     let timeIndex = 0;
-    let currentTempo = this.staffInfo.tempos[0];
-    let currentKeySignature = this.staffInfo.keySignatures[0];
-    let currentTimeSignature = this.staffInfo.timeSignatures[0];
+    let currentTempo = staffInfo.tempos[0];
+    let currentKeySignature = staffInfo.keySignatures[0];
+    let currentTimeSignature = staffInfo.timeSignatures[0];
     let currentTimeSignatureBar = 0; // Bar where current time signature starts
     let currentBarLength = getBarLength(currentTimeSignature);
     for (let quarters = 0; quarters < this.lastQ; ++quarters) { // All quarters
-      const quarterInfo: QuarterInfo = { 
+      const referenceInfo: ReferenceInfo = { 
         barNumber: currentTimeSignatureBar, 
         barLength: currentBarLength,
         tempo: currentTempo,
@@ -246,34 +255,37 @@ export class StaffModel {
         timeSignature: currentTimeSignature
       };
       if (
-        tempoIndex < this.staffInfo.tempos.length && 
-        this.staffInfo.tempos[tempoIndex].start === quarters
+        tempoIndex < staffInfo.tempos.length && 
+        staffInfo.tempos[tempoIndex].start === quarters
       ) { // Register a tempo change in this quarter
-        currentTempo = this.staffInfo.tempos[tempoIndex++];
-        quarterInfo.tempoChange = currentTempo;
+        currentTempo = staffInfo.tempos[tempoIndex++];
+        referenceInfo.tempo = currentTempo;
+        referenceInfo.tempoChange = currentTempo;
       }
       if ( // Register a key signature change in this quarter
-        keyIndex < this.staffInfo.keySignatures.length && 
-        this.staffInfo.keySignatures[keyIndex].start === quarters
+        keyIndex < staffInfo.keySignatures.length && 
+        staffInfo.keySignatures[keyIndex].start === quarters
       ) {
-        currentKeySignature = this.staffInfo.keySignatures[keyIndex++];
-        quarterInfo.keyChange = currentKeySignature;
+        currentKeySignature = staffInfo.keySignatures[keyIndex++];
+        referenceInfo.keySignature = currentKeySignature;
+        referenceInfo.keyChange = currentKeySignature;
       }
       if (
-        timeIndex < this.staffInfo.timeSignatures.length && 
-        this.staffInfo.timeSignatures[timeIndex].start === quarters
+        timeIndex < staffInfo.timeSignatures.length && 
+        staffInfo.timeSignatures[timeIndex].start === quarters
       ) { // Register a time signature in this quarter
-        quarterInfo.barNumber += (quarters - currentTimeSignature.start) / 
+        referenceInfo.barNumber += (quarters - currentTimeSignature.start) / 
           currentBarLength;
-        currentTimeSignatureBar = quarterInfo.barNumber; // New time signat. bar
-        quarterInfo.timeChange = this.staffInfo.timeSignatures[timeIndex++];
-        currentTimeSignature = quarterInfo.timeChange; // New time signature
-        quarterInfo.barLength = getBarLength(currentTimeSignature);
-        currentBarLength = quarterInfo.barLength; // New length
+        currentTimeSignatureBar = referenceInfo.barNumber; // New time signat. bar
+        referenceInfo.timeChange = staffInfo.timeSignatures[timeIndex++];
+        currentTimeSignature = referenceInfo.timeChange; // New time signature
+        referenceInfo.timeSignature = currentTimeSignature;
+        referenceInfo.barLength = getBarLength(currentTimeSignature);
+        currentBarLength = referenceInfo.barLength; // New length
       }
-      quarterInfo.barNumber += (quarters - currentTimeSignature.start) / 
+      referenceInfo.barNumber += (quarters - currentTimeSignature.start) / 
         currentBarLength; // Add bars from time sign. change
-      this.quartersInfo.push(quarterInfo);
+      this.referencesInfo.push(referenceInfo);
     }      
   }
 
@@ -283,7 +295,7 @@ export class StaffModel {
    * @returns The key which is operative at given quarter 
    */
   public keySignatureAtQ(quarters: number): number {
-    return this.quartersInfo[Math.trunc(quarters)].keySignature.key;
+    return this.referencesInfo[Math.trunc(quarters)].keySignature.key;
   } 
   
   /**
@@ -292,17 +304,17 @@ export class StaffModel {
    * @returns The time signature which is operative at given quarter 
    */
   public timeSignatureAtQ(quarters: number): TimeSignatureInfo {
-    return this.quartersInfo[Math.trunc(quarters)].timeSignature;
+    return this.referencesInfo[Math.trunc(quarters)].timeSignature;
   }
   
   /**
    * Clef deduction: Average pitch under C4 -> F clef, otherwise G clef
    * @returns The deducted clef as Midi pitch values
    */
-  public guessClef(): number {
+  public guessClef(staffInfo: StaffInfo): number {
     let pitchSum = 0;
     let countSum = 0;
-    this.staffInfo.notes.forEach(
+    staffInfo.notes.forEach(
       note => {
         pitchSum += note.pitch;
         ++countSum;

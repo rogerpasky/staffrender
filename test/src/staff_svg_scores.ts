@@ -77,7 +77,7 @@ export const STAFF_USE_CASES: mm.INoteSequence = {
   tempos: [{time: 0, qpm: 60}],
   keySignatures: [{time: 0, key: 0}],
   timeSignatures: [{time: 0, numerator: 4, denominator: 4}],
-  totalTime: 36
+  totalTime: 40
 };
 
 export const ANNA_MAGDALENA_BACH: mm.INoteSequence = {

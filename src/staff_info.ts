@@ -65,7 +65,7 @@ export interface StaffInfo {
   timeSignatures?: TimeSignatureInfo[];
 }
 
-export interface QuarterInfo {
+export interface ReferenceInfo {
   barNumber: number;
   barLength: number;
   tempo: TempoInfo;
