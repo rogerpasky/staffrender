@@ -16,7 +16,7 @@
  */
 
 import {
-  NoteInfo
+  NoteInfo, ReferenceInfo
 } from './staff_info';
 
 /** Stores processed information related to a musical note in a staff */
@@ -56,8 +56,6 @@ export class StaffBlock {
   public maxVStep: number;
   /** Lower limit of vertical steps in block notes */
   public minVStep: number;
-  /** Following rest to next block, if any */
-  public restToNextLength: number; // TODO: Deprecated
 
   constructor (
     start=0, 
@@ -66,7 +64,6 @@ export class StaffBlock {
     barNumber=0,
     maxVStep=Number.MAX_SAFE_INTEGER,
     minVStep=Number.MIN_SAFE_INTEGER,
-    restToNextLength=0,
   ) {
     this.start = start;
     this.length = length;
@@ -74,7 +71,6 @@ export class StaffBlock {
     this.barNumber = barNumber;
     this.maxVStep = maxVStep;
     this.minVStep = minVStep;
-    this.restToNextLength = restToNextLength;
   }
 
   public isBarBeginning(): boolean {
@@ -110,18 +106,16 @@ export class StaffBlock {
    * @returns The second half of splitted block. First one is the received one,
    * which gets modified.
    */
-  public split(quarters: number, barNumber: number): StaffBlock {
+  public split(quarters: number, referencesInfo: ReferenceInfo[]): StaffBlock {
     const remainLength = (this.start + this.length) - quarters;
     let splittedBlock: StaffBlock = null;
     if (quarters > this.start && remainLength > 0) {
       splittedBlock = new StaffBlock(
         quarters, 
         remainLength,
-        [],
-        barNumber
+        [], 
+        referencesInfo[Math.trunc(quarters)].barNumber
       );
-      splittedBlock.restToNextLength = this.restToNextLength;
-      this.restToNextLength=0, // VSteps remain in this block
       this.length -= remainLength;
       this.notes.forEach(
         staffNote => {
@@ -132,6 +126,38 @@ export class StaffBlock {
         }
       );
     }
+    return splittedBlock;
+  }
+
+  /**
+   * Splits a block in two by to ritmically complete previous one
+   * @param lastStaffBlock The previous block to ritmically complete
+   * @param quartersInfo An Array with bar and signatures info per quarter
+   * @returns The second half of splitted block. First one is the received one,
+   * which gets modified.
+   */
+  public splitToComplete(
+    lastStaffBlock: StaffBlock, referencesInfo: ReferenceInfo[]
+  ): StaffBlock {
+//    const remainLength = (this.start + this.length) - quarters;
+    let splittedBlock: StaffBlock = null;
+/*    if (quarters > this.start && remainLength > 0) {
+      splittedBlock = new StaffBlock(
+        quarters, 
+        remainLength,
+        [], 
+        referencesInfo[Math.trunc(quarters)].barNumber
+      );
+      this.length -= remainLength;
+      this.notes.forEach(
+        staffNote => {
+          const remainStaffNote = splitStaffNote(staffNote, quarters);
+          if (remainStaffNote) {
+            splittedBlock.addNote(remainStaffNote);
+          }
+        }
+      );
+    }*/
     return splittedBlock;
   }
 

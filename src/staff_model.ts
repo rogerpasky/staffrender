@@ -157,23 +157,20 @@ export class StaffModel {
           if (currentBlock === lastBlock) { // Adding notes to current block
             if (staffNote.length < lastBlock.length) { // Split to staffNote
               const quarters = staffNote.start + staffNote.length;
-              const bar = this.referencesInfo[Math.trunc(quarters)].barNumber;
-              const splittedBlock = currentBlock.split(quarters, bar);
+              const splittedBlock = 
+                currentBlock.split(quarters, this.referencesInfo);
               blocks.set(splittedBlock.start, splittedBlock);
             }
             else if (lastBlock.length < staffNote.length){ // Split to lastBlock
               const quarters = lastBlock.start + lastBlock.length;
-              const bar = this.referencesInfo[Math.trunc(quarters)].barNumber;
-              const splittedBlock = currentBlock.split(quarters, bar);
+              const splittedBlock = 
+                currentBlock.split(quarters, this.referencesInfo);
               blocks.set(splittedBlock.start, splittedBlock);
               this.lastQ = staffNoteEnd;
             } // Otherwise, same length, nothing to do
           }
           else { // Adding notes to a new block
             if (staffNote.start > this.lastQ) { // Blocks gap means a prior rest
-              if (lastBlock) {
-                lastBlock.restToNextLength = staffNote.start - this.lastQ; // TODO: Deprecated
-              }
               const quarters = this.lastQ;
               const bar = this.referencesInfo[Math.trunc(quarters)].barNumber;
               const restBlock = new StaffBlock(
@@ -213,21 +210,35 @@ export class StaffModel {
       sortedSplites.forEach( // TODO: Review optimization
         quarters => {
           blocks.forEach(
-            block => {
-              const splitted = block.split(
-                quarters, this.referencesInfo[Math.trunc(quarters)].barNumber
-              );
-              if (splitted) {
-                blockToBlocks(splitted, blocks);
+            currentBlock => {
+             const splittedBlock = 
+                currentBlock.split(quarters, this.referencesInfo);
+              if (splittedBlock) {
+                blockToBlocks(splittedBlock, blocks);
               }
             }
           );
         }
       );
-
       // Sorting for further iteration
       this.staffBlockMap = 
         new Map(Array.from(blocks).sort((x, y) => x[0] - y[0]));
+
+      // 3rd pass to apply tuplets and rithm splitting and association
+      let lastStaffBlock: StaffBlock = null;
+      this.staffBlockMap.forEach(
+        staffBlock => {
+          const splittedBlock = 
+            staffBlock.splitToComplete(lastStaffBlock, this.referencesInfo);
+          if (splittedBlock) {
+            blockToBlocks(splittedBlock, blocks);
+          }
+        }
+      );
+      // Sorting for further iteration
+      this.staffBlockMap = 
+        new Map(Array.from(blocks).sort((x, y) => x[0] - y[0]));
+
     }
     return this.staffBlockMap;
   }
