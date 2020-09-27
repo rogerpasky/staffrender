@@ -608,9 +608,9 @@ export class StaffSVGRender {
     let width = 0;
     let remainingLength = staffBlock.length;
     if (remainingLength) {
-      if (this.config.pixelsPerTimeStep > 0) {
-        x += this.staffModel.quartersToTime(staffBlock.length) * this.hStepSize;
-      }
+//      if (this.config.pixelsPerTimeStep > 0) {
+//        x += this.staffModel.quartersToTime(staffBlock.length) * this.hStepSize;
+//      }
       // Find a possible rest bar split
 //      let quarters = staffBlock.start + staffBlock.length; // TODO: ***** Aquí, staffBlock era el antiguo bloque CON notas
       let quarters = staffBlock.start;
@@ -622,7 +622,7 @@ export class StaffSVGRender {
         remainingLength = quartersToNextBar;
       }
       let maxRest: number;
-      for ( // Set the minimum viable rest in the bar
+      for ( // Set the maximum viable rest in the bar
         maxRest = 4; 
         maxRest > getBarLength(this.currentTimeSignature) && 
           maxRest >= MIN_RESOLUTION;
