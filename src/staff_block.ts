@@ -56,6 +56,12 @@ export class StaffBlock {
   public maxVStep: number;
   /** Lower limit of vertical steps in block notes */
   public minVStep: number;
+  /** Beamed to previous block */
+  public beamingBackwards: boolean;
+  /** Beamed to next block */
+  public beamingForwards: boolean;
+  /** Member of a Beam starting from referenced block */
+  public beamedFrom: StaffBlock;
 
   constructor (
     start=0, 
@@ -64,6 +70,9 @@ export class StaffBlock {
     barNumber=0,
     maxVStep=Number.MAX_SAFE_INTEGER,
     minVStep=Number.MIN_SAFE_INTEGER,
+    beamingBackwards=false,
+    beamingForwards=false,
+    beamedFrom: StaffBlock=null
   ) {
     this.start = start;
     this.length = length;
@@ -71,6 +80,9 @@ export class StaffBlock {
     this.barNumber = barNumber;
     this.maxVStep = maxVStep;
     this.minVStep = minVStep;
+    this.beamingBackwards=beamingBackwards;
+    this.beamingForwards=beamingForwards;
+    this.beamedFrom=beamedFrom;
   }
 
   public isBarBeginning(): boolean {
@@ -130,37 +142,14 @@ export class StaffBlock {
   }
 
   /**
-   * Splits a block in two by to ritmically complete previous one
-   * @param lastStaffBlock The previous block to ritmically complete
+   * Fulfills beaming info according to previous block and signatures context
+   * @param previousStaffBlock The previous block to ritmically complete
    * @param quartersInfo An Array with bar and signatures info per quarter
-   * @returns The second half of splitted block. First one is the received one,
-   * which gets modified.
    */
-  public splitToComplete(
-    lastStaffBlock: StaffBlock, referencesInfo: ReferenceInfo[]
-  ): StaffBlock {
-//    const remainLength = (this.start + this.length) - quarters;
-    let splittedBlock: StaffBlock = null;
-/*    if (quarters > this.start && remainLength > 0) {
-      splittedBlock = new StaffBlock(
-        quarters, 
-        remainLength,
-        [], 
-        referencesInfo[Math.trunc(quarters)].barNumber
-      );
-      this.length -= remainLength;
-      this.notes.forEach(
-        staffNote => {
-          const remainStaffNote = splitStaffNote(staffNote, quarters);
-          if (remainStaffNote) {
-            splittedBlock.addNote(remainStaffNote);
-          }
-        }
-      );
-    }*/
-    return splittedBlock;
+  public setBeaming(
+    previousStaffBlock: StaffBlock, referencesInfo: ReferenceInfo[]
+  ) {
   }
-
 }
 
 /**

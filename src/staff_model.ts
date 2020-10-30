@@ -225,13 +225,23 @@ export class StaffModel {
         new Map(Array.from(blocks).sort((x, y) => x[0] - y[0]));
 
       // 3rd pass to apply tuplets and rithm splitting and association
+      const staffBlockMap: StaffBlockMap = new Map;
       let lastStaffBlock: StaffBlock = null;
       this.staffBlockMap.forEach(
-        staffBlock => {
-          const splittedBlock = 
-            staffBlock.splitToComplete(lastStaffBlock, this.referencesInfo);
-          if (splittedBlock) {
-            blockToBlocks(splittedBlock, blocks);
+        currentStaffBlock => {
+          let pendingToSplit = true;
+          while (pendingToSplit) {
+            const splittedBlock = this.splitToComplete(currentStaffBlock);
+            if (splittedBlock) {
+              splittedBlock.setBeaming(lastStaffBlock, this.referencesInfo);
+              lastStaffBlock = splittedBlock;
+            }
+            else {
+              currentStaffBlock.setBeaming(lastStaffBlock, this.referencesInfo);
+              lastStaffBlock = currentStaffBlock;
+              pendingToSplit = false;
+            }
+            blockToBlocks(lastStaffBlock, staffBlockMap); // splitted or current
           }
         }
       );
@@ -243,6 +253,29 @@ export class StaffModel {
     return this.staffBlockMap;
   }
 
+  /**
+   * Splits a block in two by to ritmically complete previous one
+   * @param previousStaffBlock The previous block to ritmically complete
+   * @param quartersInfo An Array with bar and signatures info per quarter
+   * @returns The second half of splitted block. First one is the received one,
+   * which gets modified.
+   */
+  private splitToComplete(block: StaffBlock): StaffBlock {
+    const reference = this.referencesInfo[Math.floor(block.start)];
+    const quartersFromBarBeginning = 
+      reference.barLength * (reference.barNumber - Math.floor(block.start));
+    const metricBeat = 4 / reference.timeSignature.denominator;
+    const blockBeat = quartersFromBarBeginning / metricBeat;
+    const splittingBeat = Math.ceil(blockBeat);
+    if (splittingBeat === blockBeat) { // Starting a pulse
+      return null;
+    }
+    else {
+      const quarters = splittingBeat * metricBeat;
+      return block.split(quarters, this.referencesInfo);
+    }
+  }
+  
   /** 
    * Fills the reference info (bar, tempo, time signature and key signature)
    * in a per quarter array as a fast method to furthe fill details in blocks
