@@ -1,6 +1,8 @@
 /**
+ * Structure to hold functional unit test data and descriptions
+ *
  * @license
- * Copyright 2019 Pascual de Juan. All Rights Reserved.
+ * Copyright 2018 Pascual de Juan All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,12 +14,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * =============================================================================
  */
 
-/** 15% of accidentals width */
-export const STEM_WIDTH = 15;
-/** 1 pixel */
-export const LINE_STROKE = 1;
-/** 150% of accidentals width */
-export const COMPACT_SPACING = 150;
+import { StaffInfo } from '../src/index';
+
+/** Holds functional unit test data and descriptions */
+export interface TestData {
+  /** The concise title */
+  title: string;
+  /** The detailed description */
+  description: string;
+  /** The data */
+  data: StaffInfo;
+}

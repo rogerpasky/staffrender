@@ -16,7 +16,11 @@
  */
 
 import {
-  MIN_RESOLUTION, STEM_WIDTH, LINE_STROKE, COMPACT_SPACING
+  MIN_RESOLUTION
+} from './model_constants';
+
+import {
+  STEM_WIDTH, LINE_STROKE, COMPACT_SPACING
 } from './render_constants';
 
 import {
@@ -31,7 +35,7 @@ import  {
 } from './svg_paths';
 
 import {
-  StaffInfo, TimeSignatureInfo, NoteInfo
+  StaffInfo, TimeSignatureInfo, NoteInfo, getBarLength
 } from './staff_info';
 
 import {
@@ -39,7 +43,7 @@ import {
 } from './staff_block';
 
 import {
-  StaffModel, getNoteDetails, getBarLength, KEY_ACCIDENTALS
+  StaffModel, getNoteDetails, KEY_ACCIDENTALS
 } from './staff_model';
 
 /**
@@ -235,8 +239,8 @@ export class StaffSVGRender {
 
     this.staffModel = new StaffModel(this.staffInfo, config.defaultKey);
     // Musical defaults can be overwritten by staffModel
-    this.currentKey = this.staffModel.keySignatureAtQ(0);
-    this.currentTimeSignature = this.staffModel.timeSignatureAtQ(0);
+    this.currentKey = this.staffModel.barsInfo.keySignatureAtQ(0);
+    this.currentTimeSignature = this.staffModel.barsInfo.timeSignatureAtQ(0);
     this.clear(); // This will complete rest of member values initialization.
     this.redraw();
   }
@@ -401,7 +405,8 @@ export class StaffSVGRender {
       this.staffModel.staffBlockMap.forEach( // Music Blocks
         (staffBlock, quarters) => {
           if (!isCompact) {
-            x = this.staffModel.quartersToTime(quarters) * this.hStepSize;
+            x = this.staffModel.barsInfo.quartersToTime(quarters) * 
+              this.hStepSize;
           }
           if (quarters > this.lastQ) {
             width += this.drawStaffBlock(staffBlock, x + width, linkedNoteMap);
@@ -422,7 +427,7 @@ export class StaffSVGRender {
       }
       else { // Proportional staff horizontal resizing
         const lastBlock = this.staffModel.staffBlockMap.get(this.lastQ);
-        const endTime = this.staffModel.quartersToTime(
+        const endTime = this.staffModel.barsInfo.quartersToTime(
           this.lastQ + lastBlock.length
         );
         this.width = endTime * this.config.pixelsPerTimeStep;
@@ -469,6 +474,7 @@ export class StaffSVGRender {
     staffBlock: StaffBlock, x: number, linkedNoteMap: LinkedNoteMap
   ): number {
     let width = 0;
+/*
     // Kind of note selection (all block notes have same aspect, some are tied)
     let headIndex = 0;
     for (let i = 4; i >= MIN_RESOLUTION && !headIndex; i /= 2) {
@@ -484,12 +490,12 @@ export class StaffSVGRender {
       console.warn(
         '%cStaffRender:', 'background:orange; color:white', 
         'StaffRender does not handle notes shorther than' +
-        `1/${4 / MIN_RESOLUTION}th, and this score tries to draw a` +
+        `1/${4 / MIN_RESOLUTION}th, and this score tries to draw a ` +
         `1/${noteLength}th. Shortest possible note will be drawn instead.`
       );
       headIndex = MIN_RESOLUTION;
-    }
-    const noteHead = NOTE_PATHS[headIndex];
+    }*/
+    const noteHead = NOTE_PATHS[staffBlock.headIndex];
     // Stem placeholder created beforehand as a lower layer
     let stemG: SVGElement;
     if (noteHead.stemAnchor) {
@@ -533,7 +539,8 @@ export class StaffSVGRender {
         );
         const _xHeadRight = x + width + noteHead.width*this.scale;
         // Dotted note
-        if (headIndex * 1.5 <= staffBlock.length) {
+//        if (headIndex * 1.5 <= staffBlock.length) {
+        if (staffBlock.headAlteration === 1) { // TODO: Triplets and quintuplets
           drawSVGPath(
             _g, dotPath, 
             x + width + noteHead.width*this.scale + this.vStepSize/2, 
@@ -639,7 +646,7 @@ export class StaffSVGRender {
             this.musicG, REST_PATHS[l], x + width, 0, this.scale, this.scale
           );
           if (this.config.pixelsPerTimeStep > 0) { // Proportional visualization
-            x += this.staffModel.quartersToTime(l) * this.hStepSize;
+            x += this.staffModel.barsInfo.quartersToTime(l) * this.hStepSize;
           }
           else { // Compact visualization
             width += rest.getBoundingClientRect().width;
@@ -859,7 +866,7 @@ export class StaffSVGRender {
       const firstOverlay = this.signaturesQuarters === 0;
       if (firstOverlay) { // First time overlay is drawn
         this.signaturesQuarters = 
-          this.staffModel.timeToQuarters(width/this.hStepSize);
+          this.staffModel.barsInfo.timeToQuarters(width/this.hStepSize);
       }
       if (firstOverlay || x > 0) { // Excludes second overlay drawings
         this.signaturesBlinking = true;
@@ -878,7 +885,7 @@ export class StaffSVGRender {
    * @returns Wether it changed or not
    */
   private changeKeySignatureIfNeeded(quarters: number): boolean {
-    const candidateKey = this.staffModel.keySignatureAtQ(quarters);
+    const candidateKey = this.staffModel.barsInfo.keySignatureAtQ(quarters);
     if (candidateKey !== this.currentKey) {
       this.currentKey = candidateKey;
       return true;
@@ -894,7 +901,8 @@ export class StaffSVGRender {
    * @returns Wether it changed or not
    */
   private changeTimeSignatureIfNeeded(quarter: number): boolean {
-    const candidateTimeSign = this.staffModel.timeSignatureAtQ(quarter);
+    const candidateTimeSign = 
+      this.staffModel.barsInfo.timeSignatureAtQ(quarter);
     if (
       candidateTimeSign.numerator !== this.currentTimeSignature.numerator ||
       candidateTimeSign.denominator !== this.currentTimeSignature.denominator

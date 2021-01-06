@@ -15,6 +15,9 @@
  * =============================================================================
  */
 
+/** 1/16 of a quarter note (1/64th note) */
+export const MIN_RESOLUTION = 0.0625; // TODO: Unify
+
 /** 
  * Minimal duration recognized note, which currently is valid for sixtyfourth 
  * note (1/16 of a quarter note) triplets and quintuplets.

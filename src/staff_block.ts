@@ -16,8 +16,16 @@
  */
 
 import {
-  NoteInfo, ReferenceInfo
+  MIN_RESOLUTION
+} from './model_constants';
+
+import {
+  NoteInfo
 } from './staff_info';
+
+import {
+  BarsInfo
+} from './bars_info';
 
 /** Stores processed information related to a musical note in a staff */
 export interface StaffNote extends NoteInfo {
@@ -29,7 +37,7 @@ export interface StaffNote extends NoteInfo {
   vSteps: number;
   /** 
    * Identificator of the accidental kind as following encoding: 
-   * -1 = natural, 0 = none, 1 = accidental (the one used in the key)
+   * 0 = none, 1 = sharp, 2 = flat, 3 = normal
    */
   accidental: number;
   /** Reference to previous tied note */
@@ -37,6 +45,36 @@ export interface StaffNote extends NoteInfo {
   /** Reference to following tied note */
   tiedTo?: StaffNote;
 }
+
+/**
+ * Splits a note in two by a time point measured in note quarters
+ * @param staffNote note to be splitted
+ * @param quarters split point
+ * @returns The second half of spritted note. First one is the received one,
+ * which gets modified.
+ */
+export function splitStaffNote(staffNote: StaffNote, quarters: number): StaffNote {
+  const remainLength = (staffNote.start + staffNote.length) - quarters;
+  let splitted: StaffNote = null;
+  if (quarters > staffNote.start && remainLength > 0) {
+    staffNote.length -= remainLength;
+    splitted = {
+      start: quarters,
+      length: remainLength,
+      pitch: staffNote.pitch,
+      intensity: staffNote.intensity,
+      vSteps: staffNote.vSteps,
+      accidental: staffNote.accidental,
+      tiedFrom: staffNote
+    };
+    if (staffNote.tiedTo) { // Relinking ties if any in pre-splitted note
+      splitted.tiedTo = staffNote.tiedTo;
+      staffNote.tiedTo.tiedFrom = splitted;
+    }
+    staffNote.tiedTo = splitted;
+  }
+  return splitted;
+} // TODO: review to move interface to class
 
 /** 
  * Stores a block of notes in a staff, all of them starting and ending at once, 
@@ -48,6 +86,16 @@ export class StaffBlock {
   public start: number;
   /** Note length, in quarter note quantities (float) */
   public length: number;
+  /**
+   * Reference to the symbol to be drawn (notes and rests) according to its
+   * length measured in quarters.
+   */
+  headIndex: number;
+  /**
+   * Specifies note or rest length alteration, if any, as following encoding:
+   * 1 = dot, 3 = triplet, 5 quintuplet (any other will be ignored)
+   */
+  headAlteration?: number;
   /** Block bar number (float) being .0 at bar beginning and .5 at bar half. */
   public barNumber: number;
   /** The list of notes related to the block */
@@ -62,6 +110,10 @@ export class StaffBlock {
   public beamingForwards: boolean;
   /** Member of a Beam starting from referenced block */
   public beamedFrom: StaffBlock;
+  /** Wether the block begins a new pulse */
+  public pulseBegin?: boolean;
+  /** Wether the block ends a new pulse */
+  public pulseEnd?: boolean;
 
   constructor (
     start=0, 
@@ -76,6 +128,7 @@ export class StaffBlock {
   ) {
     this.start = start;
     this.length = length;
+    this.headIndex = 0;
     this.notes = notes;
     this.barNumber = barNumber;
     this.maxVStep = maxVStep;
@@ -114,11 +167,11 @@ export class StaffBlock {
   /**
    * Splits a block in two by a time point measured in note quarters
    * @param quarters split point
-   * @param quartersInfo An Array with bar and signatures info per quarter
+   * @param barsInfo An Array with bar and signatures info per quarter
    * @returns The second half of splitted block. First one is the received one,
    * which gets modified.
    */
-  public split(quarters: number, referencesInfo: ReferenceInfo[]): StaffBlock {
+  public split(quarters: number, barsInfo: BarsInfo): StaffBlock {
     const remainLength = (this.start + this.length) - quarters;
     let splittedBlock: StaffBlock = null;
     if (quarters > this.start && remainLength > 0) {
@@ -126,7 +179,7 @@ export class StaffBlock {
         quarters, 
         remainLength,
         [], 
-        referencesInfo[Math.trunc(quarters)].barNumber
+        barsInfo.barNumberAtQ(quarters)
       );
       this.length -= remainLength;
       this.notes.forEach(
@@ -138,7 +191,161 @@ export class StaffBlock {
         }
       );
     }
+    if (splittedBlock && this.pulseEnd) {
+      splittedBlock.pulseEnd = true;
+      this.pulseEnd = false; // Applicable to symbol splitting (post-pulse)
+    }
     return splittedBlock;
+  }
+
+  /**
+   * Splits a block in two by next pulse to ritmically complete previous one.
+   * It marks as well if the affected block is beginning or ending a pulse.
+   * @param barsInfo An Array with bar and signatures info per quarter
+   * @returns The second half of splitted block. First half remains in current
+   * object, which gets modified.
+   */
+  public splitToPulse(barsInfo: BarsInfo): StaffBlock {
+    const barLength = barsInfo.barLenghtAtQ(this.start);
+    const timeSignature = barsInfo.timeSignatureAtQ(this.start);
+    const barFractionFromBar = this.barNumber - Math.floor(this.barNumber);
+    const quartersFromBarBeginning = 
+      Math.round(barLength * barFractionFromBar * 1000000) / 1000000;
+    const quartersAtBarBeginning = this.start - quartersFromBarBeginning;
+    const metricBeat = 4 / timeSignature.denominator;
+    const blockBeat = quartersFromBarBeginning / metricBeat;
+    const splittingBeat = Math.ceil(blockBeat);
+    let splittedBlock: StaffBlock = null;
+    if (splittingBeat !== blockBeat) { // Splitting on next beat
+      const quartersAtBeat = 
+        quartersAtBarBeginning + splittingBeat * metricBeat;
+        splittedBlock = this.split(quartersAtBeat, barsInfo);
+        if (this.start + this.length === quartersAtBeat) { // TODO: safe math
+          this.pulseEnd = true; // Block ends at pulse end
+        }
+    }
+    else { // Beginning a pulse, splitting only at bar end if applicable
+      this.pulseBegin = true;
+      const quartersAtBarEnd = 
+        quartersAtBarBeginning + timeSignature.numerator * metricBeat;
+      splittedBlock = this.split(quartersAtBarEnd, barsInfo);
+      if (this.start + this.length === quartersAtBarEnd) {
+        this.pulseEnd = true; // Block ends at pulse end
+      }
+    }
+    if (splittedBlock) { // It was splitted before pulse end
+      this.pulseEnd = true;
+    }
+    return splittedBlock;
+  }
+
+  /**
+   * Splits a block in two to make the first one fit in the size of standard
+   * musical symbols length.
+   * @param barsInfo An Array with bar and signatures info per quarter
+   * @param increasing Wether the split must be done shorter to longer notes
+   * @returns The second half of splitted block. First half remains in current
+   * object, which gets modified.
+   */
+  public splitToSymbols(barsInfo: BarsInfo, increasing: boolean): StaffBlock {
+    let remainBlock: StaffBlock = null;
+    if (this.length >= MIN_RESOLUTION) {
+      // Kind of note selection (all block notes have same aspect)
+      remainBlock = increasing? 
+        this.splitShorter(barsInfo): this.splitLonger(barsInfo);
+    }
+    // Fallback for notes shorter than MIN_RESOLUTION. It will be warned on 
+    // console and MIN_RESOLUTION note will be drawn.
+    else {
+      const noteLength = this.length === 0 ? '[infinite]' : 
+        `${4 / this.length}`;
+      console.warn(
+        '%cStaffRender:', 'background:orange; color:white', 
+        'StaffRender does not handle notes shorther than ' +
+        `1/${4 / MIN_RESOLUTION}th, and this score tries to draw a ` +
+        `1/${noteLength}th. Shortest possible note will be drawn instead.`
+      );
+      this.headIndex = MIN_RESOLUTION;
+      remainBlock = null;
+    }
+    return remainBlock;
+  }
+  
+  /**
+   * Splits a block in two to make the first one the shortest possible size of 
+   * standard musical symbols.
+   * @param barsInfo An Array with bar and signatures info per quarter
+   * @returns The second half of splitted block. First half remains in current
+   * object, which gets modified.
+   */
+  public splitShorter(barsInfo: BarsInfo): StaffBlock {
+    const rest = this.notes.length === 0;
+    let length = this.length;
+    let splitLength = 0;
+    let headIndex = 0;
+    let headAlteration = 0;
+    for (let i = 4; length > 0.0000001; i /= 2) {
+      if (!rest && Math.round((length - i * 3/2) * 1000000) === 0) {
+        length -= i * 3/2;
+        splitLength = i * 3/2;
+        headIndex = i;
+        headAlteration = 1; // Dotted note
+      }
+      else if (length >= i) {
+        length -= i;
+        splitLength = i;
+        headIndex = i; // Plain note
+      }
+      else if (Math.round((length - i * 4/5) * 1000000) === 0) {
+        length -= i * 4/5;
+        splitLength = i * 4/5;
+        headIndex = i;
+        headAlteration = 5; // Quintuplet
+      }
+      else if (Math.round((length - i * 2/3) * 1000000) === 0) {
+        length -= i * 2/3;
+        splitLength = i * 2/3;
+        headIndex = i;
+        headAlteration = 3; // Triplet
+      }
+    }
+    let remainBlock = this.split(this.start + splitLength, barsInfo);
+    this.headIndex = headIndex;
+    this.headAlteration = headAlteration;
+    return remainBlock;
+  }
+
+  /**
+   * Splits a block in two to make the first one the longest possible size of 
+   * standard musical symbols.
+   * @param barsInfo An Array with bar and signatures info per quarter
+   * @returns The second half of splitted block. First half remains in current
+   * object, which gets modified.
+   */
+  public splitLonger(barsInfo: BarsInfo): StaffBlock {
+    let remainBlock: StaffBlock = null;
+    for (let i = 4; !this.headIndex && !remainBlock; i /= 2) {
+      if (Math.round((this.length - i * 3/2) * 1000000) === 0) {
+        remainBlock = this.split(this.start + i * 3/2, barsInfo);
+        this.headIndex = i;
+        this.headAlteration = 1 // Dotted note
+      }
+      else if (this.length >= i) {
+        remainBlock = this.split(this.start + i, barsInfo);
+        this.headIndex = i; // Plain note
+      }
+      else if (Math.round((this.length - i * 4/5) * 1000000) === 0) {
+        remainBlock = this.split(this.start + i * 4/5, barsInfo);
+        this.headIndex = i;
+        this.headAlteration = 5 // Quintuplet
+      }
+      else if (Math.round((this.length - i * 2/3) * 1000000) === 0) {
+        remainBlock = this.split(this.start + i * 2/3, barsInfo);
+        this.headIndex = i;
+        this.headAlteration = 3 // Triplet
+      }
+    }
+    return remainBlock;
   }
 
   /**
@@ -147,33 +354,7 @@ export class StaffBlock {
    * @param quartersInfo An Array with bar and signatures info per quarter
    */
   public setBeaming(
-    previousStaffBlock: StaffBlock, referencesInfo: ReferenceInfo[]
+    previousStaffBlock: StaffBlock, barsInfo: BarsInfo
   ) {
   }
 }
-
-/**
- * Splits a note in two by a time point measured in note quarters
- * @param staffNote note to be splitted
- * @param quarters split point
- * @returns The second half of spritted note. First one is the received one,
- * which gets modified.
- */
-export function splitStaffNote(staffNote: StaffNote, quarters: number): StaffNote {
-  const remainLength = (staffNote.start + staffNote.length) - quarters;
-  let splitted: StaffNote = null;
-  if (quarters > staffNote.start && remainLength > 0) {
-    staffNote.length -= remainLength;
-    splitted = {
-      start: quarters,
-      length: remainLength,
-      pitch: staffNote.pitch,
-      intensity: staffNote.intensity,
-      vSteps: staffNote.vSteps,
-      accidental: staffNote.accidental,
-      tiedFrom: staffNote
-    };
-    staffNote.tiedTo = splitted;
-  }
-  return splitted;
-} // TODO: review to move interface to class

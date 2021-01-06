@@ -65,17 +65,6 @@ export interface StaffInfo {
   timeSignatures?: TimeSignatureInfo[];
 }
 
-export interface ReferenceInfo {
-  barNumber: number;
-  barLength: number;
-  tempo: TempoInfo;
-  keySignature: KeySignatureInfo;
-  timeSignature: TimeSignatureInfo;
-  tempoChange?: TempoInfo;
-  keyChange?: KeySignatureInfo;
-  timeChange?: TimeSignatureInfo;
-}
-
 /** Default tempo in case none is found (60 bpm) */
 export const DEFAULT_TEMPO: TempoInfo = {
   start: 0,
@@ -92,3 +81,13 @@ export const DEFAULT_TIME_SIGNATURE: TimeSignatureInfo = {
   numerator: 4, 
   denominator: 4
 };
+
+/**
+ * Calculates the number of quarters that fits within a bar in a given
+ * time signature
+ * @param timeSignature The time signature
+ * @returns The number of quarters that fit in
+ */
+export function getBarLength(timeSignature: TimeSignatureInfo): number {
+  return timeSignature.numerator * 4 / timeSignature.denominator;
+}

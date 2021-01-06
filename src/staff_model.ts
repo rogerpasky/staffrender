@@ -16,13 +16,12 @@
  */
 
 import {
-  StaffInfo, NoteInfo, ReferenceInfo, TimeSignatureInfo, KeySignatureInfo, 
+  StaffInfo, NoteInfo, KeySignatureInfo, 
   DEFAULT_TEMPO, DEFAULT_TIME_SIGNATURE, DEFAULT_KEY_SIGNATURE
 } from './staff_info';
+import { BarsInfo } from './bars_info';
 import { StaffBlock, StaffNote } from './staff_block';
-import { 
-  MAX_QUARTER_DIVISION, SCALES, KEY_ACCIDENTALS 
-} from './model_constants';
+import { SCALES, KEY_ACCIDENTALS } from './model_constants';
 export { KEY_ACCIDENTALS }; // TODO: Review
 
 /** A map of staff blocks indexed by starting quarter */
@@ -41,7 +40,7 @@ export class StaffModel {
   /**  Staff clef as MIDI pitch note at the staff 3rd line (G clef -> B = 71) */
   public clef: number;
   /** The bar, tempo, time signature and key signature info by quarters */
-  private referencesInfo: ReferenceInfo[];
+  public barsInfo: BarsInfo;
   /** The resut of staff analysis on staff blocks indexed by starting quarter */
   public staffBlockMap: StaffBlockMap;
   /** Last handled quarter, i.e. staff length in quarters */
@@ -54,7 +53,7 @@ export class StaffModel {
    */
   constructor(staffInfo: StaffInfo, defaultKey?: number) {
     this.staffInfo = null;
-    this.clef = this.guessClef(staffInfo);
+    this.clef = guessClef(staffInfo);
     this.staffBlockMap = null;
     this.update(staffInfo, defaultKey);
   }
@@ -111,8 +110,7 @@ export class StaffModel {
         [DEFAULT_TIME_SIGNATURE].concat(staffInfo.timeSignatures);
     }
 
-    this.referencesInfo = new Array();
-    this.setReferencesInfo(staffInfo);
+    this.barsInfo = new BarsInfo(staffInfo, this.lastQ); // TODO: incremental
 
     this.infoToBlocks(staffInfo);
   }
@@ -144,27 +142,28 @@ export class StaffModel {
       this.staffInfo.notes.forEach( 
         note => {
           const staffNote = toStaffNote(note); // TODO: Review
-          const currentBar = Math.trunc(this.referencesInfo[Math.trunc(staffNote.start)].barNumber);
+          const barNumber = this.barsInfo.barNumberAtQ(staffNote.start);
+          const currentBar = Math.trunc(barNumber);
           if (currentBar > lastBar) {
             lastBar = currentBar;
             barAccidentals = {}; // Reset
           }
-          const keySignature = this.keySignatureAtQ(staffNote.start);
+          const keySignature = this.barsInfo.keySignatureAtQ(staffNote.start);
           placeNote(staffNote, barAccidentals, this.clef, keySignature);
           const staffNoteEnd = staffNote.start + staffNote.length;
 
-          const currentBlock = noteToBlocks(staffNote, blocks, currentBar);
+          const currentBlock = noteToBlocks(staffNote, blocks, barNumber);
           if (currentBlock === lastBlock) { // Adding notes to current block
             if (staffNote.length < lastBlock.length) { // Split to staffNote
               const quarters = staffNote.start + staffNote.length;
               const splittedBlock = 
-                currentBlock.split(quarters, this.referencesInfo);
+                currentBlock.split(quarters, this.barsInfo);
               blocks.set(splittedBlock.start, splittedBlock);
             }
             else if (lastBlock.length < staffNote.length){ // Split to lastBlock
               const quarters = lastBlock.start + lastBlock.length;
               const splittedBlock = 
-                currentBlock.split(quarters, this.referencesInfo);
+                currentBlock.split(quarters, this.barsInfo);
               blocks.set(splittedBlock.start, splittedBlock);
               this.lastQ = staffNoteEnd;
             } // Otherwise, same length, nothing to do
@@ -172,7 +171,7 @@ export class StaffModel {
           else { // Adding notes to a new block
             if (staffNote.start > this.lastQ) { // Blocks gap means a prior rest
               const quarters = this.lastQ;
-              const bar = this.referencesInfo[Math.trunc(quarters)].barNumber;
+              const bar = this.barsInfo.barNumberAtQ(quarters);
               const restBlock = new StaffBlock(
                 quarters, staffNote.start - this.lastQ, [], bar
               );
@@ -196,14 +195,7 @@ export class StaffModel {
           }
         }
       );
-      this.referencesInfo.forEach( // complete splits with bars in referencesInfo
-        (referenceInfo: ReferenceInfo, quarters:number) => {
-          if (referenceInfo.barNumber - Math.trunc(referenceInfo.barNumber) === 0) {
-            splites.add(quarters); // Add bar beginning quarters
-          }
-        }
-      );
-
+      
       // TODO: Insert in previous pass with iterators
       // 2nd pass to apply all splites to the right chunks
       const sortedSplites = Array.from(splites).sort((x, y) => x - y);
@@ -212,7 +204,7 @@ export class StaffModel {
           blocks.forEach(
             currentBlock => {
              const splittedBlock = 
-                currentBlock.split(quarters, this.referencesInfo);
+                currentBlock.split(quarters, this.barsInfo);
               if (splittedBlock) {
                 blockToBlocks(splittedBlock, blocks);
               }
@@ -228,167 +220,33 @@ export class StaffModel {
       const staffBlockMap: StaffBlockMap = new Map;
       let lastStaffBlock: StaffBlock = null;
       this.staffBlockMap.forEach(
-        currentStaffBlock => {
-          let pendingToSplit = true;
-          while (pendingToSplit) {
-            const splittedBlock = this.splitToComplete(currentStaffBlock);
-            if (splittedBlock) {
-              splittedBlock.setBeaming(lastStaffBlock, this.referencesInfo);
-              lastStaffBlock = splittedBlock;
+        currentBlock => {
+          let remainingBlock = null;
+          do{
+            remainingBlock = currentBlock.splitToPulse(this.barsInfo);
+            const increasing = 
+              !currentBlock.pulseBegin && currentBlock.pulseEnd;
+            let remainingSymbolsBlock: StaffBlock = null;
+            do {
+              remainingSymbolsBlock = 
+                currentBlock.splitToSymbols(this.barsInfo, increasing);
+              currentBlock.setBeaming(lastStaffBlock, this.barsInfo); // TODO: Review if needed to be done here
+              blockToBlocks(currentBlock, staffBlockMap);
+              if (remainingSymbolsBlock) {
+                lastStaffBlock = currentBlock;
+                currentBlock = remainingSymbolsBlock;
+              }
+            } while (remainingSymbolsBlock)
+            if (remainingBlock) {
+              lastStaffBlock = currentBlock;
+              currentBlock = remainingBlock;
             }
-            else {
-              currentStaffBlock.setBeaming(lastStaffBlock, this.referencesInfo);
-              lastStaffBlock = currentStaffBlock;
-              pendingToSplit = false;
-            }
-            blockToBlocks(lastStaffBlock, staffBlockMap); // splitted or current
-          }
+          } while (remainingBlock) // Each block can hold more than one pulse
         }
       );
-      // Sorting for further iteration
-      this.staffBlockMap = 
-        new Map(Array.from(blocks).sort((x, y) => x[0] - y[0]));
-
+      this.staffBlockMap = staffBlockMap;
     }
     return this.staffBlockMap;
-  }
-
-  /**
-   * Splits a block in two by to ritmically complete previous one
-   * @param previousStaffBlock The previous block to ritmically complete
-   * @param quartersInfo An Array with bar and signatures info per quarter
-   * @returns The second half of splitted block. First one is the received one,
-   * which gets modified.
-   */
-  private splitToComplete(block: StaffBlock): StaffBlock {
-    const reference = this.referencesInfo[Math.floor(block.start)];
-    const quartersFromBarBeginning = 
-      reference.barLength * (reference.barNumber - Math.floor(block.start));
-    const metricBeat = 4 / reference.timeSignature.denominator;
-    const blockBeat = quartersFromBarBeginning / metricBeat;
-    const splittingBeat = Math.ceil(blockBeat);
-    if (splittingBeat === blockBeat) { // Starting a pulse
-      return null;
-    }
-    else {
-      const quarters = splittingBeat * metricBeat;
-      return block.split(quarters, this.referencesInfo);
-    }
-  }
-  
-  /** 
-   * Fills the reference info (bar, tempo, time signature and key signature)
-   * in a per quarter array as a fast method to furthe fill details in blocks
-   * @param staffInfo The staff information get references from.
-   */
-  private setReferencesInfo(staffInfo: StaffInfo) {
-    let tempoIndex = 0;
-    let keyIndex = 0;
-    let timeIndex = 0;
-    let currentTempo = staffInfo.tempos[0];
-    let currentKeySignature = staffInfo.keySignatures[0];
-    let currentTimeSignature = staffInfo.timeSignatures[0];
-    let currentTimeSignatureBar = 0; // Bar where current time signature starts
-    let currentBarLength = getBarLength(currentTimeSignature);
-    for (let quarters = 0; quarters < this.lastQ; ++quarters) { // All quarters
-      const referenceInfo: ReferenceInfo = { 
-        barNumber: currentTimeSignatureBar, 
-        barLength: currentBarLength,
-        tempo: currentTempo,
-        keySignature: currentKeySignature,
-        timeSignature: currentTimeSignature
-      };
-      if (
-        tempoIndex < staffInfo.tempos.length && 
-        staffInfo.tempos[tempoIndex].start === quarters
-      ) { // Register a tempo change in this quarter
-        currentTempo = staffInfo.tempos[tempoIndex++];
-        referenceInfo.tempo = currentTempo;
-        referenceInfo.tempoChange = currentTempo;
-      }
-      if ( // Register a key signature change in this quarter
-        keyIndex < staffInfo.keySignatures.length && 
-        staffInfo.keySignatures[keyIndex].start === quarters
-      ) {
-        currentKeySignature = staffInfo.keySignatures[keyIndex++];
-        referenceInfo.keySignature = currentKeySignature;
-        referenceInfo.keyChange = currentKeySignature;
-      }
-      if (
-        timeIndex < staffInfo.timeSignatures.length && 
-        staffInfo.timeSignatures[timeIndex].start === quarters
-      ) { // Register a time signature in this quarter
-        referenceInfo.barNumber += (quarters - currentTimeSignature.start) / 
-          currentBarLength;
-        currentTimeSignatureBar = referenceInfo.barNumber; // New time signat. bar
-        referenceInfo.timeChange = staffInfo.timeSignatures[timeIndex++];
-        currentTimeSignature = referenceInfo.timeChange; // New time signature
-        referenceInfo.timeSignature = currentTimeSignature;
-        referenceInfo.barLength = getBarLength(currentTimeSignature);
-        currentBarLength = referenceInfo.barLength; // New length
-      }
-      referenceInfo.barNumber += (quarters - currentTimeSignature.start) / 
-        currentBarLength; // Add bars from time sign. change
-      this.referencesInfo.push(referenceInfo);
-    }      
-  }
-
-  /**
-   * Gets the key signature at a quarter on the staff
-   * @param quarters Quarter to look key signature at
-   * @returns The key which is operative at given quarter 
-   */
-  public keySignatureAtQ(quarters: number): number {
-    return this.referencesInfo[Math.trunc(quarters)].keySignature.key;
-  } 
-  
-  /**
-   * Gets the time signature at a quarter on the staff
-   * @param quarter Quarter to look time signature at
-   * @returns The time signature which is operative at given quarter 
-   */
-  public timeSignatureAtQ(quarters: number): TimeSignatureInfo {
-    return this.referencesInfo[Math.trunc(quarters)].timeSignature;
-  }
-  
-  /**
-   * Clef deduction: Average pitch under C4 -> F clef, otherwise G clef
-   * @returns The deducted clef as Midi pitch values
-   */
-  public guessClef(staffInfo: StaffInfo): number {
-    let pitchSum = 0;
-    let countSum = 0;
-    staffInfo.notes.forEach(
-      note => {
-        pitchSum += note.pitch;
-        ++countSum;
-      }
-    );
-    const averagePitch = pitchSum / countSum;
-    return averagePitch < 60 ? 50 : 71; // Numbers are MIDI pitch values  
-  }
-
-  /**
-   * Convert a given amount of quarters to seconds. **NOTE**: it doesn't 
-   * covers tempo changes yet, and assumes score keeps it stable till the end.
-   * @param quarters The given amount of quarters
-   * @returns The equivalent amount of seconds
-   */
-  public quartersToTime(quarters: number): number {
-    return quarters / this.staffInfo.tempos[0].qpm * 60;
-  }
-  
-  /**
-   * Convert a given amount of seconds to quarters. **NOTE**: it doesn't 
-   * covers tempo changes yet, and assumes score keeps it stable till the end.
-   * It will be rounded to minimum note division to avoid JavaScript number
-   * rounding issues.
-   * @param quarters The given amount of seconds
-   * @returns The equivalent amount of quarters
-   */
-  public timeToQuarters(time: number): number {
-    const q = time * this.staffInfo.tempos[0].qpm / 60;
-    return Math.round(q * MAX_QUARTER_DIVISION) / MAX_QUARTER_DIVISION;
   }
   
 }
@@ -441,7 +299,9 @@ function noteToBlocks(note: StaffNote, blocks: StaffBlockMap, barNumber: number)
     return existingBlock;
   }
   else {
-    const newBlock = new StaffBlock(note.start, note.length, [note], barNumber, note.vSteps, note.vSteps); // TODO: redo constructor
+    const newBlock = new StaffBlock(
+      note.start, note.length, [note], barNumber, note.vSteps, note.vSteps
+    ); // TODO: redo constructor
     blocks.set(note.start, newBlock);
     return newBlock;
   }
@@ -512,11 +372,18 @@ export function getNoteDetails(notePitch: number, clef: number, key: number)
 }
 
 /**
- * Calculates the number of quarters that fits within a bar in a given
- * time signature
- * @param timeSignature The time signature
- * @returns The number of quarters that fit in
+ * Clef deduction: Average pitch under C4 -> F clef, otherwise G clef
+ * @returns The deducted clef as Midi pitch values
  */
-export function getBarLength(timeSignature: TimeSignatureInfo): number {
-  return timeSignature.numerator * 4 / timeSignature.denominator;
+function guessClef(staffInfo: StaffInfo): number {
+  let pitchSum = 0;
+  let countSum = 0;
+  staffInfo.notes.forEach(
+    note => {
+      pitchSum += note.pitch;
+      ++countSum;
+    }
+  );
+  const averagePitch = pitchSum / countSum;
+  return averagePitch < 60 ? 50 : 71; // Numbers are MIDI pitch values  
 }

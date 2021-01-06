@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+//import { StaffInfo } from '../../src/staff_info'; // TODO: Review file copy
+
 import * as mm from '@magenta/music';
 import * as ssv from './staff_svg_visualizer'
 

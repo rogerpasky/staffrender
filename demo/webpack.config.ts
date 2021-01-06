@@ -3,7 +3,10 @@ const path = require('path');
 module.exports = {
   devtool: 'inline-source-map', // TODO: check debbugging Chrome integration
   mode: 'development', // TODO: check debbugging Chrome integration
-  entry: './src/index.ts',
+  entry: {
+    index: './src/index.ts',
+    features: './src/features.ts'
+  },
   module: {
     rules: [
       {
@@ -17,7 +20,7 @@ module.exports = {
     extensions: [ '.ts', '.js' ],
   },
   output: {
-    filename: 'index.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, 'src'),
   },
 };
