@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>staffrender - v1.0.0</title>
+	<title>staffrender - v1.1.0</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="index.html" class="title">staffrender - v1.0.0</a>
+					<a href="index.html" class="title">staffrender - v1.1.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -54,7 +54,7 @@
 					<a href="globals.html">Globals</a>
 				</li>
 			</ul>
-			<h1>staffrender - v1.0.0</h1>
+			<h1>staffrender - v1.1.0</h1>
 		</div>
 	</div>
 </header>
@@ -67,15 +67,22 @@
 				</a>
 				<p>A plain vanilla TypeScrip library to render music score in browsers</p>
 				<p>It has been created to support Tensorflow/Magenta-JS staff visualizer, but it could be used standalone.</p>
-				<p>From version 1.0.0 on, it offers access to its internal data structure <code>StaffModel</code> to process scores and hold musical blocks without visual representation.</p>
+				<p>From version 1.0.0 on, it offers access to its internal data structure <code>StaffModel</code> to process scores and hold musical blocks without visual representation. This structure will be subject to changes up to version 2.0.0 where all musical features will be achieved.</p>
 				<p>This is a <strong>work in process</strong> project, who has some to do list, like triplets, quintuplets and shorter-than-quarter notes aggregation into beams (instead individual note flags), but it is fully operative. It will keep on growing and evolving. Some stand alone demos will be offered (currently focused on magenta-js consumption demos), but you can watch it in action building and serving the <code>./test</code> directory on local deployment.</p>
 				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
 					<h2>Usage</h2>
 				</a>
 				<ul>
 					<li><code>npm install staffrender</code></li>
-					<li>Latest version: <code>1.0.0</code></li>
+				</ul>
+				<a href="#reference" id="reference" style="color: inherit; text-decoration: none;">
+					<h2>Reference</h2>
+				</a>
+				<ul>
+					<li>Latest version: <code>1.1.0</code></li>
 					<li>Documentation: <a href="https://rogerpasky.github.io/staffrender/">Staffrender Homepage</a></li>
+					<li>Features: <a href="https://rogerpasky.github.io/staffrender/demo/features.html">Musical capabilities</a></li>
+					<li>Advanced usage: <a href="https://rogerpasky.github.io/staffrender/demo/index.html">Squeezing mm.StaffSVGVisualizer</a></li>
 				</ul>
 				<a href="#development" id="development" style="color: inherit; text-decoration: none;">
 					<h2>Development</h2>
@@ -85,8 +92,9 @@
 					<li>Go to root directory (where README.md is located)</li>
 					<li>Run <code>yarn install</code> to set up dependencies</li>
 					<li>Run <code>yarn build</code> to preprocess typescript and create package</li>
+					<li>Run <code>yarn test</code> to verify unitary tests of current features</li>
+					<li>Go to <code>./demo</code> to run <code>yarn build</code>and <code>yarn serve</code> to visually and acustically test the code on local server</li>
 					<li>Run <code>yarn docs</code> to compile typedoc documentation and serve it to verify content on local server</li>
-					<li>Go to <code>./test</code> to run <code>yarn build</code>and <code>yarn serve</code> to visually and acustically test the code</li>
 					<li>Run <code>yarn prepublish</code> to verify new version standard before any contribution</li>
 					<li>Admin only:<ul>
 							<li>Update version</li>
@@ -103,7 +111,19 @@
 						<a href="globals.html"><em>Globals</em></a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="modules/_constants_.html">&quot;constants&quot;</a>
+						<a href="modules/_bars_info_.html">&quot;bars_<wbr>info&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_model_constants_.html">&quot;model_<wbr>constants&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_render_constants_.html">&quot;render_<wbr>constants&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_staff_block_.html">&quot;staff_<wbr>block&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_staff_info_.html">&quot;staff_<wbr>info&quot;</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="modules/_staff_model_.html">&quot;staff_<wbr>model&quot;</a>

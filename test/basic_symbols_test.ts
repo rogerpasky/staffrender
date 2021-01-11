@@ -51,8 +51,16 @@ test(`basic_symbols_test: ${bs.testData[2].title}`, (t: test.Test) => {
   t.end();
 });
 
-test(`basic_symbols_test: ${bs.testData[5].title}`, (t: test.Test) => {
-  const output = new StaffModel(bs.testData[5].data);
+test(`basic_symbols_test: ${bs.testData[3].title}`, (t: test.Test) => {
+  const output = new StaffModel(bs.testData[3].data);
+  let score = output.staffBlockMap;
+  t.equal(score.get( 0.0 ).headAlteration, 1, 'Dotted note');
+  t.equal(score.get( 3.0 ).headAlteration, 0, 'Rests are not dotted');
+  t.end();
+});
+
+test(`basic_symbols_test: ${bs.testData[6].title}`, (t: test.Test) => {
+  const output = new StaffModel(bs.testData[6].data);
   let score = output.staffBlockMap;
   t.equal(score.get(0.0).notes[0].accidental, 0, 'Unaltered note');
   t.equal(score.get(0.5).notes[0].accidental, 1, '# note');
@@ -67,8 +75,8 @@ test(`basic_symbols_test: ${bs.testData[5].title}`, (t: test.Test) => {
   t.end();
 });
 
-test(`basic_symbols_test: ${bs.testData[6].title}`, (t: test.Test) => {
-  const output = new StaffModel(bs.testData[6].data);
+test(`basic_symbols_test: ${bs.testData[7].title}`, (t: test.Test) => {
+  const output = new StaffModel(bs.testData[7].data);
   let score = output.staffBlockMap;
   t.equal(score.get(0.0).notes[0].accidental, 0, 'Unaltered note');
   t.equal(score.get(0.5).notes[0].accidental, 2, 'b note');
@@ -83,8 +91,8 @@ test(`basic_symbols_test: ${bs.testData[6].title}`, (t: test.Test) => {
   t.end();
 });
 
-test(`basic_symbols_test: ${bs.testData[7].title}`, (t: test.Test) => {
-  const output = new StaffModel(bs.testData[7].data);
+test(`basic_symbols_test: ${bs.testData[8].title}`, (t: test.Test) => {
+  const output = new StaffModel(bs.testData[8].data);
   const accidentals = [
     [ 0 , 1 , 0 , 1 , 0 , 0 , 1 , 0 , 1 , 0 , 1 , 0] , // C
     [ 0 , 0 , 3 , 0 , 3 , 0 , 0 , 3 , 0 , 3 , 0 , 3] , // Db

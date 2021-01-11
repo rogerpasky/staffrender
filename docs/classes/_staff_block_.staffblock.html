@@ -1,0 +1,872 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>StaffBlock | staffrender - v1.1.0</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.js" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">staffrender - v1.1.0</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="../modules/_staff_block_.html">&quot;staff_block&quot;</a>
+				</li>
+				<li>
+					<a href="_staff_block_.staffblock.html">StaffBlock</a>
+				</li>
+			</ul>
+			<h1>Class StaffBlock</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Stores a block of notes in a staff, all of them starting and ending at once,
+							even though some notes can be tied to notes in other blocks. A block with no
+							notes is a rest. It will pre-process all available context (key signatures,
+							rithm splittings, clef...) to store all score details in order to represent
+						it in a staff.</p>
+					</div>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">StaffBlock</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#barnumber" class="tsd-kind-icon">bar<wbr>Number</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#beamedfrom" class="tsd-kind-icon">beamed<wbr>From</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#beamingbackwards" class="tsd-kind-icon">beaming<wbr>Backwards</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#beamingforwards" class="tsd-kind-icon">beaming<wbr>Forwards</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#headalteration" class="tsd-kind-icon">head<wbr>Alteration</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#headindex" class="tsd-kind-icon">head<wbr>Index</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#length" class="tsd-kind-icon">length</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#maxvstep" class="tsd-kind-icon">maxVStep</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#minvstep" class="tsd-kind-icon">minVStep</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#notes" class="tsd-kind-icon">notes</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#pulsebegin" class="tsd-kind-icon">pulse<wbr>Begin</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#pulseend" class="tsd-kind-icon">pulse<wbr>End</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#start" class="tsd-kind-icon">start</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#addnote" class="tsd-kind-icon">add<wbr>Note</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#isbarbeginning" class="tsd-kind-icon">is<wbr>Bar<wbr>Beginning</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#setbeaming" class="tsd-kind-icon">set<wbr>Beaming</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#split" class="tsd-kind-icon">split</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#splitlonger" class="tsd-kind-icon">split<wbr>Longer</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#splitshorter" class="tsd-kind-icon">split<wbr>Shorter</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#splittopulse" class="tsd-kind-icon">split<wbr>ToPulse</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_staff_block_.staffblock.html#splittosymbols" class="tsd-kind-icon">split<wbr>ToSymbols</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Staff<wbr>Block<span class="tsd-signature-symbol">(</span>start<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, length<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, notes<span class="tsd-signature-symbol">?: </span><a href="../interfaces/_staff_block_.staffnote.html" class="tsd-signature-type">StaffNote</a><span class="tsd-signature-symbol">[]</span>, barNumber<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, maxVStep<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, minVStep<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_staff_block_.staffblock.html" class="tsd-signature-type">StaffBlock</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L118">staff_block.ts:118</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a <code>StaffBlock</code> storing minimal score details, waiting to be
+									modified further invoking other methods.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> start: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>Starting time, in quarter note quantities (float)</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> length: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>Note length, in quarter note quantities (float)</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> notes: <a href="../interfaces/_staff_block_.staffnote.html" class="tsd-signature-type">StaffNote</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>The list of notes related to the block</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> barNumber: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> maxVStep: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = Number.MAX_SAFE_INTEGER</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>Upper limit of vertical steps in block notes</p>
+										</div>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> minVStep: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = Number.MIN_SAFE_INTEGER</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>Lower limit of vertical steps in block notes</p>
+										</div>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_staff_block_.staffblock.html" class="tsd-signature-type">StaffBlock</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="barnumber" class="tsd-anchor"></a>
+					<h3>bar<wbr>Number</h3>
+					<div class="tsd-signature tsd-kind-icon">bar<wbr>Number<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L104">staff_block.ts:104</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Upper limit of vertical steps in block notes</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="beamedfrom" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> beamed<wbr>From</h3>
+					<div class="tsd-signature tsd-kind-icon">beamed<wbr>From<span class="tsd-signature-symbol">:</span> <a href="_staff_block_.staffblock.html" class="tsd-signature-type">StaffBlock</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L110">staff_block.ts:110</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Member of a Beam starting from referenced block</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="beamingbackwards" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> beaming<wbr>Backwards</h3>
+					<div class="tsd-signature tsd-kind-icon">beaming<wbr>Backwards<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L112">staff_block.ts:112</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Beamed to previous block</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="beamingforwards" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> beaming<wbr>Forwards</h3>
+					<div class="tsd-signature tsd-kind-icon">beaming<wbr>Forwards<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L114">staff_block.ts:114</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Beamed to next block</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="headalteration" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> head<wbr>Alteration</h3>
+					<div class="tsd-signature tsd-kind-icon">head<wbr>Alteration<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L100">staff_block.ts:100</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Specifies note or rest length alteration, if any, as following encoding:
+							1 = dot, 3 = triplet, 5 quintuplet (any other will be ignored)</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="headindex" class="tsd-anchor"></a>
+					<h3>head<wbr>Index</h3>
+					<div class="tsd-signature tsd-kind-icon">head<wbr>Index<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L95">staff_block.ts:95</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Reference to the symbol to be drawn (notes and rests) according to its
+							length measured in quarters.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="length" class="tsd-anchor"></a>
+					<h3>length</h3>
+					<div class="tsd-signature tsd-kind-icon">length<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L90">staff_block.ts:90</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Note length, in quarter note quantities (float)</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="maxvstep" class="tsd-anchor"></a>
+					<h3>maxVStep</h3>
+					<div class="tsd-signature tsd-kind-icon">maxVStep<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L106">staff_block.ts:106</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The list of notes related to the block</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="minvstep" class="tsd-anchor"></a>
+					<h3>minVStep</h3>
+					<div class="tsd-signature tsd-kind-icon">minVStep<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L108">staff_block.ts:108</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Lower limit of vertical steps in block notes</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="notes" class="tsd-anchor"></a>
+					<h3>notes</h3>
+					<div class="tsd-signature tsd-kind-icon">notes<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_staff_block_.staffnote.html" class="tsd-signature-type">StaffNote</a><span class="tsd-signature-symbol">[]</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L102">staff_block.ts:102</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Block bar number (float) being .0 at bar beginning and .5 at bar half.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="pulsebegin" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> pulse<wbr>Begin</h3>
+					<div class="tsd-signature tsd-kind-icon">pulse<wbr>Begin<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L116">staff_block.ts:116</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Wether the block begins a new pulse</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="pulseend" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> pulse<wbr>End</h3>
+					<div class="tsd-signature tsd-kind-icon">pulse<wbr>End<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L118">staff_block.ts:118</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Wether the block ends a new pulse</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="start" class="tsd-anchor"></a>
+					<h3>start</h3>
+					<div class="tsd-signature tsd-kind-icon">start<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L88">staff_block.ts:88</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Starting time, in quarter note quantities (float)</p>
+						</div>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="addnote" class="tsd-anchor"></a>
+					<h3>add<wbr>Note</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">add<wbr>Note<span class="tsd-signature-symbol">(</span>staffNote<span class="tsd-signature-symbol">: </span><a href="../interfaces/_staff_block_.staffnote.html" class="tsd-signature-type">StaffNote</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L151">staff_block.ts:151</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Adds a note to the block&#39;s note list, merging repetitions&#39; length,
+									adapting VSteps and block length</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>staffNote: <a href="../interfaces/_staff_block_.staffnote.html" class="tsd-signature-type">StaffNote</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The note to be added</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="isbarbeginning" class="tsd-anchor"></a>
+					<h3>is<wbr>Bar<wbr>Beginning</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">is<wbr>Bar<wbr>Beginning<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L371">staff_block.ts:371</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Checks if the block starts at bar beginning</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>true if it is so</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setbeaming" class="tsd-anchor"></a>
+					<h3>set<wbr>Beaming</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Beaming<span class="tsd-signature-symbol">(</span>previousStaffBlock<span class="tsd-signature-symbol">: </span><a href="_staff_block_.staffblock.html" class="tsd-signature-type">StaffBlock</a>, barsInfo<span class="tsd-signature-symbol">: </span><a href="_bars_info_.barsinfo.html" class="tsd-signature-type">BarsInfo</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L380">staff_block.ts:380</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Fulfills beaming info according to previous block and signatures context</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>previousStaffBlock: <a href="_staff_block_.staffblock.html" class="tsd-signature-type">StaffBlock</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>The previous block to ritmically complete</p>
+									</div>
+								</li>
+								<li>
+									<h5>barsInfo: <a href="_bars_info_.barsinfo.html" class="tsd-signature-type">BarsInfo</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="split" class="tsd-anchor"></a>
+					<h3>split</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">split<span class="tsd-signature-symbol">(</span>quarters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, barsInfo<span class="tsd-signature-symbol">: </span><a href="_bars_info_.barsinfo.html" class="tsd-signature-type">BarsInfo</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_staff_block_.staffblock.html" class="tsd-signature-type">StaffBlock</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L175">staff_block.ts:175</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Splits a block in two by a time point measured in note quarters</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>quarters: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>split point</p>
+									</div>
+								</li>
+								<li>
+									<h5>barsInfo: <a href="_bars_info_.barsinfo.html" class="tsd-signature-type">BarsInfo</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>An Array with bar and signatures info per quarter</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_staff_block_.staffblock.html" class="tsd-signature-type">StaffBlock</a></h4>
+							<p>The second half of splitted block. First one is the received one,
+							which gets modified.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="splitlonger" class="tsd-anchor"></a>
+					<h3>split<wbr>Longer</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">split<wbr>Longer<span class="tsd-signature-symbol">(</span>barsInfo<span class="tsd-signature-symbol">: </span><a href="_bars_info_.barsinfo.html" class="tsd-signature-type">BarsInfo</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_staff_block_.staffblock.html" class="tsd-signature-type">StaffBlock</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L338">staff_block.ts:338</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Splits a block in two to make the first one the longest possible size of
+									standard musical symbols.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>barsInfo: <a href="_bars_info_.barsinfo.html" class="tsd-signature-type">BarsInfo</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>An Array with bar and signatures info per quarter</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_staff_block_.staffblock.html" class="tsd-signature-type">StaffBlock</a></h4>
+							<p>The second half of splitted block. First half remains in current
+							object, which gets modified.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="splitshorter" class="tsd-anchor"></a>
+					<h3>split<wbr>Shorter</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">split<wbr>Shorter<span class="tsd-signature-symbol">(</span>barsInfo<span class="tsd-signature-symbol">: </span><a href="_bars_info_.barsinfo.html" class="tsd-signature-type">BarsInfo</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_staff_block_.staffblock.html" class="tsd-signature-type">StaffBlock</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L292">staff_block.ts:292</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Splits a block in two to make the first one the shortest possible size of
+									standard musical symbols.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>barsInfo: <a href="_bars_info_.barsinfo.html" class="tsd-signature-type">BarsInfo</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>An Array with bar and signatures info per quarter</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_staff_block_.staffblock.html" class="tsd-signature-type">StaffBlock</a></h4>
+							<p>The second half of splitted block. First half remains in current
+							object, which gets modified.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="splittopulse" class="tsd-anchor"></a>
+					<h3>split<wbr>ToPulse</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">split<wbr>ToPulse<span class="tsd-signature-symbol">(</span>barsInfo<span class="tsd-signature-symbol">: </span><a href="_bars_info_.barsinfo.html" class="tsd-signature-type">BarsInfo</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_staff_block_.staffblock.html" class="tsd-signature-type">StaffBlock</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L209">staff_block.ts:209</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Splits a block in two by next pulse to ritmically complete previous one.
+									It marks as well if the affected block is beginning or ending a pulse.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>barsInfo: <a href="_bars_info_.barsinfo.html" class="tsd-signature-type">BarsInfo</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>An Array with bar and signatures info per quarter</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_staff_block_.staffblock.html" class="tsd-signature-type">StaffBlock</a></h4>
+							<p>The second half of splitted block. First half remains in current
+							object, which gets modified.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="splittosymbols" class="tsd-anchor"></a>
+					<h3>split<wbr>ToSymbols</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">split<wbr>ToSymbols<span class="tsd-signature-symbol">(</span>barsInfo<span class="tsd-signature-symbol">: </span><a href="_bars_info_.barsinfo.html" class="tsd-signature-type">BarsInfo</a>, increasing<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_staff_block_.staffblock.html" class="tsd-signature-type">StaffBlock</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/01a90fe/src/staff_block.ts#L254">staff_block.ts:254</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Splits a block in two to make the first one fit in the size of standard
+									musical symbols length.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>barsInfo: <a href="_bars_info_.barsinfo.html" class="tsd-signature-type">BarsInfo</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>An Array with bar and signatures info per quarter</p>
+									</div>
+								</li>
+								<li>
+									<h5>increasing: <span class="tsd-signature-type">boolean</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Wether the split must be done shorter to longer notes</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_staff_block_.staffblock.html" class="tsd-signature-type">StaffBlock</a></h4>
+							<p>The second half of splitted block. First half remains in current
+							object, which gets modified.</p>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_bars_info_.html">&quot;bars_<wbr>info&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_model_constants_.html">&quot;model_<wbr>constants&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_render_constants_.html">&quot;render_<wbr>constants&quot;</a>
+					</li>
+					<li class="current tsd-kind-external-module">
+						<a href="../modules/_staff_block_.html">&quot;staff_<wbr>block&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_staff_info_.html">&quot;staff_<wbr>info&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_staff_model_.html">&quot;staff_<wbr>model&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_staff_svg_render_.html">&quot;staff_<wbr>svg_<wbr>render&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_svg_paths_.html">&quot;svg_<wbr>paths&quot;</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_svg_tools_.html">&quot;svg_<wbr>tools&quot;</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-external-module">
+						<a href="_staff_block_.staffblock.html" class="tsd-kind-icon">Staff<wbr>Block</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#barnumber" class="tsd-kind-icon">bar<wbr>Number</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#beamedfrom" class="tsd-kind-icon">beamed<wbr>From</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#beamingbackwards" class="tsd-kind-icon">beaming<wbr>Backwards</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#beamingforwards" class="tsd-kind-icon">beaming<wbr>Forwards</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#headalteration" class="tsd-kind-icon">head<wbr>Alteration</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#headindex" class="tsd-kind-icon">head<wbr>Index</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#length" class="tsd-kind-icon">length</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#maxvstep" class="tsd-kind-icon">maxVStep</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#minvstep" class="tsd-kind-icon">minVStep</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#notes" class="tsd-kind-icon">notes</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#pulsebegin" class="tsd-kind-icon">pulse<wbr>Begin</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#pulseend" class="tsd-kind-icon">pulse<wbr>End</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#start" class="tsd-kind-icon">start</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#addnote" class="tsd-kind-icon">add<wbr>Note</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#isbarbeginning" class="tsd-kind-icon">is<wbr>Bar<wbr>Beginning</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#setbeaming" class="tsd-kind-icon">set<wbr>Beaming</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#split" class="tsd-kind-icon">split</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#splitlonger" class="tsd-kind-icon">split<wbr>Longer</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#splitshorter" class="tsd-kind-icon">split<wbr>Shorter</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#splittopulse" class="tsd-kind-icon">split<wbr>ToPulse</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_staff_block_.staffblock.html#splittosymbols" class="tsd-kind-icon">split<wbr>ToSymbols</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-interface tsd-parent-kind-external-module">
+						<a href="../interfaces/_staff_block_.staffnote.html" class="tsd-kind-icon">Staff<wbr>Note</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/_staff_block_.html#issafezero" class="tsd-kind-icon">is<wbr>Safe<wbr>Zero</a>
+					</li>
+					<li class=" tsd-kind-function tsd-parent-kind-external-module">
+						<a href="../modules/_staff_block_.html#splitstaffnote" class="tsd-kind-icon">split<wbr>Staff<wbr>Note</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="../assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

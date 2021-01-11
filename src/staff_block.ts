@@ -78,8 +78,10 @@ export function splitStaffNote(staffNote: StaffNote, quarters: number): StaffNot
 
 /** 
  * Stores a block of notes in a staff, all of them starting and ending at once, 
- * even though some notes can be tied to notes in other blocks. It can be 
- * followed by a rest, which has no representation in a separate data structure.
+ * even though some notes can be tied to notes in other blocks. A block with no 
+ * notes is a rest. It will pre-process all available context (key signatures,
+ * rithm splittings, clef...) to store all score details in order to represent 
+ * it in a staff.
  */
 export class StaffBlock {
   /** Starting time, in quarter note quantities (float) */
@@ -97,24 +99,33 @@ export class StaffBlock {
    */
   headAlteration?: number;
   /** Block bar number (float) being .0 at bar beginning and .5 at bar half. */
-  public barNumber: number;
-  /** The list of notes related to the block */
   public notes: StaffNote[];
   /** Upper limit of vertical steps in block notes */
+  public barNumber: number;
+  /** The list of notes related to the block */
   public maxVStep: number;
   /** Lower limit of vertical steps in block notes */
   public minVStep: number;
-  /** Beamed to previous block */
-  public beamingBackwards: boolean;
-  /** Beamed to next block */
-  public beamingForwards: boolean;
   /** Member of a Beam starting from referenced block */
-  public beamedFrom: StaffBlock;
+  public beamedFrom?: StaffBlock;
+  /** Beamed to previous block */
+  public beamingBackwards?: boolean;
+  /** Beamed to next block */
+  public beamingForwards?: boolean;
   /** Wether the block begins a new pulse */
   public pulseBegin?: boolean;
   /** Wether the block ends a new pulse */
   public pulseEnd?: boolean;
 
+  /**
+   * Creates a `StaffBlock` storing minimal score details, waiting to be 
+   * modified further invoking other methods.
+   * @param start Starting time, in quarter note quantities (float)
+   * @param length Note length, in quarter note quantities (float)
+   * @param notes The list of notes related to the block
+   * @param maxVStep Upper limit of vertical steps in block notes
+   * @param minVStep Lower limit of vertical steps in block notes
+   */
   constructor (
     start=0, 
     length=0, 
@@ -122,9 +133,6 @@ export class StaffBlock {
     barNumber=0,
     maxVStep=Number.MAX_SAFE_INTEGER,
     minVStep=Number.MIN_SAFE_INTEGER,
-    beamingBackwards=false,
-    beamingForwards=false,
-    beamedFrom: StaffBlock=null
   ) {
     this.start = start;
     this.length = length;
@@ -133,13 +141,6 @@ export class StaffBlock {
     this.barNumber = barNumber;
     this.maxVStep = maxVStep;
     this.minVStep = minVStep;
-    this.beamingBackwards=beamingBackwards;
-    this.beamingForwards=beamingForwards;
-    this.beamedFrom=beamedFrom;
-  }
-
-  public isBarBeginning(): boolean {
-    return this.barNumber - Math.trunc(this.barNumber) === 0.0;
   }
 
   /**
@@ -206,30 +207,33 @@ export class StaffBlock {
    * object, which gets modified.
    */
   public splitToPulse(barsInfo: BarsInfo): StaffBlock {
-    const barLength = barsInfo.barLenghtAtQ(this.start);
     const timeSignature = barsInfo.timeSignatureAtQ(this.start);
+    const barLength = barsInfo.barLenghtAtQ(this.start);
     const barFractionFromBar = this.barNumber - Math.floor(this.barNumber);
-    const quartersFromBarBeginning = 
+    const quartersFromBarBeginning = // Javascript math safe
       Math.round(barLength * barFractionFromBar * 1000000) / 1000000;
     const quartersAtBarBeginning = this.start - quartersFromBarBeginning;
     const metricBeat = 4 / timeSignature.denominator;
     const blockBeat = quartersFromBarBeginning / metricBeat;
     const splittingBeat = Math.ceil(blockBeat);
     let splittedBlock: StaffBlock = null;
-    if (splittingBeat !== blockBeat) { // Splitting on next beat
-      const quartersAtBeat = 
-        quartersAtBarBeginning + splittingBeat * metricBeat;
-        splittedBlock = this.split(quartersAtBeat, barsInfo);
-        if (this.start + this.length === quartersAtBeat) { // TODO: safe math
-          this.pulseEnd = true; // Block ends at pulse end
-        }
+    if (!isSafeZero(splittingBeat - blockBeat)) { // Splitting on next beat
+      const quartersAtBeat = Math.round( // Javascript math safe
+        (quartersAtBarBeginning + splittingBeat * metricBeat) * 1000000
+      ) / 1000000;
+      splittedBlock = this.split(quartersAtBeat, barsInfo);
+      if (isSafeZero(this.start + this.length - quartersAtBeat)) {
+        this.pulseEnd = true; // Block ends at pulse end
+      }
     }
     else { // Beginning a pulse, splitting only at bar end if applicable
       this.pulseBegin = true;
-      const quartersAtBarEnd = 
-        quartersAtBarBeginning + timeSignature.numerator * metricBeat;
+      const quartersAtBarEnd = Math.round( // Javascript math safe
+        (quartersAtBarBeginning + timeSignature.numerator * metricBeat) * 
+        1000000
+      ) / 1000000;
       splittedBlock = this.split(quartersAtBarEnd, barsInfo);
-      if (this.start + this.length === quartersAtBarEnd) {
+      if (isSafeZero(this.start + this.length - quartersAtBarEnd)) {
         this.pulseEnd = true; // Block ends at pulse end
       }
     }
@@ -250,14 +254,21 @@ export class StaffBlock {
   public splitToSymbols(barsInfo: BarsInfo, increasing: boolean): StaffBlock {
     let remainBlock: StaffBlock = null;
     if (this.length >= MIN_RESOLUTION) {
-      // Kind of note selection (all block notes have same aspect)
-      remainBlock = increasing? 
-        this.splitShorter(barsInfo): this.splitLonger(barsInfo);
+      if ( // Whole rest applies to whole bar, whatever its length
+        !this.notes.length && // Is a rest and pulse splitted to bar length
+        this.length === barsInfo.barLenghtAtQ(this.start)
+      ) {
+        this.headIndex = 4;
+      }
+      else { // Kind of note selection (all block notes have same aspect)
+        remainBlock = increasing? 
+          this.splitShorter(barsInfo): this.splitLonger(barsInfo);
+      }
     }
     // Fallback for notes shorter than MIN_RESOLUTION. It will be warned on 
     // console and MIN_RESOLUTION note will be drawn.
     else {
-      const noteLength = this.length === 0 ? '[infinite]' : 
+      const noteLength = isSafeZero(this.length) ? '[infinite]' : 
         `${4 / this.length}`;
       console.warn(
         '%cStaffRender:', 'background:orange; color:white', 
@@ -279,37 +290,39 @@ export class StaffBlock {
    * object, which gets modified.
    */
   public splitShorter(barsInfo: BarsInfo): StaffBlock {
-    const rest = this.notes.length === 0;
     let length = this.length;
     let splitLength = 0;
     let headIndex = 0;
     let headAlteration = 0;
-    for (let i = 4; length > 0.0000001; i /= 2) {
-      if (!rest && Math.round((length - i * 3/2) * 1000000) === 0) {
+    for (let i = 4; !isSafeZero(length); i /= 2) {
+      if ( // Dotted note
+        isSafeZero(length - i * 3/2) &&
+        (barsInfo.allowDottedRests || this.notes.length)
+      ) {
         length -= i * 3/2;
         splitLength = i * 3/2;
         headIndex = i;
-        headAlteration = 1; // Dotted note
+        headAlteration = 1;
       }
-      else if (length >= i) {
+      else if (length >= i) { // Plain note
         length -= i;
         splitLength = i;
-        headIndex = i; // Plain note
+        headIndex = i;
       }
-      else if (Math.round((length - i * 4/5) * 1000000) === 0) {
+      else if (isSafeZero(length - i * 4/5)) { // Quintuplet
         length -= i * 4/5;
         splitLength = i * 4/5;
         headIndex = i;
-        headAlteration = 5; // Quintuplet
+        headAlteration = 5;
       }
-      else if (Math.round((length - i * 2/3) * 1000000) === 0) {
+      else if (isSafeZero(length - i * 2/3)) { // Triplet
         length -= i * 2/3;
         splitLength = i * 2/3;
         headIndex = i;
-        headAlteration = 3; // Triplet
+        headAlteration = 3;
       }
     }
-    let remainBlock = this.split(this.start + splitLength, barsInfo);
+    const remainBlock = this.split(this.start + splitLength, barsInfo);
     this.headIndex = headIndex;
     this.headAlteration = headAlteration;
     return remainBlock;
@@ -324,28 +337,39 @@ export class StaffBlock {
    */
   public splitLonger(barsInfo: BarsInfo): StaffBlock {
     let remainBlock: StaffBlock = null;
-    for (let i = 4; !this.headIndex && !remainBlock; i /= 2) {
-      if (Math.round((this.length - i * 3/2) * 1000000) === 0) {
+    for (let i = 4; !this.headIndex; i /= 2) {
+      if ( // Dotted note
+        isSafeZero(this.length - i * 3/2) &&
+        (barsInfo.allowDottedRests || this.notes.length)
+      ) {
         remainBlock = this.split(this.start + i * 3/2, barsInfo);
         this.headIndex = i;
-        this.headAlteration = 1 // Dotted note
+        this.headAlteration = 1;
       }
       else if (this.length >= i) {
         remainBlock = this.split(this.start + i, barsInfo);
         this.headIndex = i; // Plain note
       }
-      else if (Math.round((this.length - i * 4/5) * 1000000) === 0) {
+      else if (isSafeZero(this.length - i * 4/5)) { // Quintuplet
         remainBlock = this.split(this.start + i * 4/5, barsInfo);
         this.headIndex = i;
-        this.headAlteration = 5 // Quintuplet
+        this.headAlteration = 5;
       }
-      else if (Math.round((this.length - i * 2/3) * 1000000) === 0) {
+      else if (isSafeZero(this.length - i * 2/3)) { // Triplet
         remainBlock = this.split(this.start + i * 2/3, barsInfo);
         this.headIndex = i;
-        this.headAlteration = 3 // Triplet
+        this.headAlteration = 3;
       }
     }
     return remainBlock;
+  }
+
+  /**
+   * Checks if the block starts at bar beginning
+   * @returns true if it is so
+   */
+  public isBarBeginning(): boolean {
+    return this.barNumber - Math.trunc(this.barNumber) === 0.0;
   }
 
   /**
@@ -357,4 +381,13 @@ export class StaffBlock {
     previousStaffBlock: StaffBlock, barsInfo: BarsInfo
   ) {
   }
+}
+
+/**
+ * Verifies if a given number is closer to zero than 0.0000001 in order to 
+ * avoid Javascript math imprecissions.
+ * @param n Number to be checked
+ */
+function isSafeZero(n: number): boolean {
+  return Math.round(n * 1000000) === 0;
 }

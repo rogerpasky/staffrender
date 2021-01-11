@@ -26,9 +26,11 @@ export const testData: TestData[] = [];
 var position = 0; // Used for incremental note starting point
 
 testData[0] = {
-  title: `Note symbols`,
-  description: `Notes of different length should complete each bar. Stems on \
-    first half bar should be upwards and should be downwards on second half`,
+  title: `Note symbols and their durations`,
+  description: `Notes of different length should complete each bar going from \
+    whole note through 1/2th, 1/4th, 1/8th, 1/16th, 1/32th and 1/64th, which \
+    is the lowest handled resolution. Stems on first half bar should be \
+    upwards and should be downwards on second half.`,
   data: {
     notes: [],
   }
@@ -59,7 +61,7 @@ testData[1] = { // Not required for unitary test but for visual test.
 };
 
 testData[2] = {
-  title: `Rest symbols`,
+  title: `Rest symbols and their durations`,
   description: `Notes of different length should be paired with their relative \
     rest. Last note has been placed to complete the bar and make last rest \
     noticeable.`,
@@ -79,7 +81,23 @@ testData[2].data.notes.push(
   { start: position, length: 0.125, pitch: 67, intensity: 127 }
 ); // Completing bar
 
-testData[3] = { // Not required for unitary test but for visual test.
+testData[3] = {
+  title: `Dotted notes`,
+  description: `Note length can be extended to a 150% of its nominal value \
+    adding a dot after the note symbol. This applies to all note symbols but \
+    it will not be applied to rests symbols, besides it is not forbidden under \
+    some circumstances, following the classical music transcription chriteria \
+    disrecommending the use of dotted rests in order to ease the readability. \
+    Last note is included to make last rests noticeable.`,
+  data: {
+    notes: [
+      { start: 0, length: 3, pitch: 67, intensity: 127 },
+      { start: 3.75, length: 0.25, pitch: 67, intensity: 127 }
+    ],
+  }
+};
+
+testData[4] = { // Not required for unitary test but for visual test.
   title: `Treble Clef (G-Clef)`,
   description: `Leftmost symbol (spiral-like) makes five lines pentagram to \
     cover pitches from D3 to G4 touching extreme lines. Higher and lower \
@@ -112,7 +130,7 @@ testData[3] = { // Not required for unitary test but for visual test.
   }
 };
 
-testData[4] = { // Not required for unitary test but for visual test.
+testData[5] = { // Not required for unitary test but for visual test.
   title: `Bass Clef (F-Clef)`,
   description: `Leftmost symbol (the curved one alongsidewith colon) makes \
     five lines pentagram to cover pitches from F1 to B2 touching extreme \
@@ -145,23 +163,24 @@ testData[4] = { // Not required for unitary test but for visual test.
   }
 };
 
-testData[5] = {
+testData[6] = {
   title: `Sharp Accidentals`,
   description: `Notes can modify their pitch one semitone up using Accidental \
     symbol '#' (called sharp) before a note symbol. Once modified (let's say \
-    C3), all notes in same staff position are modified as well until the end \
+    G3), all notes in same staff position are modified as well until the end \
     of current bar. Setting an Accidental at the beginning of a bar instead to \
-    a single note makes it apply all notes of same name (i.e. C3 and C4) to \
+    a single note makes it apply all notes of same name (i.e. G3 and G4) to \
     this and following bars. This is called Key Signature and resets previous \
     Key Signatures, if any. There is a Normal Symbol to anule active \
     note Accidental of following notes until the end of bar, where there would \
-    be a Key Signature re-activation. Following score shows a Key Signature \
-    and some notes, in order, unaltered, sharp, sharp (no need for Accidental \
-    symbol), sharp (in other scale, needing for sharp symbol again), normal \
-    (back to unaltered), sharp (in ither scale again with no need for \
-    Accidental), unaltered, sharp again, end of bar with Accidentals \
-    reset (except the ones from key signature), sharp and, finally, sharp \
-    (applying key signature to same name note in other scale).`,
+    be a Key Signature re-activation. Double sharp and similar Accidentals are \
+    not covered and will be represented as next note if applicable. Following \
+    score shows a Key Signature and some notes, in order, unaltered, sharp, \
+    sharp (no need for Accidental symbol), sharp (in other scale, needing for \
+    sharp symbol again), normal (back to unaltered), sharp (in ither scale \
+    again with no need for Accidental), unaltered, sharp again, end of bar \
+    with Accidentals reset (except the ones from key signature), sharp and, \
+    finally, sharp (applying key signature to same name note in other scale).`,
   data: {
     keySignatures: [ { start: 0, key: 7 } ],
     notes: [
@@ -179,11 +198,12 @@ testData[5] = {
   }
 };
 
-testData[6] = {
+testData[7] = {
   title: `Flat Accidentals`,
   description: `Notes can modify their pitch one semitone down using \
     Accidental symbol 'b' (called flat) before a note symbol. Same rules apply \
-    as in Sharp Accidentals scenario. Similar pattern has been used on score`,
+    as in Sharp Accidentals scenario. Double flat is not covered either. \
+    Similar pattern has been used on score`,
   data: {
     keySignatures: [ { start: 0, key: 5 } ],
     notes: [
@@ -201,7 +221,7 @@ testData[6] = {
   }
 };
 
-testData[7] = {
+testData[8] = {
   title: `Key Signatures on chromatic scales`,
   description: `There is a close set of 12 Key Signatures. Half of them use \
     sharps (from 0 to 5 sharps: C, G, D, A, E and B keys, the right side of \
@@ -232,13 +252,13 @@ testData[7] = {
 position = 0;
 for (let n = 0; n < 12; ++n) {
   for (let p = 60; p < 72; ++p) {
-    testData[7].data.notes.push(
+    testData[8].data.notes.push(
       { start: position++, length: 1, pitch: p, intensity: 127 }
     );
   }
 }
 
-testData[8] = {
+testData[9] = {
   title: `Time Signatures`,
   description: `Notes can be gropued on bars according to "pulse" rithm \
     patterns, defined by Time Signatures consisting on a numerator and a \
@@ -255,7 +275,7 @@ testData[8] = {
 position = 0;
 for (let d = 2; d <= 8; d *= 2) {
   const l = 4 / d;
-  const data = testData[8].data;
+  const data = testData[9].data;
   for (let n = 2; n <= 12; ++n) {
     data.timeSignatures.push(
       { start: position, numerator: n, denominator: d }
@@ -269,18 +289,37 @@ for (let d = 2; d <= 8; d *= 2) {
   }
 }
 
-testData[9] = {
+testData[10] = {
+  title: `Whole rests`,
+  description: `Whole rest symbol is used to specify a whole silent bar, no \
+    matter which the time signature is.`,
+  data: {
+    timeSignatures: [ 
+      { start:   0, numerator:  3, denominator: 4 },
+      { start:   6, numerator:  6, denominator: 8 },
+      { start:  12, numerator:  7, denominator: 2 },
+      { start:  40, numerator:  4, denominator: 4 }
+    ],
+    notes: [ 
+      { start:  3, length:  3, pitch: 67, intensity: 127 },
+      { start:  9, length:  3, pitch: 67, intensity: 127 },
+      { start: 26, length: 14, pitch: 67, intensity: 127 },
+      { start: 44, length:  4, pitch: 67, intensity: 127 },
+    ]
+  }
+};
+
+testData[11] = {
   title: `Ties`,
   description: `Notes longer than avilable note symbols length can be achieved \
   combining two or more through ties. Notes which surpass bars must be \
   splitted using ties. Rest aggregation does not need any tie. Following \
-  score shows three tied notes, a rests set, two tied notes, a long rest set \
-  and two notes tied to surpass a bar.`,
+  score shows three tied notes, a rests set, two tied notes to surpass a bar.`,
   data: {
     notes: [
       { start: 0, length: 2+1/2+1/8, pitch: 67, intensity: 127 },
-      { start: 4-(1/4+1/16), length: 1/4+1/16, pitch: 67, intensity: 127 },
-      { start: 8-1/16, length: 4+1/16, pitch: 67, intensity: 127 }
+      { start: 3, length: 2, pitch: 67, intensity: 127 },
+      { start: 7, length: 1, pitch: 67, intensity: 127 }
     ],
   }
 };

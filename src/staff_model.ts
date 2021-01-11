@@ -66,7 +66,7 @@ export class StaffModel {
   public update(staffInfo: StaffInfo, defaultKey?: number) {
     staffInfo.notes.sort( (x, y) => x.start - y.start );
 
-    // TODO: Review
+    // TODO: Full review to make it incremental avoiding unneded update work
     this.lastQ = 0;
     staffInfo.notes.forEach(
       note => {
@@ -110,7 +110,7 @@ export class StaffModel {
         [DEFAULT_TIME_SIGNATURE].concat(staffInfo.timeSignatures);
     }
 
-    this.barsInfo = new BarsInfo(staffInfo, this.lastQ); // TODO: incremental
+    this.barsInfo = new BarsInfo(staffInfo, this.lastQ);
 
     this.infoToBlocks(staffInfo);
   }
@@ -141,7 +141,7 @@ export class StaffModel {
       let lastBlock: StaffBlock = null;
       this.staffInfo.notes.forEach( 
         note => {
-          const staffNote = toStaffNote(note); // TODO: Review
+          const staffNote = toStaffNote(note);
           const barNumber = this.barsInfo.barNumberAtQ(staffNote.start);
           const currentBar = Math.trunc(barNumber);
           if (currentBar > lastBar) {
@@ -196,10 +196,10 @@ export class StaffModel {
         }
       );
       
-      // TODO: Insert in previous pass with iterators
+      // TODO: Insert in previous pass optimizing with iterators (O^2 -> lineal)
       // 2nd pass to apply all splites to the right chunks
       const sortedSplites = Array.from(splites).sort((x, y) => x - y);
-      sortedSplites.forEach( // TODO: Review optimization
+      sortedSplites.forEach(
         quarters => {
           blocks.forEach(
             currentBlock => {
@@ -217,7 +217,7 @@ export class StaffModel {
         new Map(Array.from(blocks).sort((x, y) => x[0] - y[0]));
 
       // 3rd pass to apply tuplets and rithm splitting and association
-      const staffBlockMap: StaffBlockMap = new Map;
+      const staffBlockMap: StaffBlockMap = new Map();
       let lastStaffBlock: StaffBlock = null;
       this.staffBlockMap.forEach(
         currentBlock => {
@@ -230,18 +230,18 @@ export class StaffModel {
             do {
               remainingSymbolsBlock = 
                 currentBlock.splitToSymbols(this.barsInfo, increasing);
-              currentBlock.setBeaming(lastStaffBlock, this.barsInfo); // TODO: Review if needed to be done here
+              currentBlock.setBeaming(lastStaffBlock, this.barsInfo);
               blockToBlocks(currentBlock, staffBlockMap);
               if (remainingSymbolsBlock) {
                 lastStaffBlock = currentBlock;
                 currentBlock = remainingSymbolsBlock;
               }
-            } while (remainingSymbolsBlock)
+            } while (remainingSymbolsBlock);
             if (remainingBlock) {
               lastStaffBlock = currentBlock;
               currentBlock = remainingBlock;
             }
-          } while (remainingBlock) // Each block can hold more than one pulse
+          } while (remainingBlock); // Each block can hold more than one pulse
         }
       );
       this.staffBlockMap = staffBlockMap;
@@ -301,7 +301,7 @@ function noteToBlocks(note: StaffNote, blocks: StaffBlockMap, barNumber: number)
   else {
     const newBlock = new StaffBlock(
       note.start, note.length, [note], barNumber, note.vSteps, note.vSteps
-    ); // TODO: redo constructor
+    );
     blocks.set(note.start, newBlock);
     return newBlock;
   }

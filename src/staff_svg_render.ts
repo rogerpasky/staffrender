@@ -16,10 +16,6 @@
  */
 
 import {
-  MIN_RESOLUTION
-} from './model_constants';
-
-import {
   STEM_WIDTH, LINE_STROKE, COMPACT_SPACING
 } from './render_constants';
 
@@ -287,8 +283,8 @@ export class StaffSVGRender {
     this.signaturesList = [{x: 0, q: 0}];
     this.signatureCurrent = 0;
     this.signatureNext = 0; // To reset blinking if scrolled
-    this.changeKeySignatureIfNeeded(0); // TODO: Review
-    this.changeTimeSignatureIfNeeded(0); // TODO: Review
+    this.changeKeySignatureIfNeeded(0);
+    this.changeTimeSignatureIfNeeded(0);
     // General visual references
     this.vStepSize = this.config.noteHeight / 2;
     this.hStepSize = this.config.pixelsPerTimeStep;
@@ -299,26 +295,6 @@ export class StaffSVGRender {
     this.playingNotes = [];
     this.lastBar = 0;
     this.lastQ = -1;
-  }
-
-  /**
-   * Verifies if a given highlighted `note` should stay that way
-   * 
-   * A note is active if it's literally the same as the note we are
-   * playing (aka activeNote), or if it overlaps because it's a held note.
-   * @param note One of the highlighted notes which are currently been played
-   * @param activeNote A new active note pending to be highlighted
-   * @returns If it should stay highlighted or not
-   */
-  private isPaintingActiveNote(
-      note: NoteInfo, activeNote: NoteInfo
-  ): boolean {
-    const isPlayedNote =
-        note.start === activeNote.start;
-    const heldDownDuringPlayedNote =
-        note.start <= activeNote.start &&
-        note.start + note.length >= activeNote.start + activeNote.length;
-    return isPlayedNote || heldDownDuringPlayedNote;
   }
 
   /**
@@ -412,9 +388,6 @@ export class StaffSVGRender {
             width += this.drawStaffBlock(staffBlock, x + width, linkedNoteMap);
             this.lastQ = quarters;
           }
-//          else if (quarters === this.lastQ) { // Undrawn ending rests??? ************ TODO: Review
-//            width += this.drawRests(staffBlock, x + width);
-//          }
         }
       );
       const svgRect = this.staffSVG.getBoundingClientRect();
@@ -437,6 +410,26 @@ export class StaffSVGRender {
     }
     return activeNotePosition;
   }
+
+  /**
+   * Verifies if a given highlighted `note` should stay that way
+   * 
+   * A note is active if it's literally the same as the note we are
+   * playing (aka activeNote), or if it overlaps because it's a held note.
+   * @param note One of the highlighted notes which are currently been played
+   * @param activeNote A new active note pending to be highlighted
+   * @returns If it should stay highlighted or not
+   */
+  private isPaintingActiveNote(
+    note: NoteInfo, activeNote: NoteInfo
+): boolean {
+  const isPlayedNote =
+      note.start === activeNote.start;
+  const heldDownDuringPlayedNote =
+      note.start <= activeNote.start &&
+      note.start + note.length >= activeNote.start + activeNote.length;
+  return isPlayedNote || heldDownDuringPlayedNote;
+}
 
   /**
    * Draws a set of musical symbols grouped in a block into a staff
@@ -474,27 +467,6 @@ export class StaffSVGRender {
     staffBlock: StaffBlock, x: number, linkedNoteMap: LinkedNoteMap
   ): number {
     let width = 0;
-/*
-    // Kind of note selection (all block notes have same aspect, some are tied)
-    let headIndex = 0;
-    for (let i = 4; i >= MIN_RESOLUTION && !headIndex; i /= 2) {
-      if (i <= staffBlock.length) {
-        headIndex = i;
-      }
-    }
-    // Fallback for notes shorter than MIN_RESOLUTION. It will be warned on 
-    // console and MIN_RESOLUTION note will be drawn.
-    if (headIndex === 0) {
-      const noteLength = staffBlock.length === 0 ? '[infinite]' : 
-        `${4 / staffBlock.length}`;
-      console.warn(
-        '%cStaffRender:', 'background:orange; color:white', 
-        'StaffRender does not handle notes shorther than' +
-        `1/${4 / MIN_RESOLUTION}th, and this score tries to draw a ` +
-        `1/${noteLength}th. Shortest possible note will be drawn instead.`
-      );
-      headIndex = MIN_RESOLUTION;
-    }*/
     const noteHead = NOTE_PATHS[staffBlock.headIndex];
     // Stem placeholder created beforehand as a lower layer
     let stemG: SVGElement;
@@ -524,11 +496,11 @@ export class StaffSVGRender {
         }
         // Preceding Tie
         if (note.tiedFrom) {
-          const tieWidth =  // TODO: Simplify
+          const tieWidth =
             x + width - linkedNoteMap.get(note.tiedFrom).xHeadRight;
           drawSVGPath(
             _g, tiePath, linkedNoteMap.get(note.tiedFrom).xHeadRight, y, 
-            tieWidth/PATH_SCALE, // TODO: Simplify
+            tieWidth/PATH_SCALE,
             this.scale * (note.vSteps < 0 ? -1 : 1), opacity
           );
         }
@@ -539,7 +511,6 @@ export class StaffSVGRender {
         );
         const _xHeadRight = x + width + noteHead.width*this.scale;
         // Dotted note
-//        if (headIndex * 1.5 <= staffBlock.length) {
         if (staffBlock.headAlteration === 1) { // TODO: Triplets and quintuplets
           drawSVGPath(
             _g, dotPath, 
@@ -613,70 +584,17 @@ export class StaffSVGRender {
    */
   private drawRests(staffBlock: StaffBlock, x: number): number {
     let width = 0;
-    let remainingLength = staffBlock.length;
-    if (remainingLength) {
-//      if (this.config.pixelsPerTimeStep > 0) {
-//        x += this.staffModel.quartersToTime(staffBlock.length) * this.hStepSize;
-//      }
-      // Find a possible rest bar split
-//      let quarters = staffBlock.start + staffBlock.length; // TODO: ***** Aquí, staffBlock era el antiguo bloque CON notas
-      let quarters = staffBlock.start;
-      let lengthAfterNextBar = 0;
-      const quartersToNextBar = 
-        this.lastBar + getBarLength(this.currentTimeSignature) - quarters;
-      if (remainingLength > quartersToNextBar) {
-        lengthAfterNextBar = remainingLength - quartersToNextBar;
-        remainingLength = quartersToNextBar;
-      }
-      let maxRest: number;
-      for ( // Set the maximum viable rest in the bar
-        maxRest = 4; 
-        maxRest > getBarLength(this.currentTimeSignature) && 
-          maxRest >= MIN_RESOLUTION;
-        maxRest /= 2
-      ) {}
-      let l = maxRest;
-      // Draw rests in a lowering size progression to fit the gap
-      while ((remainingLength || lengthAfterNextBar) && l >= MIN_RESOLUTION) {
-        if (l <= remainingLength) { // A rest of length l must be drawn
-          width += this.drawBarIfNeeded(quarters, x + width);
-          // Signature change analysis and possible drawing
-          width += this.drawSignaturesIfNeeded(quarters, x + width);
-          const rest = drawSVGPath(
-            this.musicG, REST_PATHS[l], x + width, 0, this.scale, this.scale
-          );
-          if (this.config.pixelsPerTimeStep > 0) { // Proportional visualization
-            x += this.staffModel.barsInfo.quartersToTime(l) * this.hStepSize;
-          }
-          else { // Compact visualization
-            width += rest.getBoundingClientRect().width;
-            width += this.config.noteSpacing; // Post-spacing
-          }
-          quarters += l;
-          remainingLength -= l;
-        }
-        if (lengthAfterNextBar && remainingLength <= 0) { // Swap the split
-          const nextBarLength = getBarLength(this.currentTimeSignature);
-          if (lengthAfterNextBar > nextBarLength) {
-            remainingLength =  nextBarLength;
-            lengthAfterNextBar = lengthAfterNextBar - nextBarLength;
-          }
-          else {
-            remainingLength =  lengthAfterNextBar;
-            lengthAfterNextBar = 0;
-          }
-          for ( // Set the minimum viable rest in the starting bar
-            maxRest = 4; 
-            maxRest > getBarLength(this.currentTimeSignature) && 
-              maxRest >= MIN_RESOLUTION;
-            maxRest /= 2
-          ) {}
-          l = maxRest;
-        }
-        if (remainingLength < l) { // Same rest size won't fit next iteration
-          l /= 2;
-        }
-      }
+    const rest = drawSVGPath(
+      this.musicG, REST_PATHS[staffBlock.headIndex], 
+      x + width, 0, this.scale, this.scale
+    );
+    if (this.config.pixelsPerTimeStep > 0) { // Proportional visualization
+      x += this.staffModel.barsInfo.quartersToTime(staffBlock.headIndex) * 
+        this.hStepSize;
+    }
+    else { // Compact visualization
+      width += rest.getBoundingClientRect().width;
+      width += this.config.noteSpacing; // Post-spacing
     }
     return width;
   }
@@ -716,16 +634,18 @@ export class StaffSVGRender {
    */
   private drawBarIfNeeded(quarters: number, x: number): number {
     let width = 0;
-    const nextBar = this.lastBar + getBarLength(this.currentTimeSignature);
-    if (quarters !== 0 && quarters >= nextBar) { // 1st bar skipped
-      if (this.config.pixelsPerTimeStep > 0) { // Proportional visualization
-        x -= this.config.noteSpacing; // Negative to avoid touching note head
+    if (quarters !== 0) { // 1st bar skipped
+      const nextBar = this.lastBar + getBarLength(this.currentTimeSignature);
+      if (quarters >= nextBar) {
+        if (this.config.pixelsPerTimeStep > 0) { // Proportional visualization
+          x -= this.config.noteSpacing; // Negative to avoid touching note head
+        }
+        else { // Compact visualization
+          width = this.config.noteSpacing;
+        }
+        drawSVGPath(this.linesG, barPath, x, 0, 1, this.scale);
+        this.lastBar = nextBar;
       }
-      else { // Compact visualization
-        width = this.config.noteSpacing;
-      }
-      drawSVGPath(this.linesG, barPath, x, 0, 1, this.scale);
-      this.lastBar = nextBar;
     }
     return width;
   }
@@ -747,20 +667,22 @@ export class StaffSVGRender {
    */
   private drawSignaturesIfNeeded(quarters: number, x: number): number {
     let width = 0;
-    const keyChanged = this.changeKeySignatureIfNeeded(quarters);
-    const timeChanged = this.changeTimeSignatureIfNeeded(quarters);
-    if (keyChanged || timeChanged) {
-      const clefSpacing = COMPACT_SPACING * this.scale * 
-        (this.config.pixelsPerTimeStep > 0 ? 3 : 2);
-      this.signaturesList.push({x: x - clefSpacing , q: quarters});
-      if (this.signatureNext === null) {
-        this.signatureNext = x;
-      }
-      const signatures = quarters > 0 ?
-        createSVGGroupChild(this.signaturesG, 'signatures') : this.overlayG;
-      width += this.drawSignatures(
-        signatures, x + width, false, keyChanged, timeChanged
-      );
+    if (quarters !== 0) { // 1st bar skipped
+      const keyChanged = this.changeKeySignatureIfNeeded(quarters);
+      const timeChanged = this.changeTimeSignatureIfNeeded(quarters);
+      if (keyChanged || timeChanged) {
+        const clefSpacing = COMPACT_SPACING * this.scale * 
+          (this.config.pixelsPerTimeStep > 0 ? 3 : 2);
+        this.signaturesList.push({x: x - clefSpacing , q: quarters});
+        if (this.signatureNext === null) {
+          this.signatureNext = x;
+        }
+        const signatures = quarters > 0 ?
+          createSVGGroupChild(this.signaturesG, 'signatures') : this.overlayG;
+        width += this.drawSignatures(
+          signatures, x + width, false, keyChanged, timeChanged
+        );
+      }  
     }
     return this.config.pixelsPerTimeStep === 0 ? width : 0;
   }
@@ -835,7 +757,7 @@ export class StaffSVGRender {
       );
       setFill(timeKey, this.getColor());
       width += timeKey.getBoundingClientRect().width + spacing;
-    }    
+    } // TODO: Center numerator or denominator if needed   
     const staff = this.redrawStaffLines(e, x, width);
     setStroke(staff, LINE_STROKE, this.getColor());
     // Vertical and horizontal resizing
@@ -885,9 +807,9 @@ export class StaffSVGRender {
    * @returns Wether it changed or not
    */
   private changeKeySignatureIfNeeded(quarters: number): boolean {
-    const candidateKey = this.staffModel.barsInfo.keySignatureAtQ(quarters);
-    if (candidateKey !== this.currentKey) {
-      this.currentKey = candidateKey;
+    const key = this.staffModel.barsInfo.keySignatureAtQ(quarters, true);
+    if (key >= 0) { // Returns -1 in case there was no change at quarters
+      this.currentKey = key;
       return true;
     }
     else {
@@ -900,14 +822,10 @@ export class StaffSVGRender {
    * @param quarters Quarters from beginning where change could happen
    * @returns Wether it changed or not
    */
-  private changeTimeSignatureIfNeeded(quarter: number): boolean {
-    const candidateTimeSign = 
-      this.staffModel.barsInfo.timeSignatureAtQ(quarter);
-    if (
-      candidateTimeSign.numerator !== this.currentTimeSignature.numerator ||
-      candidateTimeSign.denominator !== this.currentTimeSignature.denominator
-    ) {
-      this.currentTimeSignature = candidateTimeSign;
+  private changeTimeSignatureIfNeeded(quarters: number): boolean {
+    const ts = this.staffModel.barsInfo.timeSignatureAtQ(quarters, true);
+    if (ts) { // Returns null in case there was no change at quarters
+      this.currentTimeSignature = ts;
       return true;
     }
     else {
@@ -967,7 +885,7 @@ export class StaffSVGRender {
    * Callback handler for horizonatal scroll events
    * @param _event Ignored
    */
-  private handleScrollEvent = (_event: UIEvent) => {
+  private handleScrollEvent = (_event: Event) => {
     this.lastKnownScrollLeft = this.parentElement.scrollLeft;
     if (!this.ticking) {
       window.requestAnimationFrame(
