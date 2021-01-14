@@ -1,5 +1,5 @@
 /**
- * Functional unit test set for rithm splitting on staffrender library.
+ * Functional unit test set for rhythm splitting on staffrender library.
  *
  * @license
  * Copyright 2018 Pascual de Juan All Rights Reserved.
@@ -26,7 +26,7 @@ export const testData: TestData[] = [];
 testData[0] = {
   title: `Uncomplete pulse fulfillment`,
   description: `Notes should be splited and tied to make clear where does a \
-    pulse starts and ends, easing the rithm readability.`,
+    pulse starts and ends, easing the rhythm readability.`,
   data: {
     notes: [
       { start: 0, length: 0.5, pitch: 67, intensity: 127 },

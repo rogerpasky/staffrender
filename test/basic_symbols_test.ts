@@ -1,5 +1,5 @@
 /**
- * Functional unit test set for rithm splitting on staffrender library.
+ * Functional unit test set for rhythm splitting on staffrender library.
  *
  * @license
  * Copyright 2018 Pascual de Juan All Rights Reserved.

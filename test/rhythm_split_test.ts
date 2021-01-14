@@ -1,5 +1,5 @@
 /**
- * Functional unit test set for rithm splitting on staffrender library.
+ * Functional unit test set for rhythm splitting on staffrender library.
  *
  * @license
  * Copyright 2018 Pascual de Juan All Rights Reserved.
@@ -23,14 +23,14 @@ import * as test from 'tape';
 import '../src/index';
 import { StaffModel } from '../src/index';
 
-import * as rs from './rithm_split_features';
+import * as rs from './rhythm_split_features';
 
-test(`rithm_split_test: ${rs.testData[0].title}`, (t: test.Test) => {
+test(`rhythm_split_test: ${rs.testData[0].title}`, (t: test.Test) => {
   const output = new StaffModel(rs.testData[0].data);
-  t.equal(output.staffBlockMap.get(0.5).length, 0.5, 'First rithm split');
-  t.equal(output.staffBlockMap.get(1.0).length, 0.5, 'First split remain');
-  t.equal(output.staffBlockMap.get(1.5).length, 0.5, 'Second rithm split');
-  t.equal(output.staffBlockMap.get(2.0).length, 2.0, 'Second rithm remain');
+  t.equal(output.staffBlockMap.get(0.5).length, 0.5, 'First rhythm split');
+  t.equal(output.staffBlockMap.get(1.0).length, 0.5, 'First rhythm remain');
+  t.equal(output.staffBlockMap.get(1.5).length, 0.5, 'Second rhythm split');
+  t.equal(output.staffBlockMap.get(2.0).length, 2.0, 'Second rhythm remain');
   t.end();
 });
 

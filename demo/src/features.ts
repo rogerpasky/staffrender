@@ -48,6 +48,6 @@ import * as bs from '../../test/basic_symbols_features';
 const bsDiv = document.getElementById('basicSymbols') as HTMLDivElement;
 bs.testData.forEach( test => visualize(bsDiv, test) );
 
-import * as rs from '../../test/rithm_split_features';
-const rsDiv = document.getElementById('rithmSplit') as HTMLDivElement;
+import * as rs from '../../test/rhythm_split_features';
+const rsDiv = document.getElementById('rhythmSplit') as HTMLDivElement;
 rs.testData.forEach( test => visualize(rsDiv, test) );

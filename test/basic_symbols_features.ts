@@ -1,5 +1,5 @@
 /**
- * Functional unit test set for rithm splitting on staffrender library.
+ * Functional unit test set for rhythm splitting on staffrender library.
  *
  * @license
  * Copyright 2018 Pascual de Juan All Rights Reserved.
@@ -260,12 +260,12 @@ for (let n = 0; n < 12; ++n) {
 
 testData[9] = {
   title: `Time Signatures`,
-  description: `Notes can be gropued on bars according to "pulse" rithm \
+  description: `Notes can be gropued on bars according to "pulse" rhythm \
     patterns, defined by Time Signatures consisting on a numerator and a \
     denominator number. Denominator defines the length of its pulse as the \
     fraction of a whole note, and numerator defines the number of pulses \
     needed to complete a bar. A Time Signature shown at the beginning of a \
-    bar changes rithm to that bar and followings. Next score shows several \
+    bar changes rhythm to that bar and followings. Next score shows several \
     Time Signatures.`,
   data: {
     timeSignatures: [],
