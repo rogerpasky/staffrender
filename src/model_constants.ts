@@ -71,3 +71,9 @@ export const KEY_ACCIDENTALS = [
   {accidental: 2, pitches: [70, 75]},                 // Bb
   {accidental: 1, pitches: [78, 73, 80, 75, 70]}      // B
 ];
+
+/** Treble clef value. Number is reference MIDI pitch value */
+export const TREBLE_CLEF = 71;
+
+/** Bass clef value. Number is reference MIDI pitch value */
+export const BASS_CLEF = 50;
