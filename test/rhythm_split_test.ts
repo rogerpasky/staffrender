@@ -34,3 +34,15 @@ test(`rhythm_split_test: ${rs.testData[0].title}`, (t: test.Test) => {
   t.end();
 });
 
+test(`rhythm_split_test: ${rs.testData[1].title}`, (t: test.Test) => {
+  const output = new StaffModel(rs.testData[1].data); // splits 1-5 tested
+  t.equal(output.staffBlockMap.get(3.0).length, 0.5, 'Rhythm split 6');
+  t.equal(output.staffBlockMap.get(3.5).length, 0.125, 'Rhythm split 7');
+  t.equal(output.staffBlockMap.get(3.625).length, 0.0625, 'Rhythm split 8');
+  t.equal(output.staffBlockMap.get(3.6875).length, 0.0625, 'Rhythm split 9');
+  t.equal(output.staffBlockMap.get(3.75).length, 0.25, 'Rhythm split 10');
+  t.equal(output.staffBlockMap.get(4.0).length, 0.0625, 'Rhythm split 11');
+  t.equal(output.staffBlockMap.get(4.0625).length, 0.0625, 'Rhythm split 12');
+  t.equal(output.staffBlockMap.get(5.0).length, 2.0, 'Rhythm split 15');
+  t.end();
+});

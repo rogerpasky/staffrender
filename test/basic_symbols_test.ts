@@ -38,6 +38,8 @@ test(`basic_symbols_test: ${bs.testData[0].title}`, (t: test.Test) => {
   t.end();
 });
 
+// Testing in testData[1] is only visual.
+
 test(`basic_symbols_test: ${bs.testData[2].title}`, (t: test.Test) => {
   const output = new StaffModel(bs.testData[2].data);
   let score = output.staffBlockMap;
@@ -55,7 +57,23 @@ test(`basic_symbols_test: ${bs.testData[3].title}`, (t: test.Test) => {
   const output = new StaffModel(bs.testData[3].data);
   let score = output.staffBlockMap;
   t.equal(score.get( 0.0 ).headAlteration, 1, 'Dotted note');
-  t.equal(score.get( 3.0 ).headAlteration, 0, 'Rests are not dotted');
+  t.doesNotEqual(score.get( 3.0 ).headAlteration, 1, 'Rests are not dotted');
+  t.end();
+});
+
+test(`basic_symbols_test: ${bs.testData[4].title}`, (t: test.Test) => {
+  const output = new StaffModel(bs.testData[4].data);
+  let score = output.staffBlockMap;
+  t.equal(output.clef, 71, 'Trebble Clef');
+  t.equal(score.get( 0.0 ).notes[0].vSteps, 5, 'D3');
+  t.end();
+});
+
+test(`basic_symbols_test: ${bs.testData[5].title}`, (t: test.Test) => {
+  const output = new StaffModel(bs.testData[5].data);
+  let score = output.staffBlockMap;
+  t.equal(output.clef, 50, 'Bass Clef');
+  t.equal(score.get( 0.0 ).notes[0].vSteps, -5, 'B3');
   t.end();
 });
 
@@ -120,5 +138,51 @@ test(`basic_symbols_test: ${bs.testData[8].title}`, (t: test.Test) => {
       )
     }
   )
+  t.end();
+});
+
+test(`basic_symbols_test: ${bs.testData[9].title}`, (t: test.Test) => {
+  const output = new StaffModel(bs.testData[9].data);
+  const barsInfo = output.barsInfo;
+  let score = output.staffBlockMap;
+  let numerator = 2;
+  let denominator = 2;
+  let count = 0;
+  score.forEach(
+    block => {
+      t.equal(block.headIndex, 4 / denominator, `Note Ok`);
+      t.equal(output.barsInfo.timeSignatureAtQ(block.start).numerator, numerator, `Numerator Ok`);
+      t.equal(output.barsInfo.timeSignatureAtQ(block.start).denominator, denominator, `Denominator Ok`);
+      if (++count === numerator) {
+        count = 0;
+        if (++numerator > 12) {
+          numerator = 2;
+          denominator *= 2;
+        }
+      }
+    }
+  )
+  t.end();
+});
+
+test(`basic_symbols_test: ${bs.testData[10].title}`, (t: test.Test) => {
+  const output = new StaffModel(bs.testData[10].data);
+  let score = output.staffBlockMap;
+  t.equal(score.get(  0.0 ).headIndex, 4, '3/4 whole rest');
+  t.equal(score.get(  6.0 ).headIndex, 4, '6/8 whole rest');
+  t.equal(score.get( 12.0 ).headIndex, 4, '7/2 whole rest');
+  t.equal(score.get( 26.0 ).headIndex, 4, '4/4 whole rest');
+  t.end();
+});
+
+test(`basic_symbols_test: ${bs.testData[11].title}`, (t: test.Test) => {
+  const output = new StaffModel(bs.testData[11].data);
+  t.equal(output.staffBlockMap.get(0.0).length, 2.0, 'Rhythm split 1');
+  t.equal(output.staffBlockMap.get(2.0).length, 0.5, 'Rhythm split 2');
+  t.equal(output.staffBlockMap.get(2.5).length, 0.125, 'Rhythm split 3');
+  t.equal(output.staffBlockMap.get(2.625).length, 0.125, 'Rhythm split 4');
+  t.equal(output.staffBlockMap.get(2.75).length, 0.25, 'Rhythm split 5');
+  t.equal(output.staffBlockMap.get(3.0).length, 1.0, 'Rhythm split 6');
+  t.equal(output.staffBlockMap.get(4.0).length, 4.0, 'Rhythm split 7');
   t.end();
 });

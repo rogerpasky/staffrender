@@ -63,7 +63,7 @@ testData[1] = { // Not required for unitary test but for visual test.
 testData[2] = {
   title: `Rest symbols and their durations`,
   description: `Notes of different length should be paired with their relative \
-    rest. Last note has been placed to complete the bar and make last rest \
+    rest. Last note has been placed to complete the bar and make previous rest \
     noticeable.`,
   data: {
     notes: [],
@@ -88,7 +88,7 @@ testData[3] = {
     it will not be applied to rests symbols, besides it is not forbidden under \
     some circumstances, following the classical music transcription chriteria \
     disrecommending the use of dotted rests in order to ease the readability. \
-    Last note is included to make last rests noticeable.`,
+    Last note is included to make previous rests noticeable.`,
   data: {
     notes: [
       { start: 0, length: 3, pitch: 67, intensity: 127 },
@@ -260,10 +260,10 @@ for (let n = 0; n < 12; ++n) {
 
 testData[9] = {
   title: `Time Signatures`,
-  description: `Notes can be gropued on bars according to "pulse" rhythm \
+  description: `Notes can be gropued on bars according to "beat" rhythm \
     patterns, defined by Time Signatures consisting on a numerator and a \
-    denominator number. Denominator defines the length of its pulse as the \
-    fraction of a whole note, and numerator defines the number of pulses \
+    denominator number. Denominator defines the length of its beat as the \
+    fraction of a whole note, and numerator defines the number of beats \
     needed to complete a bar. A Time Signature shown at the beginning of a \
     bar changes rhythm to that bar and followings. Next score shows several \
     Time Signatures.`,
@@ -313,13 +313,12 @@ testData[11] = {
   title: `Ties`,
   description: `Notes longer than avilable note symbols length can be achieved \
   combining two or more through ties. Notes which surpass bars must be \
-  splitted using ties. Rest aggregation does not need any tie. Following \
-  score shows three tied notes, a rests set, two tied notes to surpass a bar.`,
+  splitted using ties. Rest aggregation does not need any tie. Following score \
+  shows three tied notes, a rests set and two tied notes to surpass a bar.`,
   data: {
     notes: [
       { start: 0, length: 2+1/2+1/8, pitch: 67, intensity: 127 },
-      { start: 3, length: 2, pitch: 67, intensity: 127 },
-      { start: 7, length: 1, pitch: 67, intensity: 127 }
+      { start: 3, length: 5, pitch: 67, intensity: 127 }
     ],
   }
 };
