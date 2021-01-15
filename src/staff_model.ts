@@ -21,7 +21,9 @@ import {
 } from './staff_info';
 import { BarsInfo } from './bars_info';
 import { StaffBlock, StaffNote } from './staff_block';
-import { SCALES, KEY_ACCIDENTALS } from './model_constants';
+import { 
+  SCALES, KEY_ACCIDENTALS, TREBLE_CLEF, BASS_CLEF 
+} from './model_constants';
 export { KEY_ACCIDENTALS }; // TODO: Review
 
 /** A map of staff blocks indexed by starting quarter */
@@ -385,5 +387,5 @@ function guessClef(staffInfo: StaffInfo): number {
     }
   );
   const averagePitch = pitchSum / countSum;
-  return averagePitch < 60 ? 50 : 71; // Numbers are MIDI pitch values  
+  return averagePitch < 60 ? BASS_CLEF : TREBLE_CLEF; // 60 is C3 MIDI value
 }

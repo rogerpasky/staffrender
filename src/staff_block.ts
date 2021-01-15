@@ -31,8 +31,9 @@ import {
 export interface StaffNote extends NoteInfo {
   /** 
    * Vertical steps to position a note on score. It is measured in integer 
-   * value, considering 2 positions per staff line, vertically inverted, being
-   * in G clef value 0 used for middle C note and -1 used for following D note.
+   * value, considering 2 positions per staff line (one for over line and other
+   * for inter-lines), vertically inverted, being value 0 used for third line 
+   * note, 1 used for next lower one and -1 for the next upper one.
    */
   vSteps: number;
   /** 
