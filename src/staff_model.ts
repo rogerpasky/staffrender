@@ -225,9 +225,9 @@ export class StaffModel {
         currentBlock => {
           let remainingBlock = null;
           do{
-            remainingBlock = currentBlock.splitToPulse(this.barsInfo);
+            remainingBlock = currentBlock.splitToBeat(this.barsInfo);
             const increasing = 
-              !currentBlock.pulseBegin && currentBlock.pulseEnd;
+              !currentBlock.beatBegin && currentBlock.beatEnd;
             let remainingSymbolsBlock: StaffBlock = null;
             do {
               remainingSymbolsBlock = 
@@ -243,7 +243,7 @@ export class StaffModel {
               lastStaffBlock = currentBlock;
               currentBlock = remainingBlock;
             }
-          } while (remainingBlock); // Each block can hold more than one pulse
+          } while (remainingBlock); // Each block can hold more than one beat
         }
       );
       this.staffBlockMap = staffBlockMap;

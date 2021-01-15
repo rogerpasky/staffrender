@@ -53,7 +53,7 @@ export interface BarInfo {
  * Provides a framework for BarInfo indexing and fast traversing in irder to 
  * locate the structural info related to any note. It currently stores the info 
  * in chunks as short as a sixtyfourth note, i.e. the shortest manageable
- * pulse (like in 4/64 Time Signature).
+ * beat (like in 4/64 Time Signature).
  */
 export class BarsInfo {
   /** Flag to define dotted rests configutarion (may change in a future). */

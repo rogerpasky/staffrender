@@ -113,10 +113,10 @@ export class StaffBlock {
   public beamingBackwards?: boolean;
   /** Beamed to next block */
   public beamingForwards?: boolean;
-  /** Wether the block begins a new pulse */
-  public pulseBegin?: boolean;
-  /** Wether the block ends a new pulse */
-  public pulseEnd?: boolean;
+  /** Wether the block begins a new beat */
+  public beatBegin?: boolean;
+  /** Wether the block ends a new beat */
+  public beatEnd?: boolean;
 
   /**
    * Creates a `StaffBlock` storing minimal score details, waiting to be 
@@ -193,21 +193,21 @@ export class StaffBlock {
         }
       );
     }
-    if (splittedBlock && this.pulseEnd) {
-      splittedBlock.pulseEnd = true;
-      this.pulseEnd = false; // Applicable to symbol splitting (post-pulse)
+    if (splittedBlock && this.beatEnd) {
+      splittedBlock.beatEnd = true;
+      this.beatEnd = false; // Applicable to symbol splitting (post-beat)
     }
     return splittedBlock;
   }
 
   /**
-   * Splits a block in two by next pulse to ritmically complete previous one.
-   * It marks as well if the affected block is beginning or ending a pulse.
+   * Splits a block in two by next beat to ritmically complete previous one.
+   * It marks as well if the affected block is beginning or ending a beat.
    * @param barsInfo An Array with bar and signatures info per quarter
    * @returns The second half of splitted block. First half remains in current
    * object, which gets modified.
    */
-  public splitToPulse(barsInfo: BarsInfo): StaffBlock {
+  public splitToBeat(barsInfo: BarsInfo): StaffBlock {
     const timeSignature = barsInfo.timeSignatureAtQ(this.start);
     const barLength = barsInfo.barLenghtAtQ(this.start);
     const barFractionFromBar = this.barNumber - Math.floor(this.barNumber);
@@ -224,22 +224,22 @@ export class StaffBlock {
       ) / 1000000;
       splittedBlock = this.split(quartersAtBeat, barsInfo);
       if (isSafeZero(this.start + this.length - quartersAtBeat)) {
-        this.pulseEnd = true; // Block ends at pulse end
+        this.beatEnd = true; // Block ends at beat end
       }
     }
-    else { // Beginning a pulse, splitting only at bar end if applicable
-      this.pulseBegin = true;
+    else { // Beginning a beat, splitting only at bar end if applicable
+      this.beatBegin = true;
       const quartersAtBarEnd = Math.round( // Javascript math safe
         (quartersAtBarBeginning + timeSignature.numerator * metricBeat) * 
         1000000
       ) / 1000000;
       splittedBlock = this.split(quartersAtBarEnd, barsInfo);
       if (isSafeZero(this.start + this.length - quartersAtBarEnd)) {
-        this.pulseEnd = true; // Block ends at pulse end
+        this.beatEnd = true; // Block ends at beat end
       }
     }
-    if (splittedBlock) { // It was splitted before pulse end
-      this.pulseEnd = true;
+    if (splittedBlock) { // It was splitted before beat end
+      this.beatEnd = true;
     }
     return splittedBlock;
   }
@@ -256,7 +256,7 @@ export class StaffBlock {
     let remainBlock: StaffBlock = null;
     if (this.length >= MIN_RESOLUTION) {
       if ( // Whole rest applies to whole bar, whatever its length
-        !this.notes.length && // Is a rest and pulse splitted to bar length
+        !this.notes.length && // Is a rest and beat splitted to bar length
         this.length === barsInfo.barLenghtAtQ(this.start)
       ) {
         this.headIndex = 4;
