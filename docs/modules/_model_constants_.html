@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>&quot;model_constants&quot; | staffrender - v1.1.0</title>
+	<title>&quot;model_constants&quot; | staffrender - v1.2.0</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">staffrender - v1.1.0</a>
+					<a href="../index.html" class="title">staffrender - v1.2.0</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -90,10 +90,12 @@
 						<section class="tsd-index-section ">
 							<h3>Variables</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-variable tsd-parent-kind-external-module"><a href="_model_constants_.html#bass_clef" class="tsd-kind-icon">BASS_<wbr>CLEF</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-external-module"><a href="_model_constants_.html#key_accidentals" class="tsd-kind-icon">KEY_<wbr>ACCIDENTALS</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-external-module"><a href="_model_constants_.html#max_quarter_division" class="tsd-kind-icon">MAX_<wbr>QUARTER_<wbr>DIVISION</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-external-module"><a href="_model_constants_.html#min_resolution" class="tsd-kind-icon">MIN_<wbr>RESOLUTION</a></li>
 								<li class="tsd-kind-variable tsd-parent-kind-external-module"><a href="_model_constants_.html#scales" class="tsd-kind-icon">SCALES</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-external-module"><a href="_model_constants_.html#treble_clef" class="tsd-kind-icon">TREBLE_<wbr>CLEF</a></li>
 							</ul>
 						</section>
 					</div>
@@ -102,12 +104,27 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Variables</h2>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module">
+					<a name="bass_clef" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> BASS_<wbr>CLEF</h3>
+					<div class="tsd-signature tsd-kind-icon">BASS_<wbr>CLEF<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">50</span><span class="tsd-signature-symbol"> = 50</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f3c1ddd/src/model_constants.ts#L79">model_constants.ts:79</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Bass clef value. Number is reference MIDI pitch value</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module">
 					<a name="key_accidentals" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> KEY_<wbr>ACCIDENTALS</h3>
 					<div class="tsd-signature tsd-kind-icon">KEY_<wbr>ACCIDENTALS<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>accidental<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>pitches<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = [{accidental: 1, pitches: []},                       // C{accidental: 2, pitches: [70, 75, 68, 73, 66]},     // Db{accidental: 1, pitches: [78, 73]},                 // D{accidental: 2, pitches: [70, 75, 68]},             // Eb{accidental: 1, pitches: [78, 73, 80, 75]},         // E{accidental: 2, pitches: [70]},                     // F{accidental: 2, pitches: [70, 75, 68, 73, 66, 71]}, // Gb{accidental: 1, pitches: [78]},                     // G{accidental: 2, pitches: [70, 75, 68, 73]},         // Ab{accidental: 1, pitches: [78, 73, 80]},             // A{accidental: 2, pitches: [70, 75]},                 // Bb{accidental: 1, pitches: [78, 73, 80, 75, 70]}      // B]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/c483a3f/src/model_constants.ts#L60">model_constants.ts:60</a></li>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f3c1ddd/src/model_constants.ts#L60">model_constants.ts:60</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -123,7 +140,7 @@
 					<div class="tsd-signature tsd-kind-icon">MAX_<wbr>QUARTER_<wbr>DIVISION<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 16*3*5</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/c483a3f/src/model_constants.ts#L25">model_constants.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f3c1ddd/src/model_constants.ts#L25">model_constants.ts:25</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -139,7 +156,7 @@
 					<div class="tsd-signature tsd-kind-icon">MIN_<wbr>RESOLUTION<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">0.0625</span><span class="tsd-signature-symbol"> = 0.0625</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/c483a3f/src/model_constants.ts#L19">model_constants.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f3c1ddd/src/model_constants.ts#L19">model_constants.ts:19</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -154,12 +171,27 @@
 					<div class="tsd-signature tsd-kind-icon">SCALES<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>accidental<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>steps<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = [ // Accidentals: 0&#x3D;none, 1&#x3D;sharp, 2&#x3D;flat, 3&#x3D;normal{ // Chromatic  C C#/Db D D#/Eb E   F F#/Gb G G#/Ab A A#/Bb B   / KEYsteps:      [ 0,  0, -1, -1, -2, -3, -3, -4, -4, -5, -5, -6], // Caccidental: [ 0,  1,  0,  1,  0,  0,  1,  0,  1,  0,  1,  0] }, {steps:      [ 0, -1, -1, -2, -2, -3, -4, -4, -5, -5, -6, -6], // Dbaccidental: [ 0,  0,  3,  0,  3,  0,  0,  3,  0,  3,  0,  3] }, {steps:      [ 0,  0, -1, -1, -2, -3, -3, -4, -4, -5, -5, -6], // Daccidental: [ 3,  0,  0,  1,  0,  3,  0,  0,  1,  0,  1,  0] }, {steps:      [ 0, -1, -1, -2, -2, -3, -4, -4, -5, -5, -6, -6], // Ebaccidental: [ 0,  2,  0,  0,  3,  0,  2,  0,  0,  3,  0,  3] }, {steps:      [ 0,  0, -1, -1, -2, -3, -3, -4, -4, -5, -5, -6], // Eaccidental: [ 3,  0,  3,  0,  0,  3,  0,  3,  0,  0,  1,  0] }, {steps:      [ 0, -1, -1, -2, -2, -3, -4, -4, -5, -5, -6, -6], // Faccidental: [ 0,  2,  0,  2,  0,  0,  2,  0,  2,  0,  0,  3] }, {steps:      [ 0, -1, -1, -2, -2, -3, -4, -4, -5, -5, -6, -7], // Gbaccidental: [ 3,  0,  3,  0,  3,  0,  0,  3,  0,  3,  0,  0] }, {steps:      [ 0,  0, -1, -1, -2, -3, -3, -4, -4, -5, -5, -6], // Gaccidental: [ 0,  1,  0,  1,  0,  3,  0,  0,  1,  0,  1,  0] }, {steps:      [ 0, -1, -1, -2, -2, -3, -4, -4, -5, -5, -6, -6], // Abaccidental: [ 0,  0,  3,  0,  3,  0,  2,  0,  0,  3,  0,  3] }, {steps:      [ 0,  0, -1, -1, -2, -3, -3, -4, -4, -5, -5, -6], // Aaccidental: [ 3,  0,  0,  1,  0,  3,  0,  3,  0,  0,  1,  0] }, {steps:      [ 0, -1, -1, -2, -2, -3, -4, -4, -5, -5, -6, -6], // Bbaccidental: [ 0,  2,  0,  0,  3,  0,  2,  0,  2,  0,  0,  3] }, {steps:      [ 0,  0, -1, -1, -2, -3, -3, -4, -4, -5, -5, -6], // Baccidental: [ 3,  0,  3,  0,  0,  3,  0,  3,  0,  3,  0,  0] }]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/c483a3f/src/model_constants.ts#L28">model_constants.ts:28</a></li>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f3c1ddd/src/model_constants.ts#L28">model_constants.ts:28</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
 						<div class="lead">
 							<p>Chromatic scales per key, encoded for staff note placement</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-external-module">
+					<a name="treble_clef" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> TREBLE_<wbr>CLEF</h3>
+					<div class="tsd-signature tsd-kind-icon">TREBLE_<wbr>CLEF<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">71</span><span class="tsd-signature-symbol"> = 71</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f3c1ddd/src/model_constants.ts#L76">model_constants.ts:76</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Treble clef value. Number is reference MIDI pitch value</p>
 						</div>
 					</div>
 				</section>
@@ -203,6 +235,9 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module">
+						<a href="_model_constants_.html#bass_clef" class="tsd-kind-icon">BASS_<wbr>CLEF</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module">
 						<a href="_model_constants_.html#key_accidentals" class="tsd-kind-icon">KEY_<wbr>ACCIDENTALS</a>
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module">
@@ -213,6 +248,9 @@
 					</li>
 					<li class=" tsd-kind-variable tsd-parent-kind-external-module">
 						<a href="_model_constants_.html#scales" class="tsd-kind-icon">SCALES</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module">
+						<a href="_model_constants_.html#treble_clef" class="tsd-kind-icon">TREBLE_<wbr>CLEF</a>
 					</li>
 				</ul>
 			</nav>
