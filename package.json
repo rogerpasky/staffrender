@@ -1,6 +1,6 @@
 {
   "name": "staffrender",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Render music score using SVG on browsers.",
   "main": "node/index.js",
   "module": "es6/index.js",

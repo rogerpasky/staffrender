@@ -16,5 +16,6 @@
  */
 
 export * from './staff_svg_render';
-export { StaffInfo, NoteInfo } from './staff_info';
 export * from './staff_model';
+export * from './staff_block';
+export * from './staff_info';
