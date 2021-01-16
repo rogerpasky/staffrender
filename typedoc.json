@@ -1,11 +1,12 @@
 {
-    "mode": "modules",
-    "tsconfig": "tsconfig.es6.json",
-    "includeVersion": true,
-    "excludeExternals": true,
-    "excludeNotExported": false,
-    "excludePrivate": false,
-    "exclude": "**/*+(index|test|lib).ts",
-    "name": "staffrender",
-    "readme": "./README.md"
-  }
+  "entryPoints": ["src"],
+  "tsconfig": "tsconfig.es6.json",
+  "includeVersion": true,
+  "excludeExternals": true,
+  "excludePrivate": false,
+  "excludeTags": "license",
+  "exclude": "**/*+(index|test|lib|d).ts",
+  "name": "staffrender",
+  "readme": "./README.md",
+  "out": "docs"
+}

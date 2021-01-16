@@ -1,0 +1,419 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>StaffModel | staffrender - v1.2.0</title>
+	<meta name="description" content="Documentation for staffrender - v1.2.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">staffrender - v1.2.0</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../modules.html">staffrender - v1.2.0</a>
+				</li>
+				<li>
+					<a href="../modules/staff_model.html">staff_model</a>
+				</li>
+				<li>
+					<a href="staff_model.staffmodel.html">StaffModel</a>
+				</li>
+			</ul>
+			<h1>Class StaffModel</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Models a staff info into a musical structure of staff blocks indexed by the
+						quarter they start from</p>
+					</div>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">StaffModel</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="staff_model.staffmodel.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="staff_model.staffmodel.html#barsinfo" class="tsd-kind-icon">bars<wbr>Info</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="staff_model.staffmodel.html#clef" class="tsd-kind-icon">clef</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="staff_model.staffmodel.html#lastq" class="tsd-kind-icon">lastQ</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="staff_model.staffmodel.html#staffblockmap" class="tsd-kind-icon">staff<wbr>Block<wbr>Map</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="staff_model.staffmodel.html#staffinfo" class="tsd-kind-icon">staff<wbr>Info</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="staff_model.staffmodel.html#infotoblocks" class="tsd-kind-icon">info<wbr>ToBlocks</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="staff_model.staffmodel.html#update" class="tsd-kind-icon">update</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Staff<wbr>Model<span class="tsd-signature-symbol">(</span>staffInfo<span class="tsd-signature-symbol">: </span><a href="../interfaces/staff_info.staffinfo.html" class="tsd-signature-type" data-tsd-kind="Interface">StaffInfo</a>, defaultKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="staff_model.staffmodel.html" class="tsd-signature-type" data-tsd-kind="Class">StaffModel</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f4642f6/src/staff_model.ts#L49">staff_model.ts:49</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a <code>StaffModel</code> storing input data and result</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>staffInfo: <a href="../interfaces/staff_info.staffinfo.html" class="tsd-signature-type" data-tsd-kind="Interface">StaffInfo</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Generic information about a score to crate a staff with</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> defaultKey: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Default value to replace missing key at bar 0</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="staff_model.staffmodel.html" class="tsd-signature-type" data-tsd-kind="Class">StaffModel</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="barsinfo" class="tsd-anchor"></a>
+					<h3>bars<wbr>Info</h3>
+					<div class="tsd-signature tsd-kind-icon">bars<wbr>Info<span class="tsd-signature-symbol">:</span> <a href="bars_info.barsinfo.html" class="tsd-signature-type" data-tsd-kind="Class">BarsInfo</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f4642f6/src/staff_model.ts#L45">staff_model.ts:45</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The bar, tempo, time signature and key signature info by quarters</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="clef" class="tsd-anchor"></a>
+					<h3>clef</h3>
+					<div class="tsd-signature tsd-kind-icon">clef<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f4642f6/src/staff_model.ts#L43">staff_model.ts:43</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Staff clef as MIDI pitch note at the staff 3rd line (G clef -&gt; B = 71)</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="lastq" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> lastQ</h3>
+					<div class="tsd-signature tsd-kind-icon">lastQ<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f4642f6/src/staff_model.ts#L49">staff_model.ts:49</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Last handled quarter, i.e. staff length in quarters</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="staffblockmap" class="tsd-anchor"></a>
+					<h3>staff<wbr>Block<wbr>Map</h3>
+					<div class="tsd-signature tsd-kind-icon">staff<wbr>Block<wbr>Map<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">StaffBlockMap</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f4642f6/src/staff_model.ts#L47">staff_model.ts:47</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The resut of staff analysis on staff blocks indexed by starting quarter</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="staffinfo" class="tsd-anchor"></a>
+					<h3>staff<wbr>Info</h3>
+					<div class="tsd-signature tsd-kind-icon">staff<wbr>Info<span class="tsd-signature-symbol">:</span> <a href="../interfaces/staff_info.staffinfo.html" class="tsd-signature-type" data-tsd-kind="Interface">StaffInfo</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f4642f6/src/staff_model.ts#L41">staff_model.ts:41</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>The input staff info, stored for further outer modifications</p>
+						</div>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="infotoblocks" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> info<wbr>ToBlocks</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">info<wbr>ToBlocks<span class="tsd-signature-symbol">(</span>staffInfo<span class="tsd-signature-symbol">: </span><a href="../interfaces/staff_info.staffinfo.html" class="tsd-signature-type" data-tsd-kind="Interface">StaffInfo</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">StaffBlockMap</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f4642f6/src/staff_model.ts#L126">staff_model.ts:126</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Analyzes stored info and defaults to update <code>staffBlockMap</code>, unless the
+									staff info received has not changed (in length of its members).</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>staffInfo: <a href="../interfaces/staff_info.staffinfo.html" class="tsd-signature-type" data-tsd-kind="Interface">StaffInfo</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>New staff information to replace previous one.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">StaffBlockMap</span></h4>
+							<p>Analyzed staff as an indexed per quarter <code>StaffBlockMap</code></p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="update" class="tsd-anchor"></a>
+					<h3>update</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">update<span class="tsd-signature-symbol">(</span>staffInfo<span class="tsd-signature-symbol">: </span><a href="../interfaces/staff_info.staffinfo.html" class="tsd-signature-type" data-tsd-kind="Interface">StaffInfo</a>, defaultKey<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f4642f6/src/staff_model.ts#L68">staff_model.ts:68</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Processes new staff info to update internal model. It will modify received
+									staff info if it is disordered or incomplete.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>staffInfo: <a href="../interfaces/staff_info.staffinfo.html" class="tsd-signature-type" data-tsd-kind="Interface">StaffInfo</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>New staff information to replace previous one</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> defaultKey: <span class="tsd-signature-type">number</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="../modules.html">Exports</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/bars_info.html">bars_<wbr>info</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/model_constants.html">model_<wbr>constants</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/render_constants.html">render_<wbr>constants</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/staff_block.html">staff_<wbr>block</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/staff_info.html">staff_<wbr>info</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/staff_model.html">staff_<wbr>model</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/staff_svg_render.html">staff_<wbr>svg_<wbr>render</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/svg_paths.html">svg_<wbr>paths</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/svg_tools.html">svg_<wbr>tools</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-reference tsd-parent-kind-module">
+						<a href="../modules/staff_model.html#key_accidentals" class="tsd-kind-icon">KEY_<wbr>ACCIDENTALS</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class tsd-parent-kind-module">
+						<a href="staff_model.staffmodel.html" class="tsd-kind-icon">Staff<wbr>Model</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="staff_model.staffmodel.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="staff_model.staffmodel.html#barsinfo" class="tsd-kind-icon">bars<wbr>Info</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="staff_model.staffmodel.html#clef" class="tsd-kind-icon">clef</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="staff_model.staffmodel.html#lastq" class="tsd-kind-icon">lastQ</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="staff_model.staffmodel.html#staffblockmap" class="tsd-kind-icon">staff<wbr>Block<wbr>Map</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="staff_model.staffmodel.html#staffinfo" class="tsd-kind-icon">staff<wbr>Info</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="staff_model.staffmodel.html#infotoblocks" class="tsd-kind-icon">info<wbr>ToBlocks</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="staff_model.staffmodel.html#update" class="tsd-kind-icon">update</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="../modules/staff_model.html#getnotedetails" class="tsd-kind-icon">get<wbr>Note<wbr>Details</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

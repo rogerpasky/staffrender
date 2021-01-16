@@ -1,0 +1,349 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>StaffNote | staffrender - v1.2.0</title>
+	<meta name="description" content="Documentation for staffrender - v1.2.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">staffrender - v1.2.0</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../modules.html">staffrender - v1.2.0</a>
+				</li>
+				<li>
+					<a href="../modules/staff_block.html">staff_block</a>
+				</li>
+				<li>
+					<a href="staff_block.staffnote.html">StaffNote</a>
+				</li>
+			</ul>
+			<h1>Interface StaffNote</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Stores processed information related to a musical note in a staff</p>
+					</div>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<a href="staff_info.noteinfo.html" class="tsd-signature-type" data-tsd-kind="Interface">NoteInfo</a>
+						<ul class="tsd-hierarchy">
+							<li>
+								<span class="target">StaffNote</span>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="staff_block.staffnote.html#accidental" class="tsd-kind-icon">accidental</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="staff_block.staffnote.html#intensity" class="tsd-kind-icon">intensity</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="staff_block.staffnote.html#length" class="tsd-kind-icon">length</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="staff_block.staffnote.html#pitch" class="tsd-kind-icon">pitch</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="staff_block.staffnote.html#start" class="tsd-kind-icon">start</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="staff_block.staffnote.html#tiedfrom" class="tsd-kind-icon">tied<wbr>From</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="staff_block.staffnote.html#tiedto" class="tsd-kind-icon">tied<wbr>To</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="staff_block.staffnote.html#vsteps" class="tsd-kind-icon">v<wbr>Steps</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="accidental" class="tsd-anchor"></a>
+					<h3>accidental</h3>
+					<div class="tsd-signature tsd-kind-icon">accidental<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f4642f6/src/staff_block.ts#L43">staff_block.ts:43</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Identificator of the accidental kind as following encoding:
+							0 = none, 1 = sharp, 2 = flat, 3 = normal</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="intensity" class="tsd-anchor"></a>
+					<h3>intensity</h3>
+					<div class="tsd-signature tsd-kind-icon">intensity<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="staff_info.noteinfo.html">NoteInfo</a>.<a href="staff_info.noteinfo.html#intensity">intensity</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f4642f6/src/staff_info.ts#L27">staff_info.ts:27</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Note intensity according to MIDI velocity</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="length" class="tsd-anchor"></a>
+					<h3>length</h3>
+					<div class="tsd-signature tsd-kind-icon">length<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="staff_info.noteinfo.html">NoteInfo</a>.<a href="staff_info.noteinfo.html#length">length</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f4642f6/src/staff_info.ts#L23">staff_info.ts:23</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Note length, in quarter note quantities (float)</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="pitch" class="tsd-anchor"></a>
+					<h3>pitch</h3>
+					<div class="tsd-signature tsd-kind-icon">pitch<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="staff_info.noteinfo.html">NoteInfo</a>.<a href="staff_info.noteinfo.html#pitch">pitch</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f4642f6/src/staff_info.ts#L25">staff_info.ts:25</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Note pitch according to MIDI standard</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+					<a name="start" class="tsd-anchor"></a>
+					<h3>start</h3>
+					<div class="tsd-signature tsd-kind-icon">start<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<p>Inherited from <a href="staff_info.noteinfo.html">NoteInfo</a>.<a href="staff_info.noteinfo.html#start">start</a></p>
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f4642f6/src/staff_info.ts#L21">staff_info.ts:21</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Starting time, in quarter note quantities (float)</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="tiedfrom" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> tied<wbr>From</h3>
+					<div class="tsd-signature tsd-kind-icon">tied<wbr>From<span class="tsd-signature-symbol">:</span> <a href="staff_block.staffnote.html" class="tsd-signature-type" data-tsd-kind="Interface">StaffNote</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f4642f6/src/staff_block.ts#L45">staff_block.ts:45</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Reference to previous tied note</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="tiedto" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> tied<wbr>To</h3>
+					<div class="tsd-signature tsd-kind-icon">tied<wbr>To<span class="tsd-signature-symbol">:</span> <a href="staff_block.staffnote.html" class="tsd-signature-type" data-tsd-kind="Interface">StaffNote</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f4642f6/src/staff_block.ts#L47">staff_block.ts:47</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Reference to following tied note</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="vsteps" class="tsd-anchor"></a>
+					<h3>v<wbr>Steps</h3>
+					<div class="tsd-signature tsd-kind-icon">v<wbr>Steps<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/rogerpasky/staffrender/blob/f4642f6/src/staff_block.ts#L38">staff_block.ts:38</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Vertical steps to position a note on score. It is measured in integer
+								value, considering 2 positions per staff line (one for over line and other
+								for inter-lines), vertically inverted, being value 0 used for third line
+							note, 1 used for next lower one and -1 for the next upper one.</p>
+						</div>
+					</div>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="../modules.html">Exports</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/bars_info.html">bars_<wbr>info</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/model_constants.html">model_<wbr>constants</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/render_constants.html">render_<wbr>constants</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/staff_block.html">staff_<wbr>block</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/staff_info.html">staff_<wbr>info</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/staff_model.html">staff_<wbr>model</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/staff_svg_render.html">staff_<wbr>svg_<wbr>render</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/svg_paths.html">svg_<wbr>paths</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/svg_tools.html">svg_<wbr>tools</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class tsd-parent-kind-module">
+						<a href="../classes/staff_block.staffblock.html" class="tsd-kind-icon">Staff<wbr>Block</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface tsd-parent-kind-module">
+						<a href="staff_block.staffnote.html" class="tsd-kind-icon">Staff<wbr>Note</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="staff_block.staffnote.html#accidental" class="tsd-kind-icon">accidental</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="staff_block.staffnote.html#intensity" class="tsd-kind-icon">intensity</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="staff_block.staffnote.html#length" class="tsd-kind-icon">length</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="staff_block.staffnote.html#pitch" class="tsd-kind-icon">pitch</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
+								<a href="staff_block.staffnote.html#start" class="tsd-kind-icon">start</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="staff_block.staffnote.html#tiedfrom" class="tsd-kind-icon">tied<wbr>From</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="staff_block.staffnote.html#tiedto" class="tsd-kind-icon">tied<wbr>To</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="staff_block.staffnote.html#vsteps" class="tsd-kind-icon">v<wbr>Steps</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-function tsd-parent-kind-module">
+						<a href="../modules/staff_block.html#splitstaffnote" class="tsd-kind-icon">split<wbr>Staff<wbr>Note</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

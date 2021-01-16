@@ -18,7 +18,7 @@
     "ts-node": "^5.0.1",
     "tsify": "^3.0.4",
     "tslint": "^5.9.1",
-    "typedoc": "^0.16.10",
+    "typedoc": "^0.20.14",
     "typescript": "^3.3.3333",
     "webpack": "^4.24.0",
     "webpack-cli": "^3.1.2",
@@ -35,10 +35,11 @@
     "build": "npm run build:clean && npm run build:es5 && npm run build:node && npm run build:es6",
     "lint": "tslint -c ./tslint.json -p ./tsconfig.es5.json -t verbose",
     "test": "ts-node node_modules/tape/bin/tape test/**/*_test.ts",
-    "docs:build": "typedoc --options typedoc.json src --out docs",
+    "docs:build": "typedoc --options typedoc.json && cp ./demo/src/*.ico ./docs",
+    "docs:demo": "mkdir ./docs/demo && cp ./demo/src/*.html ./demo/src/*.css ./demo/src/*.js ./demo/src/*.ico ./docs/demo",
     "docs:serve": "http-server docs/",
-    "docs": "npm run docs:build && npm run demo && npm run docs:serve",
-    "demo": "rm -rf ./docs/demo && mkdir ./docs/demo && cp ./demo/src/*.html ./demo/src/*.css ./demo/src/*.js ./demo/src/*.ico ./docs/demo && cp ./demo/src/*.ico ./docs"
+    "docs:clean": "rm -rf ./docs/*",
+    "docs": "npm run docs:clean && npm run docs:build && npm run docs:demo && npm run docs:serve"
   },
   "author": "Pascual de Juan <pascual.dejuan@gmail.com>",
   "license": "Apache-2.0",
