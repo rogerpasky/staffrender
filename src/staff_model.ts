@@ -20,14 +20,11 @@ import {
   DEFAULT_TEMPO, DEFAULT_TIME_SIGNATURE, DEFAULT_KEY_SIGNATURE
 } from './staff_info';
 import { BarsInfo } from './bars_info';
-import { StaffBlock, StaffNote } from './staff_block';
+import { StaffBlock, StaffBlockMap, StaffNote } from './staff_block';
 import { 
   SCALES, KEY_ACCIDENTALS, TREBLE_CLEF, BASS_CLEF 
 } from './model_constants';
 export { KEY_ACCIDENTALS }; // TODO: Review
-
-/** A map of staff blocks indexed by starting quarter */
-type StaffBlockMap = Map<number, StaffBlock>;
 
 /** Temporary storage of accidentals activated on a bar by MIDI note */
 type BarAccidentals = {[pitch: number]: number};
@@ -153,20 +150,20 @@ export class StaffModel {
           const keySignature = this.barsInfo.keySignatureAtQ(staffNote.start);
           placeNote(staffNote, barAccidentals, this.clef, keySignature);
           const staffNoteEnd = staffNote.start + staffNote.length;
+          const lastBlockLength = lastBlock ? lastBlock.length : 0;
 
           const currentBlock = noteToBlocks(staffNote, blocks, barNumber);
           if (currentBlock === lastBlock) { // Adding notes to current block
             if (staffNote.length < lastBlock.length) { // Split to staffNote
-              const quarters = staffNote.start + staffNote.length;
               const splittedBlock = 
-                currentBlock.split(quarters, this.barsInfo);
-              blocks.set(splittedBlock.start, splittedBlock);
+                currentBlock.split(staffNoteEnd, this.barsInfo);
+              splittedBlock.mergeToMap(blocks);
             }
-            else if (lastBlock.length < staffNote.length){ // Split to lastBlock
-              const quarters = lastBlock.start + lastBlock.length;
+            else if (lastBlockLength < staffNote.length){ // Split to lastBlock
+              const quarters = lastBlock.start + lastBlockLength;
               const splittedBlock = 
                 currentBlock.split(quarters, this.barsInfo);
-              blocks.set(splittedBlock.start, splittedBlock);
+              splittedBlock.mergeToMap(blocks);
               this.lastQ = staffNoteEnd;
             } // Otherwise, same length, nothing to do
           }
@@ -177,7 +174,7 @@ export class StaffModel {
               const restBlock = new StaffBlock(
                 quarters, staffNote.start - this.lastQ, [], bar
               );
-              blocks.set(restBlock.start, restBlock);
+              restBlock.mergeToMap(blocks);
               this.lastQ = staffNoteEnd;
             }
             else if (staffNote.start < this.lastQ) { // New block start overlaps
@@ -208,7 +205,7 @@ export class StaffModel {
              const splittedBlock = 
                 currentBlock.split(quarters, this.barsInfo);
               if (splittedBlock) {
-                blockToBlocks(splittedBlock, blocks);
+                splittedBlock.mergeToMap(blocks);
               }
             }
           );
@@ -233,7 +230,7 @@ export class StaffModel {
               remainingSymbolsBlock = 
                 currentBlock.splitToSymbols(this.barsInfo, increasing);
               currentBlock.setBeaming(lastStaffBlock, this.barsInfo);
-              blockToBlocks(currentBlock, staffBlockMap);
+              currentBlock.mergeToMap(staffBlockMap);
               if (remainingSymbolsBlock) {
                 lastStaffBlock = currentBlock;
                 currentBlock = remainingSymbolsBlock;
@@ -272,21 +269,6 @@ function toStaffNote(note: NoteInfo): StaffNote {
 }
 
 /**
- * Sets a block into the block map or appends it into an existing block
- * @param staffBlock The block to be considered to set or append
- * @param blocks Block map to hold blocks
- */
-function blockToBlocks(staffBlock: StaffBlock, blocks: StaffBlockMap) {
-  if (blocks.has(staffBlock.start)) {
-    const existingBlock = blocks.get(staffBlock.start);
-    staffBlock.notes.forEach(note => existingBlock.addNote(note));
-  }
-  else {
-    blocks.set(staffBlock.start, staffBlock);
-  }
-}
-
-/**
  * Sets or appends a note into a new or existing block, respectively, 
  * returning it.
  * @param note Note to be included into a block map indexed by starting quarter
@@ -304,7 +286,7 @@ function noteToBlocks(note: StaffNote, blocks: StaffBlockMap, barNumber: number)
     const newBlock = new StaffBlock(
       note.start, note.length, [note], barNumber, note.vSteps, note.vSteps
     );
-    blocks.set(note.start, newBlock);
+    newBlock.mergeToMap(blocks);
     return newBlock;
   }
 }

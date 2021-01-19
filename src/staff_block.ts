@@ -27,6 +27,9 @@ import {
   BarsInfo
 } from './bars_info';
 
+/** A map of staff blocks indexed by starting quarter */
+export type StaffBlockMap = Map<number, StaffBlock>;
+
 /** Stores processed information related to a musical note in a staff */
 export interface StaffNote extends NoteInfo {
   /** 
@@ -162,7 +165,7 @@ export class StaffBlock {
       this.notes.push(staffNote);  
       this.minVStep = Math.max(staffNote.vSteps, this.minVStep);
       this.maxVStep = Math.min(staffNote.vSteps, this.maxVStep);
-      this.length = this.length;
+      this.length = Math.max(this.length, staffNote.length);
     }
   }
 
@@ -363,6 +366,21 @@ export class StaffBlock {
       }
     }
     return remainBlock;
+  }
+
+  /**
+   * Sets a block into the block map or appends its content into an existing 
+   * block
+   * @param map Block map to hold blocks
+   */
+  public mergeToMap(map: StaffBlockMap) {
+    if (map.has(this.start)) {
+      const existingBlock = map.get(this.start);
+      this.notes.forEach(note => existingBlock.addNote(note));
+    }
+    else {
+      map.set(this.start, this);
+    }
   }
 
   /**
