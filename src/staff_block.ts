@@ -60,6 +60,9 @@ export interface StaffNote extends NoteInfo {
 export function splitStaffNote(staffNote: StaffNote, quarters: number): StaffNote {
   const remainLength = (staffNote.start + staffNote.length) - quarters;
   let splitted: StaffNote = null;
+  if (staffNote.start === 186.0 || quarters === 186.0 || staffNote.start === 186.25 || quarters === 186.25) {
+    console.log("Wrnng!");
+  }
   if (quarters > staffNote.start && remainLength > 0) {
     staffNote.length -= remainLength;
     splitted = {
@@ -149,24 +152,54 @@ export class StaffBlock {
 
   /**
    * Adds a note to the block's note list, merging repetitions' length, 
-   * adapting VSteps and block length
+   * adapting VSteps and block length. It will follow Logic Pro binary 
+   * note-on/off chriteria is to cut excedding length (shorter prevails).
+   * First note entry will mark the block's starting point.
    * @param staffNote The note to be added
+   * @returns `true` if the note was added or modified, and `false` if 
+   * it was ignored
    */
-  public addNote(staffNote: StaffNote) {
-    let newNote = true;
-    for (let i = 0; newNote && i < this.notes.length; ++i) {
-      if (staffNote.pitch === this.notes[i].pitch) { // Repeated
-        newNote = false;
-        this.notes[i].length = Math.max(this.notes[i].length, staffNote.length);
-        this.length = Math.max(this.length, staffNote.length);
+  public addNote(staffNote: StaffNote): boolean {
+    let ignored = false;
+    let inPosition = this.notes.length;
+    let outPosition = -1;
+    if (this.notes.length === 0) { // First entry on an empty block marks start
+      this.start = staffNote.start;
+    }
+
+    // Sorted by length, not pitch!!!!!!!
+    for (let i = 0; outPosition === -1 && i < this.notes.length; ++i) {
+      if (inPosition === this.notes.length && 
+        staffNote.length < this.notes[i].length
+      ) { // New smaller length note
+        inPosition = i;
+      }
+      if (staffNote.pitch === this.notes[i].pitch) { // Repeated pitch
+        // It will be applied Logic Pro binary note-on/off chriteria, replacing
+        // longer notes with new shorter versions (note-off prevalence)
+        if (staffNote.length < this.notes[i].length) { // Marked to be replaced
+          outPosition = i;
+        }
+        else { // New equal or longer versions of repeated notes are ignored
+          ignored = true;
+        }
       }
     }
-    if (newNote) {
-      this.notes.push(staffNote);  
+    if (!ignored) {
+      this.notes.splice(inPosition, 0, staffNote);
       this.minVStep = Math.max(staffNote.vSteps, this.minVStep);
       this.maxVStep = Math.min(staffNote.vSteps, this.maxVStep);
-      this.length = Math.max(this.length, staffNote.length);
+      if (outPosition >= 0) {
+        outPosition += (outPosition >= inPosition ? 1 : 0); // Update increasing
+        if (this.notes[outPosition].tiedFrom) {
+          staffNote.tiedFrom = this.notes[outPosition].tiedFrom;
+          staffNote.tiedFrom.tiedTo = this.notes[inPosition];
+        }
+        this.notes.splice(outPosition, 1);
+      }
     }
+    this.length = this.notes[this.notes.length - 1].length;
+    return !ignored;
   }
 
   /**
@@ -369,14 +402,46 @@ export class StaffBlock {
   }
 
   /**
+   * Splits a block acording to the endings of each note from shorter to longer
+   * up to the given quarter, inserting the resulting blocks in the given map.
+   * Original block will hold remaining notes from given quarter or will remain
+   * empty if quarter same or grater length than longer note. Original block
+   * with remaining notes won't be inserted onto map.
+   * @param upToQuarter Quarter where splitting will stop
+   * @param ontoMap Map where splits will be inserted
+   */
+  public splitEndings( // TODO: Move from method to function!!!  *****
+    upToQuarter: number, 
+    ontoMap: StaffBlockMap, 
+    barsInfo: BarsInfo
+  ) {
+    while (this.notes.length && this.notes[0].start < upToQuarter) {
+      const splitQuarter = 
+        Math.min(upToQuarter, this.start + this.notes[0].length);
+      const splittedlock = this.split(splitQuarter, barsInfo);
+      if (splittedlock) {
+        splittedlock.mergeToMap(ontoMap);
+      }  
+    }
+  }
+  
+  /**
+   * Merges other StaffBlock into this one appending their content
+   * @param other StaffBlock to be merged
+   */
+  public mergeOnto(other: StaffBlock) {
+      this.notes.forEach(note => other.addNote(note));
+  }
+
+  /**
    * Sets a block into the block map or appends its content into an existing 
    * block
    * @param map Block map to hold blocks
    */
   public mergeToMap(map: StaffBlockMap) {
-    if (map.has(this.start)) {
-      const existingBlock = map.get(this.start);
-      this.notes.forEach(note => existingBlock.addNote(note));
+    const existingBlock = map.get(this.start);
+    if (existingBlock !== undefined) {
+      this.mergeOnto(existingBlock);
     }
     else {
       map.set(this.start, this);

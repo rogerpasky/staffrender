@@ -21,7 +21,6 @@
  */
 import * as test from 'tape';
 import { StaffModel } from '../src/staff_model';
-import { SCALES } from '../src/model_constants';
 
 import * as bs from './basic_symbols_features';
 
@@ -171,7 +170,7 @@ test(`basic_symbols_test: ${bs.testData[10].title}`, (t: test.Test) => {
   t.equal(score.get(  0.0 ).headIndex, 4, '3/4 whole rest');
   t.equal(score.get(  6.0 ).headIndex, 4, '6/8 whole rest');
   t.equal(score.get( 12.0 ).headIndex, 4, '7/2 whole rest');
-  t.equal(score.get( 26.0 ).headIndex, 4, '4/4 whole rest');
+  t.equal(score.get( 40.0 ).headIndex, 4, '4/4 whole rest');
   t.end();
 });
 

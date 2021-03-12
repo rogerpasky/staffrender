@@ -129,15 +129,14 @@ export class StaffModel {
       staffInfo.timeSignatures.length !== this.staffInfo.timeSignatures.length
     ) {
       this.staffInfo = staffInfo;
-      this.lastQ = 0;
 
       // Group notes into blocks, set note split points
       const blocks: StaffBlockMap = new Map();
       // TODO: Future approach to this.staffBlockMap for incremental blocks
-      const splites = new Set<number>(); // Split points = bars + starts + ends
       let barAccidentals: BarAccidentals = {}; // Temporal accidentals
       let lastBar = 0;
       let lastBlock: StaffBlock = null;
+
       this.staffInfo.notes.forEach( 
         note => {
           const staffNote = toStaffNote(note);
@@ -149,78 +148,78 @@ export class StaffModel {
           }
           const keySignature = this.barsInfo.keySignatureAtQ(staffNote.start);
           placeNote(staffNote, barAccidentals, this.clef, keySignature);
-          const staffNoteEnd = staffNote.start + staffNote.length;
-          const lastBlockLength = lastBlock ? lastBlock.length : 0;
 
-          const currentBlock = noteToBlocks(staffNote, blocks, barNumber);
-          if (currentBlock === lastBlock) { // Adding notes to current block
-            if (staffNote.length < lastBlock.length) { // Split to staffNote
-              const splittedBlock = 
-                currentBlock.split(staffNoteEnd, this.barsInfo);
-              splittedBlock.mergeToMap(blocks);
+          if (!lastBlock) {
+            if (staffNote.start !== 0) { // Anacrusis
+              lastBlock = new StaffBlock(0, staffNote.start, [], barNumber);
+              lastBlock.mergeToMap(blocks);
             }
-            else if (lastBlockLength < staffNote.length){ // Split to lastBlock
-              const quarters = lastBlock.start + lastBlockLength;
-              const splittedBlock = 
-                currentBlock.split(quarters, this.barsInfo);
-              splittedBlock.mergeToMap(blocks);
-              this.lastQ = staffNoteEnd;
-            } // Otherwise, same length, nothing to do
+            lastBlock = new StaffBlock(); // TODO: Review readability
           }
-          else { // Adding notes to a new block
-            if (staffNote.start > this.lastQ) { // Blocks gap means a prior rest
-              const quarters = this.lastQ;
-              const bar = this.barsInfo.barNumberAtQ(quarters);
-              const restBlock = new StaffBlock(
-                quarters, staffNote.start - this.lastQ, [], bar
+
+          if (lastBlock.notes.length === 0 || lastBlock.start === staffNote.start) {
+            lastBlock.addNote(staffNote);
+          }
+          else { // LastBlock has finished adding notes with same starting
+            const lastBlockEnd = lastBlock.start + lastBlock.length;
+
+            while (lastBlock.notes.length && lastBlock.notes[0].start < staffNote.start) {
+              const splitQuarter = 
+                Math.min(staffNote.start, lastBlock.start + lastBlock.notes[0].length);
+              let splittedBlock = lastBlock.split(splitQuarter, this.barsInfo);
+              lastBlock.mergeToMap(blocks);
+              if (!splittedBlock) {
+                splittedBlock = new StaffBlock();
+              } 
+              lastBlock = splittedBlock
+            }
+        
+            // Adding new note to appropriate block
+            if (lastBlock.length) { // currentBlock overlaps to remainings
+              lastBlock.addNote(staffNote)
+            }
+            else { // No overlapping
+              if (lastBlockEnd !== staffNote.start) { // Gap becomes a rest
+                const newBlock = new StaffBlock(
+                  lastBlockEnd, 
+                  staffNote.start - lastBlockEnd, 
+                  [], 
+                  this.barsInfo.barNumberAtQ(lastBlockEnd)
+                );
+                newBlock.mergeToMap(blocks);
+              }
+              lastBlock = new StaffBlock(
+                staffNote.start, 
+                staffNote.length, 
+                [staffNote],
+                barNumber,
+                staffNote.vSteps,
+                staffNote.vSteps
               );
-              restBlock.mergeToMap(blocks);
-              this.lastQ = staffNoteEnd;
             }
-            else if (staffNote.start < this.lastQ) { // New block start overlaps
-              splites.add(staffNote.start);
-              if (staffNoteEnd < this.lastQ) { // New block end overlaps too
-                splites.add(staffNoteEnd);
-              }
-              else if (this.lastQ < staffNoteEnd) { // Old block overlaps new
-                splites.add(this.lastQ);
-                this.lastQ = staffNoteEnd;
-              }
-            }
-            else { // Otherwise, consecutive blocks
-              this.lastQ = staffNoteEnd;
-            }
-            lastBlock = currentBlock;
-          }
+          } // Otherwise do nothing and keep on adding notes to current block.
         }
       );
-      
-      // TODO: Insert in previous pass optimizing with iterators (O^2 -> lineal)
-      // 2nd pass to apply all splites to the right chunks
-      const sortedSplites = Array.from(splites).sort((x, y) => x - y);
-      sortedSplites.forEach(
-        quarters => {
-          blocks.forEach(
-            currentBlock => {
-             const splittedBlock = 
-                currentBlock.split(quarters, this.barsInfo);
-              if (splittedBlock) {
-                splittedBlock.mergeToMap(blocks);
-              }
-            }
-          );
-        }
-      );
-      // Sorting for further iteration
-      this.staffBlockMap = 
-        new Map(Array.from(blocks).sort((x, y) => x[0] - y[0]));
 
-      // 3rd pass to apply tuplets and rithm splitting and association
-      const staffBlockMap: StaffBlockMap = new Map();
+      while (lastBlock.notes.length && lastBlock.notes[0].start < Number.MAX_VALUE) {
+        const splitQuarter = lastBlock.start + lastBlock.notes[0].length;
+        let splittedBlock = lastBlock.split(splitQuarter, this.barsInfo);
+        lastBlock.mergeToMap(blocks);
+        if (!splittedBlock) {
+          splittedBlock = new StaffBlock();
+        }
+        lastBlock = splittedBlock
+      }
+
+      this.lastQ = lastBlock.start; // TODO: Review **********
+
+
+      // 2nd pass to apply tuplets and rithm splitting and association
+      this.staffBlockMap = new Map();
       let lastStaffBlock: StaffBlock = null;
-      this.staffBlockMap.forEach(
+      blocks.forEach(
         currentBlock => {
-          let remainingBlock = null;
+          let remainingBlock: StaffBlock = null;
           do{
             remainingBlock = currentBlock.splitToBeat(this.barsInfo);
             const increasing = 
@@ -230,7 +229,7 @@ export class StaffModel {
               remainingSymbolsBlock = 
                 currentBlock.splitToSymbols(this.barsInfo, increasing);
               currentBlock.setBeaming(lastStaffBlock, this.barsInfo);
-              currentBlock.mergeToMap(staffBlockMap);
+              currentBlock.mergeToMap(this.staffBlockMap);
               if (remainingSymbolsBlock) {
                 lastStaffBlock = currentBlock;
                 currentBlock = remainingSymbolsBlock;
@@ -243,11 +242,10 @@ export class StaffModel {
           } while (remainingBlock); // Each block can hold more than one beat
         }
       );
-      this.staffBlockMap = staffBlockMap;
     }
     return this.staffBlockMap;
   }
-  
+
 }
 
 /**
@@ -266,29 +264,6 @@ function toStaffNote(note: NoteInfo): StaffNote {
     vSteps: 0, // Delayed assignation till placeNote() call
     accidental: 0 // Delayed assignation till placeNote() call
   };
-}
-
-/**
- * Sets or appends a note into a new or existing block, respectively, 
- * returning it.
- * @param note Note to be included into a block map indexed by starting quarter
- * @param blocks Block map to hold notes
- * @returns The block where the note has been setted or appended
- */
-function noteToBlocks(note: StaffNote, blocks: StaffBlockMap, barNumber: number)
-: StaffBlock {
-  if (blocks.has(note.start)) {
-    const existingBlock = blocks.get(note.start);
-    existingBlock.addNote(note);
-    return existingBlock;
-  }
-  else {
-    const newBlock = new StaffBlock(
-      note.start, note.length, [note], barNumber, note.vSteps, note.vSteps
-    );
-    newBlock.mergeToMap(blocks);
-    return newBlock;
-  }
 }
 
 /**
