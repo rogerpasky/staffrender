@@ -11,7 +11,7 @@ This is a **work in process** project, who has some to do list, like triplets, q
 - `npm install staffrender`
 
 ## Reference
-- Latest version: `1.2.3`
+- Latest version: `1.2.4`
 - Documentation: [Staffrender Homepage](https://rogerpasky.github.io/staffrender/)
 - Features: [Musical capabilities](https://rogerpasky.github.io/staffrender/demo/features.html)
 - Advanced usage: [Squeezing mm.StaffSVGVisualizer](https://rogerpasky.github.io/staffrender/demo/index.html)
