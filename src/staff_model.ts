@@ -149,34 +149,43 @@ export class StaffModel {
           const keySignature = this.barsInfo.keySignatureAtQ(staffNote.start);
           placeNote(staffNote, barAccidentals, this.clef, keySignature);
 
-          if (!lastBlock) {
+          if (!lastBlock) { // First iteration
             if (staffNote.start !== 0) { // Anacrusis
               lastBlock = new StaffBlock(0, staffNote.start, [], barNumber);
               lastBlock.mergeToMap(blocks);
-            }
-            lastBlock = new StaffBlock(); // TODO: Review readability
+            } // TODO: Review rhithm split on future single pass
+            lastBlock = new StaffBlock();
           }
 
-          if (lastBlock.notes.length === 0 || lastBlock.start === staffNote.start) {
+          if (
+            lastBlock.notes.length === 0 || 
+            lastBlock.start === staffNote.start
+          ) {
             lastBlock.addNote(staffNote);
           }
           else { // LastBlock has finished adding notes with same starting
             const lastBlockEnd = lastBlock.start + lastBlock.length;
 
-            while (lastBlock.notes.length && lastBlock.notes[0].start < staffNote.start) {
+            while (
+              lastBlock.notes.length && 
+              lastBlock.notes[0].start < staffNote.start
+            ) {
               const splitQuarter = 
-                Math.min(staffNote.start, lastBlock.start + lastBlock.notes[0].length);
+                Math.min(
+                  staffNote.start, 
+                  lastBlock.start + lastBlock.notes[0].length
+                );
               let splittedBlock = lastBlock.split(splitQuarter, this.barsInfo);
               lastBlock.mergeToMap(blocks);
               if (!splittedBlock) {
                 splittedBlock = new StaffBlock();
               } 
-              lastBlock = splittedBlock
+              lastBlock = splittedBlock;
             }
         
             // Adding new note to appropriate block
             if (lastBlock.length) { // currentBlock overlaps to remainings
-              lastBlock.addNote(staffNote)
+              lastBlock.addNote(staffNote);
             }
             else { // No overlapping
               if (lastBlockEnd !== staffNote.start) { // Gap becomes a rest
@@ -201,18 +210,19 @@ export class StaffModel {
         }
       );
 
-      while (lastBlock.notes.length && lastBlock.notes[0].start < Number.MAX_VALUE) {
+      while (
+        lastBlock.notes.length && 
+        lastBlock.notes[0].start < Number.MAX_VALUE
+      ) {
         const splitQuarter = lastBlock.start + lastBlock.notes[0].length;
         let splittedBlock = lastBlock.split(splitQuarter, this.barsInfo);
         lastBlock.mergeToMap(blocks);
         if (!splittedBlock) {
           splittedBlock = new StaffBlock();
         }
-        lastBlock = splittedBlock
+        lastBlock = splittedBlock;
       }
-
-      this.lastQ = lastBlock.start; // TODO: Review **********
-
+      this.lastQ = lastBlock.start + lastBlock.length;
 
       // 2nd pass to apply tuplets and rithm splitting and association
       this.staffBlockMap = new Map();

@@ -60,9 +60,6 @@ export interface StaffNote extends NoteInfo {
 export function splitStaffNote(staffNote: StaffNote, quarters: number): StaffNote {
   const remainLength = (staffNote.start + staffNote.length) - quarters;
   let splitted: StaffNote = null;
-  if (staffNote.start === 186.0 || quarters === 186.0 || staffNote.start === 186.25 || quarters === 186.25) {
-    console.log("Wrnng!");
-  }
   if (quarters > staffNote.start && remainLength > 0) {
     staffNote.length -= remainLength;
     splitted = {
@@ -402,38 +399,6 @@ export class StaffBlock {
   }
 
   /**
-   * Splits a block acording to the endings of each note from shorter to longer
-   * up to the given quarter, inserting the resulting blocks in the given map.
-   * Original block will hold remaining notes from given quarter or will remain
-   * empty if quarter same or grater length than longer note. Original block
-   * with remaining notes won't be inserted onto map.
-   * @param upToQuarter Quarter where splitting will stop
-   * @param ontoMap Map where splits will be inserted
-   */
-  public splitEndings( // TODO: Move from method to function!!!  *****
-    upToQuarter: number, 
-    ontoMap: StaffBlockMap, 
-    barsInfo: BarsInfo
-  ) {
-    while (this.notes.length && this.notes[0].start < upToQuarter) {
-      const splitQuarter = 
-        Math.min(upToQuarter, this.start + this.notes[0].length);
-      const splittedlock = this.split(splitQuarter, barsInfo);
-      if (splittedlock) {
-        splittedlock.mergeToMap(ontoMap);
-      }  
-    }
-  }
-  
-  /**
-   * Merges other StaffBlock into this one appending their content
-   * @param other StaffBlock to be merged
-   */
-  public mergeOnto(other: StaffBlock) {
-      this.notes.forEach(note => other.addNote(note));
-  }
-
-  /**
    * Sets a block into the block map or appends its content into an existing 
    * block
    * @param map Block map to hold blocks
@@ -441,7 +406,7 @@ export class StaffBlock {
   public mergeToMap(map: StaffBlockMap) {
     const existingBlock = map.get(this.start);
     if (existingBlock !== undefined) {
-      this.mergeOnto(existingBlock);
+      this.notes.forEach(note => existingBlock.addNote(note));
     }
     else {
       map.set(this.start, this);

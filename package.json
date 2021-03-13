@@ -1,6 +1,6 @@
 {
   "name": "staffrender",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Render music score using SVG on browsers.",
   "main": "node/index.js",
   "module": "es6/index.js",
@@ -35,7 +35,6 @@
     "build": "npm run build:clean && npm run build:es5 && npm run build:node && npm run build:es6",
     "lint": "tslint -c ./tslint.json -p ./tsconfig.es5.json -t verbose",
     "test": "ts-node node_modules/tape/bin/tape test/**/*_test.ts",
-    "test:insertion": "ts-node node_modules/tape/bin/tape test/note_insertion_test.ts",
     "docs:build": "typedoc --options typedoc.json && cp ./demo/src/*.ico ./docs",
     "docs:demo": "mkdir ./docs/demo && cp ./demo/src/*.html ./demo/src/*.css ./demo/src/*.js ./demo/src/*.ico ./docs/demo",
     "docs:serve": "http-server docs/",

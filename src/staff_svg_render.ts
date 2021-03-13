@@ -489,16 +489,14 @@ export class StaffSVGRender {
             x + width, i * this.vStepSize, this.scale, 1);
         }
         // Highlightable overall grouping placeholder
-/*        const _g = (note.tiedFrom) ? linkedNoteMap.get(note.tiedFrom).g : 
-          createSVGGroupChild(this.musicG, `${note.start}-${note.pitch}`);
-        if (staffBlock.isBarBeginning()) {
-          _g.setAttribute('data-is-bar-beginning', 'true');
-        }*/
         let linkedDetails: LinkedSVGDetails = null;
         if (note.tiedFrom) {
           linkedDetails = linkedNoteMap.get(note.tiedFrom);
           if (!linkedDetails) {
-            console.log('Wrong linkage');
+            console.warn(
+              '%cStaffRender:', 'background:orange; color:white', 
+              `Wrong linkage at q = ${note.start}`
+            ); // This shouldn't happen
           }
         }
         const _g = (linkedDetails) ? linkedDetails.g : 
@@ -507,7 +505,7 @@ export class StaffSVGRender {
           _g.setAttribute('data-is-bar-beginning', 'true');
         }
         // Preceding Tie
-        if (note.tiedFrom && linkedDetails) { // TODO: Big Debug!!!!!!!!!!
+        if (note.tiedFrom && linkedDetails) {
           const tieWidth =
             x + width - linkedNoteMap.get(note.tiedFrom).xHeadRight;
           drawSVGPath(
