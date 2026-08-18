@@ -1,5 +1,5 @@
 # staffrender
-A plain vanilla TypeScrip library to render music score in browsers
+A plain vanilla TypeScript library to render music score in browsers
 
 It has been created to support Tensorflow/Magenta-JS staff visualizer, but it could be used standalone.
 
